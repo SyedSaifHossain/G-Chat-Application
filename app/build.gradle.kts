@@ -6,7 +6,9 @@ plugins {
 android {
     namespace = "com.syedsaifhossain.g_chatapplication"
     compileSdk = 35
-
+buildFeatures{
+    viewBinding = true
+}
     defaultConfig {
         applicationId = "com.syedsaifhossain.g_chatapplication"
         minSdk = 24
@@ -42,6 +44,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
