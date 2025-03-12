@@ -9,10 +9,38 @@
         android:id="@+id/welcomeFragment"
         android:name="com.syedsaifhossain.g_chatapplication.WelcomeFragment"
         android:label="fragment_welcome"
-        tools:layout="@layout/fragment_welcome" />
+        tools:layout="@layout/fragment_welcome" >
+        <action
+            android:id="@+id/welcomeFragmentTosignUpFragment"
+            app:destination="@id/signUpFragment" />
+    </fragment>
     <fragment
         android:id="@+id/signUpFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignUpFragment"
         android:label="fragment_sign_up"
-        tools:layout="@layout/fragment_sign_up" />
+        tools:layout="@layout/fragment_sign_up" >
+
+        <action
+            android:id="@+id/signUpToSignupNext"
+            app:destination="@id/signupNextFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SignInFragment"
+        android:label="fragment_sign_in"
+        tools:layout="@layout/fragment_sign_in" >
+        <action
+            android:id="@+id/signInTohome"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signupNextFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SignupNextFragment"
+        android:label="fragment_signup_next"
+        tools:layout="@layout/fragment_signup_next" />
 </navigation>
