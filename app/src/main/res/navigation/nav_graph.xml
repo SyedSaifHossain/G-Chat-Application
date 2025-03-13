@@ -13,6 +13,9 @@
         <action
             android:id="@+id/welcomeFragmentTosignUpFragment"
             app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/welcomeFragmentToSignIn"
+            app:destination="@id/signInFragment" />
     </fragment>
     <fragment
         android:id="@+id/signUpFragment"
@@ -42,5 +45,9 @@
         android:id="@+id/signupNextFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignupNextFragment"
         android:label="fragment_signup_next"
-        tools:layout="@layout/fragment_signup_next" />
+        tools:layout="@layout/fragment_signup_next" >
+        <action
+            android:id="@+id/signupNextFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 </navigation>

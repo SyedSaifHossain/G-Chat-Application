@@ -20,6 +20,12 @@ class WelcomeFragment : Fragment() {
         binding.signUpButton.setOnClickListener{
             findNavController().navigate(R.id.welcomeFragmentTosignUpFragment)
         }
+
+
+        binding.signInButton.setOnClickListener{
+
+            findNavController().navigate(R.id.welcomeFragmentToSignIn)
+        }
         return binding.root
     }
 }
