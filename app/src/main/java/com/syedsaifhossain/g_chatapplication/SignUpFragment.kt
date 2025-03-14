@@ -1,5 +1,7 @@
 package com.syedsaifhossain.g_chatapplication
 
+import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Patterns
 import androidx.fragment.app.Fragment
@@ -8,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentSignUpBinding
@@ -28,21 +31,6 @@ class SignUpFragment : Fragment() {
             findNavController().navigate(R.id.signUpToSignupNext)
         }
 
-        // Set up the country spinner
-        val adapter = ArrayAdapter.createFromResource(
-            requireContext(), R.array.countries, android.R.layout.simple_spinner_item
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerCountry.adapter = adapter
-
-        binding.spinnerCountry.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parentView: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val selectedCountry = parentView.getItemAtPosition(position).toString()
-                updateCountryCode(selectedCountry)
-            }
-
-            override fun onNothingSelected(parentView: AdapterView<*>) {}
-        }
 
 
 
