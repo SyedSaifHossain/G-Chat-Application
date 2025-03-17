@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "176829990012",
+    "project_id": "g-chat-app-1e7b1",
+    "storage_bucket": "g-chat-app-1e7b1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:176829990012:android:c7aa6de732356bdd1f35f9",
+        "android_client_info": {
+          "package_name": "com.syedsaifhossain.g_chatapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6DNJmE0ck4h5AECCju9w-f0DQmLEYq1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
