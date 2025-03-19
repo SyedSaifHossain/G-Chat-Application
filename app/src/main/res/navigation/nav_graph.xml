@@ -38,8 +38,8 @@
         android:label="fragment_sign_in"
         tools:layout="@layout/fragment_sign_in" >
         <action
-            android:id="@+id/signInTohome"
-            app:destination="@id/homeFragment" />
+            android:id="@+id/signInFragment_to_signInNextFragment"
+            app:destination="@id/signInNextFragment" />
     </fragment>
     <fragment
         android:id="@+id/signupNextFragment"
@@ -50,4 +50,9 @@
             android:id="@+id/signupNextFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/signInNextFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SignInNextFragment"
+        android:label="fragment_sign_in_next"
+        tools:layout="@layout/fragment_sign_in_next" />
 </navigation>
