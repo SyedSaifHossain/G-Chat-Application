@@ -83,6 +83,7 @@ class SignInFragment : Fragment() {
         // Next Button Click Event
         binding.signInButton.setOnClickListener {
             val selectedCountry = binding.regionEdt.text.toString().trim()
+
             val phoneNumber = binding.phoneNumberEdt.text.toString().trim()
 
             if (!countryCodeMap.containsKey(selectedCountry)) {
@@ -94,11 +95,10 @@ class SignInFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please enter your phone number", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
             Toast.makeText(requireContext(), "Proceeding with phone: $phoneNumber", Toast.LENGTH_SHORT).show()
-
-            // Navigate to next fragment
-            findNavController().navigate(R.id.signInFragment_to_signInNextFragment)
+            val bundle = Bundle()
+            bundle.putString("phoneNumber", phoneNumber)
+            findNavController().navigate(R.id.signInNextFragment, bundle)
         }
     }
 

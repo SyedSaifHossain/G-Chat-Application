@@ -10,37 +10,35 @@ import androidx.navigation.fragment.findNavController
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentSignInNextBinding
 
 class SignInNextFragment : Fragment() {
-private lateinit var binding : FragmentSignInNextBinding
+    private lateinit var binding: FragmentSignInNextBinding
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentSignInNextBinding.inflate(inflater, container, false)
 
-        binding = FragmentSignInNextBinding.inflate(inflater,container,false)
+        // Get phone number from Bundle
+        val getPhoneNumber = arguments?.getString("phoneNumber")
+
+        // Set phone number if available
+        if (!getPhoneNumber.isNullOrEmpty()) {
+            binding.signInPagePhoneEdt.setText(getPhoneNumber)
+        }
 
         binding.signPageeLoginButton.setOnClickListener {
-
             val phoneNumber = binding.signInPagePhoneEdt.text.toString().trim()
-
             val password = binding.passwordEdtSignInNext.text.toString().trim()
+
             // Validate the inputs
             if (phoneNumber.isEmpty() || password.isEmpty()) {
                 Toast.makeText(
                     requireContext(),
-                    "Please provide the cridential",
+                    "Please provide the credentials",
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
-            } else if (phoneNumber.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter your name", Toast.LENGTH_SHORT)
-                    .show()
-                return@setOnClickListener
-            } else if (password.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter your password", Toast.LENGTH_SHORT)
-                    .show()
-                return@setOnClickListener
             }
-
 
             if (!isPasswordValid(password)) {
                 Toast.makeText(
@@ -49,29 +47,22 @@ private lateinit var binding : FragmentSignInNextBinding
                     Toast.LENGTH_LONG
                 ).show()
                 return@setOnClickListener
-            } else {
-                Toast.makeText(requireContext(), "Sign Up Successful!", Toast.LENGTH_SHORT).show()
-
-                // For now, just clear the fields
-                binding.signInPagePhoneEdt.text.clear()
-                binding.passwordEdtSignInNext.text.clear()
             }
-            findNavController().navigate(R.id.signInNextFragment_to_homeFragment)
 
+            Toast.makeText(requireContext(), "Sign Up Successful!", Toast.LENGTH_SHORT).show()
+
+            // Clear fields after sign-in
+            binding.signInPagePhoneEdt.text.clear()
+            binding.passwordEdtSignInNext.text.clear()
+
+            findNavController().navigate(R.id.signInNextFragment_to_homeFragment)
         }
+
         return binding.root
     }
 
     private fun isPasswordValid(password: String): Boolean {
-        // Check password length
-        if (password.length < 8) {
-            return false
-        }
-
-        val hasLetter = password.any { it.isLetter() }
-        val hasDigit = password.any { it.isDigit() }
-
-        return hasLetter && hasDigit
+        return password.length >= 8 && password.any {
+            it.isLetter() } && password.any { it.isDigit() }
     }
-
 }
