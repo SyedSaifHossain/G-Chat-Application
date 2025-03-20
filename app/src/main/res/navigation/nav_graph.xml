@@ -40,6 +40,9 @@
         <action
             android:id="@+id/signInFragment_to_signInNextFragment"
             app:destination="@id/signInNextFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_selectRegionFragment"
+            app:destination="@id/selectRegionFragment" />
     </fragment>
     <fragment
         android:id="@+id/signupNextFragment"
@@ -59,4 +62,9 @@
             android:id="@+id/signInNextFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/selectRegionFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SelectRegionFragment"
+        android:label="fragment_select_region"
+        tools:layout="@layout/fragment_select_region" />
 </navigation>
