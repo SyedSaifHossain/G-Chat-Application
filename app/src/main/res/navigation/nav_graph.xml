@@ -54,5 +54,9 @@
         android:id="@+id/signInNextFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignInNextFragment"
         android:label="fragment_sign_in_next"
-        tools:layout="@layout/fragment_sign_in_next" />
+        tools:layout="@layout/fragment_sign_in_next" >
+        <action
+            android:id="@+id/signInNextFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 </navigation>

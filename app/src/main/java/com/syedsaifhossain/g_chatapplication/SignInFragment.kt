@@ -2,6 +2,8 @@ package com.syedsaifhossain.g_chatapplication
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,20 +42,36 @@ class SignInFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Convert country names to list for dropdown
+        // Convert country names to a list for the dropdown
         val countryNames = countryCodeMap.keys.toList()
 
         // Create an ArrayAdapter for the dropdown
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, countryNames)
         binding.regionEdt.setAdapter(adapter)
 
-        // When user selects a country, set the phone number prefix
+        // When user selects a country from the dropdown, set the phone number prefix
         binding.regionEdt.setOnItemClickListener { _, _, position, _ ->
             val selectedCountry = countryNames[position]
             val countryCode = countryCodeMap[selectedCountry]
             binding.phoneNumberEdt.setText(countryCode)
         }
 
+        // Allow user to type country name and auto-fill the country code
+        binding.regionEdt.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val inputText = s.toString().trim()
+                if (countryCodeMap.containsKey(inputText)) {
+                    val countryCode = countryCodeMap[inputText]
+                    binding.phoneNumberEdt.setText(countryCode)
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Move focus to phoneNumberEdt when clicking arrowImg
         binding.arrowImg.setOnClickListener {
             binding.phoneNumberEdt.requestFocus()
 
