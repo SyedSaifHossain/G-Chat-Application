@@ -62,4 +62,6 @@ dependencies {
     implementation ("com.mikhaellopez:circularimageview:4.3.1")
     implementation ("androidx.core:core-ktx:1.12.0")
     implementation ("com.google.firebase:firebase-auth:22.0.0")
+    implementation ("com.googlecode.libphonenumber:libphonenumber:8.13.15")
+
 }
