@@ -2,12 +2,11 @@ package com.syedsaifhossain.g_chatapplication
 
 import android.content.Context
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -37,18 +36,35 @@ class SignInFragment : Fragment() {
             findNavController().navigate(R.id.action_signInFragment_to_selectRegionFragment)
         }
 
-        // Listen for selected country result
+        // Listen for selected country result from the SelectRegionFragment
         parentFragmentManager.setFragmentResultListener("regionSelection", viewLifecycleOwner) { _, bundle ->
             val selectedCountry = bundle.getString("selectedCountry", "")
             binding.regionEdt.setText(selectedCountry)
 
-            // Auto-fill country code
-            val countryCode = countryCodeMap[selectedCountry]
-            binding.phoneNumberEdt.setText(countryCode)
+            // Do not set country code automatically when country is selected
+            // This is the change compared to the previous logic
         }
 
-        // Move focus to phoneNumberEdt when clicking arrowImg
+        // 🔥 Click on arrowImg to insert country code into phoneNumberEdt with a space
         binding.arrowImg.setOnClickListener {
+            val selectedCountry = binding.regionEdt.text.toString().trim()
+
+            if (countryCodeMap.containsKey(selectedCountry)) {
+                val countryCode = countryCodeMap[selectedCountry]
+                val enteredPhoneNumber = binding.phoneNumberEdt.text.toString().trim()
+
+                // If phone number is empty, just set the country code with a space
+                if (enteredPhoneNumber.isEmpty()) {
+                    binding.phoneNumberEdt.setText("$countryCode ")
+                } else {
+                    // If phone number is entered, append it after the country code with a space
+                    binding.phoneNumberEdt.setText("$countryCode $enteredPhoneNumber")
+                }
+            } else {
+                Toast.makeText(requireContext(), "Please select a country first", Toast.LENGTH_SHORT).show()
+            }
+
+            // Move focus to phoneNumberEdt and open the keyboard
             binding.phoneNumberEdt.requestFocus()
             val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(binding.phoneNumberEdt, InputMethodManager.SHOW_IMPLICIT)
@@ -64,6 +80,7 @@ class SignInFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            // Check if the phone number is empty or just the country code (with space)
             if (phoneNumber.isEmpty() || phoneNumber == countryCodeMap[selectedCountry]) {
                 Toast.makeText(requireContext(), "Please enter your phone number", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -76,7 +93,7 @@ class SignInFragment : Fragment() {
         }
     }
 
-    // Load country list dynamically using libphonenumber
+    // 🔥 Load country list dynamically using libphonenumber
     private fun loadCountryList() {
         val phoneUtil = PhoneNumberUtil.getInstance()
         val countryList = phoneUtil.supportedRegions.map { regionCode ->
@@ -85,5 +102,9 @@ class SignInFragment : Fragment() {
             countryCodeMap[countryName] = countryCode // Store in map
             countryName
         }.sorted()
+
+        // **✅ Set adapter for regionEdt so users can see country name suggestions**
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, countryList)
+        binding.regionEdt.setAdapter(adapter)
     }
 }

@@ -26,6 +26,9 @@
         <action
             android:id="@+id/signUpToSignupNext"
             app:destination="@id/signupNextFragment" />
+        <action
+            android:id="@+id/action_signUpFragment_to_selectRegionFragment"
+            app:destination="@id/selectRegionFragment" />
     </fragment>
     <fragment
         android:id="@+id/homeFragment"

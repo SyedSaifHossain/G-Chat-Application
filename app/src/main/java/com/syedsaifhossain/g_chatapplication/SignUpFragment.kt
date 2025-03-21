@@ -2,16 +2,21 @@ package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
 import android.os.CountDownTimer
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AutoCompleteTextView
+import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.*
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentSignUpBinding
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber
+import com.google.i18n.phonenumbers.NumberParseException
 import java.util.concurrent.TimeUnit
 
 class SignUpFragment : Fragment() {
@@ -20,6 +25,12 @@ class SignUpFragment : Fragment() {
     private var verificationId: String? = null
     private var resendTimer: CountDownTimer? = null
     private var isTimerRunning = false
+    private val countryCodeMap: Map<String, String> = mapOf(
+        "Bangladesh" to "+880",
+        "India" to "+91",
+        "United States" to "+1",
+        // Add more countries and their respective codes
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,19 +52,51 @@ class SignUpFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
+        // Open SelectRegionFragment when regionEdt is clicked
+
+        binding.countryEdit.setOnClickListener {
+            findNavController().navigate(R.id.action_signUpFragment_to_selectRegionFragment)
+        }
+
+        // Listen for selected country result
+        parentFragmentManager.setFragmentResultListener("regionSelection", viewLifecycleOwner) { _, bundle ->
+            val selectedCountry = bundle.getString("selectedCountry", "")
+
+            binding.countryEdit.setText(selectedCountry)
+
+            // Auto-fill country code
+            val countryCode = countryCodeMap[selectedCountry]
+            binding.edtPhoneEmail.setText(countryCode)
+        }
+
         // Send code button
         binding.sendCode.setOnClickListener {
             val phoneNumber = binding.edtPhoneEmail.text.toString().trim()
+
+            // Validate phone number
             if (isValidPhoneNumber(phoneNumber)) {
                 if (!isTimerRunning) {
+                    // Disable the button to prevent multiple clicks
                     disableButtons(true)
+
+                    // Send the verification code
                     sendVerificationCode(phoneNumber)
-                    Toast.makeText(requireContext(), "Code has been sent", Toast.LENGTH_SHORT).show() // Show toast after sending the code
+
+                    // Show toast confirming that the code is being sent
+                    Toast.makeText(requireContext(), "Code has been sent", Toast.LENGTH_SHORT).show()
+
+                    // Start the resend timer
+                    startResendTimer()
+                } else {
+                    // If the timer is running, show a message indicating the user needs to wait
+                    Toast.makeText(requireContext(), "Please wait before resending the code", Toast.LENGTH_SHORT).show()
                 }
             } else {
+                // If the phone number is invalid, show a toast
                 Toast.makeText(requireContext(), "Please enter a valid phone number", Toast.LENGTH_SHORT).show()
             }
         }
+
 
         // Verify button
         binding.nextButton.setOnClickListener {
@@ -68,7 +111,14 @@ class SignUpFragment : Fragment() {
     }
 
     private fun isValidPhoneNumber(phone: String): Boolean {
-        return phone.length >= 10 && phone.all { it.isDigit() }
+        // Use libphonenumber to check the validity of the phone number
+        return try {
+            val phoneNumberUtil = PhoneNumberUtil.getInstance()
+            val number: PhoneNumber = phoneNumberUtil.parse(phone, "")
+            phoneNumberUtil.isValidNumber(number)
+        } catch (e: NumberParseException) {
+            false
+        }
     }
 
     private fun disableButtons(disable: Boolean) {
@@ -114,12 +164,15 @@ class SignUpFragment : Fragment() {
         when (exception) {
             is FirebaseAuthInvalidCredentialsException -> {
                 when (exception.errorCode) {
-                    "ERROR_INVALID_PHONE_NUMBER" ->
+                    "ERROR_INVALID_PHONE_NUMBER" -> {
                         Toast.makeText(requireContext(), "Invalid phone number format", Toast.LENGTH_SHORT).show()
-                    "ERROR_INVALID_VERIFICATION_CODE" ->
+                    }
+                    "ERROR_INVALID_VERIFICATION_CODE" -> {
                         Toast.makeText(requireContext(), "Invalid verification code", Toast.LENGTH_SHORT).show()
-                    else ->
+                    }
+                    else -> {
                         Toast.makeText(requireContext(), "Verification failed: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             is FirebaseTooManyRequestsException -> {
@@ -132,10 +185,18 @@ class SignUpFragment : Fragment() {
     }
 
     private fun sendVerificationCode(phoneNumber: String) {
-        val formattedNumber = if (!phoneNumber.startsWith("+880")) "+880$phoneNumber" else phoneNumber
+        // Use libphonenumber to parse and validate the phone number
+        val phoneNumberUtil = PhoneNumberUtil.getInstance()
+        val parsedNumber: PhoneNumber = phoneNumberUtil.parse(phoneNumber, "")
+
+        val countryCode = parsedNumber.countryCode
+        val regionCode = phoneNumberUtil.getRegionCodeForCountryCode(countryCode)
+
+        // Format the phone number to include the country code, e.g., +880 for Bangladesh
+        val formattedPhoneNumber = if (!phoneNumber.startsWith("+$countryCode")) "+$countryCode$phoneNumber" else phoneNumber
 
         val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(formattedNumber)
+            .setPhoneNumber(formattedPhoneNumber)
             .setTimeout(60L, TimeUnit.SECONDS)
             .setActivity(requireActivity())
             .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -185,4 +246,5 @@ class SignUpFragment : Fragment() {
         super.onDestroyView()
         resendTimer?.cancel()
     }
+
 }

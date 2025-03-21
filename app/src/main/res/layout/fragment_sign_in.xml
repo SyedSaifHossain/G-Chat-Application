@@ -21,31 +21,21 @@
         app:civ_shadow_radius="10dp" />
 
 
-    <TextView
-        android:id="@+id/signInRegionText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/goatLogo"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="30dp"
-        android:fontFamily="@font/poppins_regular"
-        android:text="Region"
-        android:textColor="#FFFFFF"
-        android:textSize="22sp" />
+
 
     <AutoCompleteTextView
         android:id="@+id/regionEdt"
-        android:layout_width="180dp"
+        android:layout_width="350dp"
         android:layout_height="56dp"
         android:layout_below="@id/goatLogo"
-        android:layout_toEndOf="@+id/signInRegionText"
+        android:layout_toEndOf="@+id/goatLogo"
         android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"
-        android:hint="Select Country"
+        android:layout_marginStart="30dp"
+        android:layout_alignParentStart="true"
+        android:hint="Region"
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF"
-        android:paddingStart="10dp"
+        android:paddingStart="15dp"
         android:textSize="22dp"
         android:focusable="true"
         android:focusableInTouchMode="true"
@@ -56,8 +46,10 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_below="@id/goatLogo"
-        android:layout_marginTop="30dp"
-        android:layout_toEndOf="@+id/regionEdt"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="-44dp"
+        android:layout_marginTop="29dp"
+        android:layout_marginEnd="38dp"
         android:src="@drawable/arrowright" />
 
     <EditText
@@ -72,9 +64,11 @@
         android:hint="Phone Number"
         android:textColorHint="#FFFFFF"
         android:textColor="#FFFFFF"
-        android:paddingLeft="15dp"
-        android:textSize="22dp"
-        android:alpha="0.7"/>
+        android:paddingStart="15dp"
+        android:textSize="22sp"
+        android:alpha="0.7"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
 
 
     <TextView
