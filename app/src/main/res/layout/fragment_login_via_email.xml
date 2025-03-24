@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".LoginViaEmailFragment"
+    android:background="#000000">
+
+   <TextView
+       android:id="@+id/LoginViaEmailTxt"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentTop="true"
+       android:textColor="#FFFFFF"
+       android:textSize="28sp"
+       android:layout_centerHorizontal="true"
+       android:layout_marginTop="50dp"
+       android:textStyle="bold"
+       android:text="Login Via Email"
+       android:fontFamily="@font/poppins_regular"/>
+
+    <EditText
+        android:id="@+id/emailInputEdt"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:inputType="textEmailAddress"
+        android:layout_below="@+id/LoginViaEmailTxt"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="30dp"
+        android:drawableTint="#FFFFFF"
+        android:hint="Enter email account"
+        android:paddingLeft="20dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        android:textSize="22sp"
+        android:fontFamily="@font/poppins_regular"
+        android:alpha="0.7"/>
+
+
+    <EditText
+        android:id="@+id/passwordInputEdt"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:inputType="textPassword"
+        android:layout_below="@+id/emailInputEdt"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="15dp"
+        android:hint="Enter password"
+        android:drawableEnd="@drawable/helpicon"
+        android:paddingLeft="20dp"
+        android:textColor="#FFFFFF"
+        android:fontFamily="@font/poppins_regular"
+        android:textColorHint="#FFFFFF"
+        android:drawableTint="#FFFFFF"
+        android:textSize="22sp"
+        android:alpha="0.7"/>
+
+
+    <TextView
+        android:id="@+id/LoginViaMobile"
+        android:layout_below="@+id/passwordInputEdt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:layout_alignStart="@id/passwordInputEdt"
+        android:layout_marginTop="50dp"
+        android:textStyle="bold"
+        android:layout_marginLeft="20dp"
+        android:text="Login via mobile number"
+        android:fontFamily="@font/poppins_regular"/>
+
+    <Button
+        android:id="@+id/completeButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="30dp"
+        android:backgroundTint="#DCD7D7"
+        android:padding="15dp"
+        android:text="Login"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="24dp"
+        android:textStyle="bold"
+        app:cornerRadius="15dp"
+        android:fontFamily="@font/poppins_regular"
+        android:layout_marginBottom="30dp"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

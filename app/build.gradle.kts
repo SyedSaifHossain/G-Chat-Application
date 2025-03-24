@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation(libs.androidx.ui.text.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -63,5 +64,6 @@ dependencies {
     implementation ("androidx.core:core-ktx:1.12.0")
     implementation ("com.google.firebase:firebase-auth:22.0.0")
     implementation ("com.googlecode.libphonenumber:libphonenumber:8.13.15")
-
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation("com.google.firebase:firebase-auth")
 }

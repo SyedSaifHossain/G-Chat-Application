@@ -19,11 +19,11 @@ class SignInNextFragment : Fragment() {
         binding = FragmentSignInNextBinding.inflate(inflater, container, false)
 
         // Get phone number from Bundle
-        val getPhoneNumber = arguments?.getString("phoneNumber")
+        val fullPhoneNumber = arguments?.getString("fullPhoneNumber")
 
         // Set phone number if available
-        if (!getPhoneNumber.isNullOrEmpty()) {
-            binding.signInPagePhoneEdt.setText(getPhoneNumber)
+        if (!fullPhoneNumber.isNullOrEmpty()) {
+            binding.signInPagePhoneEdt.setText(fullPhoneNumber)
         }
 
         binding.signPageeLoginButton.setOnClickListener {
@@ -56,6 +56,10 @@ class SignInNextFragment : Fragment() {
             binding.passwordEdtSignInNext.text.clear()
 
             findNavController().navigate(R.id.signInNextFragment_to_homeFragment)
+        }
+
+        binding.smsVerifyCodeTxt.setOnClickListener{
+            findNavController().navigate(R.id.action_signInNextFragment_to_loginViaPhoneFragment)
         }
 
         return binding.root

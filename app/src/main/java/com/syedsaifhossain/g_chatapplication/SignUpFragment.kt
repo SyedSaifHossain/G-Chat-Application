@@ -5,14 +5,17 @@ import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AutoCompleteTextView
-import android.widget.EditText
 import android.widget.Toast
+import androidx.compose.ui.text.intl.Locale
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
-import com.google.firebase.auth.*
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentSignUpBinding
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber
@@ -25,12 +28,6 @@ class SignUpFragment : Fragment() {
     private var verificationId: String? = null
     private var resendTimer: CountDownTimer? = null
     private var isTimerRunning = false
-    private val countryCodeMap: Map<String, String> = mapOf(
-        "Bangladesh" to "+880",
-        "India" to "+91",
-        "United States" to "+1",
-        // Add more countries and their respective codes
-    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,8 +49,7 @@ class SignUpFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // Open SelectRegionFragment when regionEdt is clicked
-
+        // Open SelectRegionFragment when countryEdit is clicked
         binding.countryEdit.setOnClickListener {
             findNavController().navigate(R.id.action_signUpFragment_to_selectRegionFragment)
         }
@@ -61,11 +57,10 @@ class SignUpFragment : Fragment() {
         // Listen for selected country result
         parentFragmentManager.setFragmentResultListener("regionSelection", viewLifecycleOwner) { _, bundle ->
             val selectedCountry = bundle.getString("selectedCountry", "")
-
             binding.countryEdit.setText(selectedCountry)
 
-            // Auto-fill country code
-            val countryCode = countryCodeMap[selectedCountry]
+            // Fetch and set the country code dynamically using libphonenumber
+            val countryCode = getCountryCode(selectedCountry)
             binding.edtPhoneEmail.setText(countryCode)
         }
 
@@ -96,7 +91,6 @@ class SignUpFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please enter a valid phone number", Toast.LENGTH_SHORT).show()
             }
         }
-
 
         // Verify button
         binding.nextButton.setOnClickListener {
@@ -142,16 +136,6 @@ class SignUpFragment : Fragment() {
                 isTimerRunning = false
                 binding.sendCode.isEnabled = true
                 binding.sendCode.text = "Resend the code"
-
-                // Add animation effect to notify user
-                binding.sendCode.alpha = 0.7f
-                binding.sendCode.animate()
-                    .alpha(1f)
-                    .setDuration(300)
-                    .withEndAction {
-                        binding.sendCode.alpha = 1f
-                    }
-                    .start()
             }
         }.start()
     }
@@ -163,17 +147,7 @@ class SignUpFragment : Fragment() {
 
         when (exception) {
             is FirebaseAuthInvalidCredentialsException -> {
-                when (exception.errorCode) {
-                    "ERROR_INVALID_PHONE_NUMBER" -> {
-                        Toast.makeText(requireContext(), "Invalid phone number format", Toast.LENGTH_SHORT).show()
-                    }
-                    "ERROR_INVALID_VERIFICATION_CODE" -> {
-                        Toast.makeText(requireContext(), "Invalid verification code", Toast.LENGTH_SHORT).show()
-                    }
-                    else -> {
-                        Toast.makeText(requireContext(), "Verification failed: ${exception.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                Toast.makeText(requireContext(), "Invalid credentials. Please try again", Toast.LENGTH_SHORT).show()
             }
             is FirebaseTooManyRequestsException -> {
                 Toast.makeText(requireContext(), "Too many requests. Please try again later", Toast.LENGTH_SHORT).show()
@@ -192,7 +166,7 @@ class SignUpFragment : Fragment() {
         val countryCode = parsedNumber.countryCode
         val regionCode = phoneNumberUtil.getRegionCodeForCountryCode(countryCode)
 
-        // Format the phone number to include the country code, e.g., +880 for Bangladesh
+        // Format the phone number to include the country code
         val formattedPhoneNumber = if (!phoneNumber.startsWith("+$countryCode")) "+$countryCode$phoneNumber" else phoneNumber
 
         val options = PhoneAuthOptions.newBuilder(auth)
@@ -240,6 +214,18 @@ class SignUpFragment : Fragment() {
                     task.exception?.let { handleError(it) }
                 }
             }
+    }
+
+    private fun getCountryCode(countryName: String): String {
+        // Use libphonenumber to fetch the country code dynamically
+        val phoneNumberUtil = PhoneNumberUtil.getInstance()
+        val regionCode = java.util.Locale("", countryName).country
+        return try {
+            val countryCode = phoneNumberUtil.getCountryCodeForRegion(regionCode)
+            "+$countryCode"
+        } catch (e: Exception) {
+            "+1" // Default country code if region is invalid or not found
+        }
     }
 
     override fun onDestroyView() {

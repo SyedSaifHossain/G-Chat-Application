@@ -46,6 +46,9 @@
         <action
             android:id="@+id/action_signInFragment_to_selectRegionFragment"
             app:destination="@id/selectRegionFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_loginViaEmailFragment"
+            app:destination="@id/loginViaEmailFragment" />
     </fragment>
     <fragment
         android:id="@+id/signupNextFragment"
@@ -64,10 +67,31 @@
         <action
             android:id="@+id/signInNextFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_signInNextFragment_to_loginViaPhoneFragment"
+            app:destination="@id/loginViaPhoneFragment" />
     </fragment>
     <fragment
         android:id="@+id/selectRegionFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SelectRegionFragment"
         android:label="fragment_select_region"
         tools:layout="@layout/fragment_select_region" />
+    <fragment
+        android:id="@+id/loginViaEmailFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.LoginViaEmailFragment"
+        android:label="fragment_login_via_email"
+        tools:layout="@layout/fragment_login_via_email" >
+        <action
+            android:id="@+id/action_loginViaEmailFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginViaPhoneFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.LoginViaPhoneFragment"
+        android:label="fragment_login_via_phone"
+        tools:layout="@layout/fragment_login_via_phone" >
+        <action
+            android:id="@+id/action_loginViaPhoneFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 </navigation>
