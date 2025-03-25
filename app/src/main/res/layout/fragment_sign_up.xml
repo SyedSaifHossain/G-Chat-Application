@@ -22,11 +22,10 @@
         android:textStyle="bold"
         android:fontFamily="@font/poppins_regular" />
 
-
     <AutoCompleteTextView
         android:id="@+id/countryEdit"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/CreateAccountText"
         android:layout_marginHorizontal="20dp"
         android:layout_alignParentStart="true"
@@ -34,39 +33,49 @@
         android:layout_marginTop="50dp"
         android:hint="Country/Region"
         android:paddingLeft="20dp"
+        android:paddingVertical="20dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF"
         android:fontFamily="@font/poppins_regular"
         android:textSize="22sp"
         android:alpha="0.7"/>
 
+    <ImageView
+        android:id="@+id/arrowImg"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@id/CreateAccountText"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="13dp"
+        android:src="@drawable/arrowback" />
 
     <Button
         android:id="@+id/sendCode"
-        android:layout_below="@+id/countryEdit"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="15dp"
+        android:layout_below="@+id/countryEdit"
+        android:layout_alignEnd="@+id/countryEdit"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="1dp"
         android:layout_marginRight="7dp"
+        android:fontFamily="@font/poppins_regular"
         android:padding="5dp"
-        android:text="Send the code"
+        android:text="Send Code"
+        android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:textAllCaps="false"
-        app:strokeWidth="2dp"
-        app:strokeColor="#FFFFFF"
-        android:fontFamily="@font/poppins_regular"
         app:cornerRadius="5dp"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-
+        app:strokeColor="#FFFFFF"
+        app:strokeWidth="2dp" />
 
     <EditText
-
         android:id="@+id/edtPhoneEmail"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:inputType="phone"
         android:layout_below="@+id/countryEdit"
         android:layout_alignParentStart="true"
@@ -76,17 +85,17 @@
         android:drawableTint="#FFFFFF"
         android:hint="Phone/Email"
         android:paddingLeft="20dp"
+        android:paddingVertical="20dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF"
         android:fontFamily="@font/poppins_regular"
         android:textSize="22sp"
         android:alpha="0.7"/>
 
-
     <EditText
         android:id="@+id/verificationEdt"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:inputType="number"
         android:layout_below="@+id/edtPhoneEmail"
         android:layout_alignParentStart="true"
@@ -95,6 +104,7 @@
         android:layout_marginTop="15dp"
         android:hint="Verification Code"
         android:paddingLeft="20dp"
+        android:paddingVertical="20dp"
         android:textColor="#FFFFFF"
         android:fontFamily="@font/poppins_regular"
         android:textColorHint="#FFFFFF"
@@ -102,25 +112,21 @@
         android:textSize="22sp"
         android:alpha="0.7"/>
 
-    <Button
+    <TextView
         android:id="@+id/resendCodeButton"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:layout_below="@+id/sendCode"
-        android:layout_alignParentEnd="true"
+        android:layout_alignStart="@+id/verificationEdt"
+        android:layout_below="@+id/verificationEdt"
         android:layout_marginTop="30dp"
-        android:layout_marginRight="7dp"
-        android:padding="5dp"
         android:fontFamily="@font/poppins_regular"
+        android:padding="5dp"
         android:text="Resend Code"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:cornerRadius="5dp"
-        app:strokeColor="#FFFFFF"
-        app:strokeWidth="2dp" />
+        android:layout_marginStart="20dp"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
 
     <Button
         android:id="@+id/nextButton"
