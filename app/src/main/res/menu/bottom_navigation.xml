@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
         android:id="@+id/navigation_chat"
-        android:icon="@drawable/addprofile"
-        android:title="Home" />
+        android:icon="@drawable/chaticon"
+        android:title="Chats" />
+
     <item
         android:id="@+id/navigation_contact"
-        android:icon="@drawable/addprofile"
-        android:title="Search" />
+        android:icon="@drawable/contactsicon"
+        android:title="Contacts" />
+
     <item
         android:id="@+id/navigation_discover"
-        android:icon="@drawable/addprofile"
-        android:title="Profile" />
+        android:icon="@drawable/discovericon"
+        android:title="Discover" />
     <item
         android:id="@+id/navigation_me"
-        android:icon="@drawable/addprofile"
-        android:title="Profile" />
+        android:icon="@drawable/meicon"
+        android:title="Me" />
+
 </menu>

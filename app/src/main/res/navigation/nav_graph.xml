@@ -94,4 +94,24 @@
             android:id="@+id/action_loginViaPhoneFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/chatFragment5"
+        android:name="com.syedsaifhossain.g_chatapplication.ChatFragment"
+        android:label="fragment_chat"
+        tools:layout="@layout/fragment_chat" />
+    <fragment
+        android:id="@+id/meFragment3"
+        android:name="com.syedsaifhossain.g_chatapplication.MeFragment"
+        android:label="fragment_me"
+        tools:layout="@layout/fragment_me" />
+    <fragment
+        android:id="@+id/contactFragment3"
+        android:name="com.syedsaifhossain.g_chatapplication.ContactFragment"
+        android:label="fragment_contact"
+        tools:layout="@layout/fragment_contact" />
+    <fragment
+        android:id="@+id/discoverFragment3"
+        android:name="com.syedsaifhossain.g_chatapplication.DiscoverFragment"
+        android:label="fragment_discover"
+        tools:layout="@layout/fragment_discover" />
 </navigation>
