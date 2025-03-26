@@ -13,7 +13,7 @@ class ChatFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var chatAdapter: ChatAdapter
-    private lateinit var messageList: List<Chats> // or ArrayList
+    private lateinit var messageList: ArrayList<Chats> // Change to ArrayList
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,8 +26,8 @@ class ChatFragment : Fragment() {
         recyclerView = binding.chatRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(context) // Vertical List
 
-        // Example data (you can replace it with dynamic data)
-        messageList = listOf(
+        // Example data (You can replace it with dynamic data)
+        messageList = arrayListOf(
             Chats(R.drawable.profile,"Aaron Loed", "Hi"),
             Chats(R.drawable.profile,"Aaron Loed", "How are you"),
             Chats(R.drawable.profile,"Aaron Loed", "I am fine"),
@@ -51,8 +51,7 @@ class ChatFragment : Fragment() {
             Chats(R.drawable.profile,"Aaron Loed", "I am fine"),
             Chats(R.drawable.profile,"Aaron Loed", "Hi"),
             Chats(R.drawable.profile,"Aaron Loed", "How are you"),
-            Chats(R.drawable.profile,"Aaron Loed", "I am fine"),
-
+            Chats(R.drawable.profile,"Aaron Loed", "I am fine")
         )
 
         // Set adapter

@@ -3,21 +3,21 @@
 
     <item
         android:id="@+id/navigation_chat"
-        android:icon="@drawable/chaticon"
+        android:icon="@drawable/chaticonnew"
         android:title="Chats" />
 
     <item
         android:id="@+id/navigation_contact"
-        android:icon="@drawable/contactsicon"
+        android:icon="@drawable/contacticonnew"
         android:title="Contacts" />
 
     <item
         android:id="@+id/navigation_discover"
-        android:icon="@drawable/discovericon"
+        android:icon="@drawable/discovericonnew"
         android:title="Discover" />
     <item
         android:id="@+id/navigation_me"
-        android:icon="@drawable/meicon"
+        android:icon="@drawable/meiconnew"
         android:title="Me" />
 
 </menu>

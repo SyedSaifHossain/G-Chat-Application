@@ -1,37 +1,36 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.syedsaifhossain.g_chatapplication.databinding.ChatItemListBinding // Correct ViewBinding import
 
-class ChatAdapter(private val messageList: List<Chats>) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
+class ChatAdapter(private val messageList: ArrayList<Chats>) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
-    inner class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val chatsImage: ImageView = itemView.findViewById(R.id.chatsImg)
-        val chatName: TextView = itemView.findViewById(R.id.nameId)
-        val chatText: TextView = itemView.findViewById(R.id.messageId)
+    // ViewHolder to bind each chat item view using ViewBinding
+    inner class ChatViewHolder(private val binding: ChatItemListBinding) : RecyclerView.ViewHolder(binding.root) {
 
+        // You can now access your views via the 'binding' object directly
+        fun bind(chat: Chats) {
+            binding.chatsImg.setImageResource(chat.imageRes)
+            binding.nameId.text = chat.name
+            binding.messageId.text = chat.message
+        }
     }
 
+    // Create and return the view holder for each item
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.chat_item_list, parent, false)
-        return ChatViewHolder(itemView)
+        val binding = ChatItemListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ChatViewHolder(binding)
     }
 
+    // Bind the data for each item to the view holder
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val message = messageList[position]
-
-
-
-        holder.chatsImage.setImageResource(message.imageRes)
-        holder.chatName.text = message.name
-        holder.chatText.text = message.message
-
+        holder.bind(message) // Bind data using the bind method
     }
 
+    // Return the total number of items
     override fun getItemCount(): Int {
         return messageList.size
     }

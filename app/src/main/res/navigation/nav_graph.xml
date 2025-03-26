@@ -34,7 +34,17 @@
         android:id="@+id/homeFragment"
         android:name="com.syedsaifhossain.g_chatapplication.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_newChatsFragment"
+            app:destination="@id/newChatsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_addContactsFragment"
+            app:destination="@id/addContactsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_scanFragment"
+            app:destination="@id/scanFragment" />
+    </fragment>
     <fragment
         android:id="@+id/signInFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignInFragment"
@@ -114,4 +124,19 @@
         android:name="com.syedsaifhossain.g_chatapplication.DiscoverFragment"
         android:label="fragment_discover"
         tools:layout="@layout/fragment_discover" />
+    <fragment
+        android:id="@+id/newChatsFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.NewChatsFragment"
+        android:label="fragment_new_chats"
+        tools:layout="@layout/fragment_new_chats" />
+    <fragment
+        android:id="@+id/addContactsFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.AddContactsFragment"
+        android:label="fragment_add_contacts"
+        tools:layout="@layout/fragment_add_contacts" />
+    <fragment
+        android:id="@+id/scanFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.ScanFragment"
+        android:label="fragment_scan"
+        tools:layout="@layout/fragment_scan" />
 </navigation>
