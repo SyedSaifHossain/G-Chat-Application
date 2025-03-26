@@ -1,14 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
     tools:context=".NewChatsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <RelativeLayout
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@android:color/white"
+        android:padding="8dp"
+
+        android:layout_marginTop="40dp">
+
+        <TextView
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textSize="16sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Friends"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:id="@+id/done_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Done"
+            android:textSize="16sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+
+    <!-- Search Bar -->
+    <EditText
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="Search"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:gravity="center_vertical"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:backgroundTint="@android:color/darker_gray"
+        android:layout_below="@id/top_bar"
+        android:layout_margin="8dp"/>
+
+    <!-- Group Selection -->
     <TextView
+        android:id="@+id/select_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select a Group"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        android:padding="12dp"
+        android:layout_below="@id/search_bar"/>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@id/select_group"/>
+
+    <!-- List of Friends -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/friends_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_below="@id/divider"
+        android:padding="8dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:scrollbars="vertical"/>
 
-</FrameLayout>
+
+</RelativeLayout>
