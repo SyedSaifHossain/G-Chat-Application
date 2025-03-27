@@ -1,12 +1,14 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.fragment.findNavController
@@ -67,6 +69,7 @@ class HomeFragment : Fragment() {
     }
 
     // Method to show PopupMenu
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun showPopupMenu(view: View) {
         val popupMenu = PopupMenu(requireContext(), view)
 
@@ -74,9 +77,7 @@ class HomeFragment : Fragment() {
         popupMenu.inflate(R.menu.popup_menu)
 
         // Force icons to show (for API 26 and above)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            popupMenu.setForceShowIcon(true)
-        }
+        popupMenu.setForceShowIcon(true)
 
         // Set a listener for the menu item clicks
         popupMenu.setOnMenuItemClickListener { menuItem ->

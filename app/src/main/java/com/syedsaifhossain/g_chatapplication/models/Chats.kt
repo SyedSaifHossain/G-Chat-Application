@@ -1,4 +1,4 @@
-package com.syedsaifhossain.g_chatapplication
+package com.syedsaifhossain.g_chatapplication.models
 
 data class Chats(
     val imageRes: Int,

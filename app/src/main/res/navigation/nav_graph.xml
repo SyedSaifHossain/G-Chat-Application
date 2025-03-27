@@ -128,7 +128,11 @@
         android:id="@+id/newChatsFragment"
         android:name="com.syedsaifhossain.g_chatapplication.NewChatsFragment"
         android:label="fragment_new_chats"
-        tools:layout="@layout/fragment_new_chats" />
+        tools:layout="@layout/fragment_new_chats" >
+        <action
+            android:id="@+id/action_newChatsFragment_to_selectGroupFragment"
+            app:destination="@id/selectGroupFragment" />
+    </fragment>
     <fragment
         android:id="@+id/addContactsFragment"
         android:name="com.syedsaifhossain.g_chatapplication.AddContactsFragment"
@@ -139,4 +143,9 @@
         android:name="com.syedsaifhossain.g_chatapplication.ScanFragment"
         android:label="fragment_scan"
         tools:layout="@layout/fragment_scan" />
+    <fragment
+        android:id="@+id/selectGroupFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SelectGroupFragment"
+        android:label="fragment_select_group"
+        tools:layout="@layout/fragment_select_group" />
 </navigation>

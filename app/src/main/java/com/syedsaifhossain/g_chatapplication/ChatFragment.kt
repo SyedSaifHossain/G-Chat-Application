@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.syedsaifhossain.g_chatapplication.adapter.ChatAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatBinding
+import com.syedsaifhossain.g_chatapplication.models.Chats
 
 class ChatFragment : Fragment() {
 

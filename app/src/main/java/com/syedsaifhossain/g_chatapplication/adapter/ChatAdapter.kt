@@ -1,9 +1,10 @@
-package com.syedsaifhossain.g_chatapplication
+package com.syedsaifhossain.g_chatapplication.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.databinding.ChatItemListBinding // Correct ViewBinding import
+import com.syedsaifhossain.g_chatapplication.models.Chats
 
 class ChatAdapter(private val messageList: ArrayList<Chats>) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
