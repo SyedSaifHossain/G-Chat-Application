@@ -1,59 +1,43 @@
-package com.syedsaifhossain.g_chatapplication
+package com.syedsaifhossain.g_chatapplication.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.syedsaifhossain.g_chatapplication.R
+import com.syedsaifhossain.g_chatapplication.adapter.GroupAdapter
+import com.syedsaifhossain.g_chatapplication.databinding.FragmentSelectGroupBinding
+import com.syedsaifhossain.g_chatapplication.models.GroupItem
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SelectGroupFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SelectGroupFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private lateinit var binding: FragmentSelectGroupBinding
+    private lateinit var groupAdapter: GroupAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    // Sample data for GroupItem
+    private val groupList = listOf(
+        GroupItem(selectImg = R.drawable.cityimg, title = "Group 1", description = "Description for group 1"),
+        GroupItem(selectImg = R.drawable.cityimg, title = "Group 2", description = "Description for group 2"),
+        GroupItem(selectImg = R.drawable.cityimg, title = "Group 3", description = "Description for group 3")
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_select_group, container, false)
+        // Inflate the layout for the fragment using ViewBinding
+        binding = FragmentSelectGroupBinding.inflate(inflater, container, false)
+
+        // Set up RecyclerView with GroupAdapter
+        groupAdapter = GroupAdapter(groupList)
+
+        binding.selectGroupRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context) // Use LinearLayoutManager for vertical scrolling
+            adapter = groupAdapter
+        }
+
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SelectGroupFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SelectGroupFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
 }

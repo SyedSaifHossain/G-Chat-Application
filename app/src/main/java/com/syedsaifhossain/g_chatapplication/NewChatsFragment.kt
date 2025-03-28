@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.syedsaifhossain.g_chatapplication.adapter.NewChatAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentNewChatsBinding
@@ -34,6 +35,11 @@ class NewChatsFragment : Fragment() {
         binding.friendsList.layoutManager = LinearLayoutManager(requireContext())
         binding.friendsList.adapter = adapter
 
+        binding.selectGroup.setOnClickListener{
+            findNavController().navigate(R.id.action_newChatsFragment_to_selectGroupFragment)
+        }
+
         return binding.root
     }
+
 }

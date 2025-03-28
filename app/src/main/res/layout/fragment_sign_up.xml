@@ -9,16 +9,24 @@
     android:orientation="vertical"
     android:background="#000000">
 
+    <ImageView
+        android:id="@+id/signupImg"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/gchatsplashscreen"/>
+
     <TextView
         android:id="@+id/CreateAccountText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="50dp"
+        android:layout_below="@+id/signupImg"
         android:layout_centerHorizontal="true"
         android:text="Create Account"
-        android:textColor="#FFFFFF"
-        android:textSize="32sp"
+        android:textColor="#555C5C"
+        android:textSize="28sp"
         android:textStyle="bold"
         android:fontFamily="@font/poppins_regular" />
 

@@ -86,14 +86,15 @@
 
     <TextView
         android:id="@+id/select_group"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/search_bar"
         android:padding="12dp"
         android:text="Select a Group"
         android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:textColor="#312D2D"
-        android:textSize="18sp" />
+        android:textSize="18sp"/>
 
     <ImageView
         android:id="@+id/newChatsRightArrow"
