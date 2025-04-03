@@ -165,7 +165,11 @@
         android:id="@+id/selectGroupFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SelectGroupFragment"
         android:label="fragment_select_group"
-        tools:layout="@layout/fragment_select_group" />
+        tools:layout="@layout/fragment_select_group" >
+        <action
+            android:id="@+id/action_selectGroupFragment_to_groupChatFragment"
+            app:destination="@id/groupChatFragment" />
+    </fragment>
     <fragment
         android:id="@+id/groupChatFragment"
         android:name="com.syedsaifhossain.g_chatapplication.GroupChatFragment"

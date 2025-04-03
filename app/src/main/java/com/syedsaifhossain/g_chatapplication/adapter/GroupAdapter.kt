@@ -6,7 +6,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.databinding.SelectgroupListItemBinding
 import com.syedsaifhossain.g_chatapplication.models.GroupItem
 
-class GroupAdapter(private val groupList: List<GroupItem>) : RecyclerView.Adapter<GroupAdapter.GroupViewHolder>() {
+class GroupAdapter(private val groupList: ArrayList<GroupItem>, private val itemClickListener: OnItemClickListener) : RecyclerView.Adapter<GroupAdapter.GroupViewHolder>() {
+
+    // Interface to handle click events
+    interface OnItemClickListener {
+        fun onGroupItemClick(groupItem: GroupItem)
+    }
 
     inner class GroupViewHolder(private val binding: SelectgroupListItemBinding) : RecyclerView.ViewHolder(binding.root) {
         // Bind the data to the views
@@ -17,6 +22,12 @@ class GroupAdapter(private val groupList: List<GroupItem>) : RecyclerView.Adapte
             // Set title and description text for TextViews
             binding.selectgroupTitle.text = groupItem.title
             binding.selectgroupDescreption.text = groupItem.description
+
+            // Set click listener on the root view
+            binding.root.setOnClickListener {
+                // Notify the listener when an item is clicked
+                itemClickListener.onGroupItemClick(groupItem)
+            }
         }
     }
 
@@ -35,5 +46,24 @@ class GroupAdapter(private val groupList: List<GroupItem>) : RecyclerView.Adapte
     // Return the size of the dataset
     override fun getItemCount(): Int {
         return groupList.size
+    }
+
+    // Optional: You can add methods to update or modify the list if needed
+    fun updateList(newGroupList: ArrayList<GroupItem>) {
+        groupList.clear()
+        groupList.addAll(newGroupList)
+        notifyDataSetChanged()
+    }
+
+    fun addGroup(groupItem: GroupItem) {
+        groupList.add(groupItem)
+        notifyItemInserted(groupList.size - 1)
+    }
+
+    fun removeGroup(position: Int) {
+        if (position >= 0 && position < groupList.size) {
+            groupList.removeAt(position)
+            notifyItemRemoved(position)
+        }
     }
 }
