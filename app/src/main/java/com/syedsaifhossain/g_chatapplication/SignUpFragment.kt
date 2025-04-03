@@ -209,7 +209,8 @@ class SignUpFragment : Fragment() {
                 disableButtons(false)
                 if (task.isSuccessful) {
                     Toast.makeText(requireContext(), "Authentication successful!", Toast.LENGTH_SHORT).show()
-                    findNavController().navigate(R.id.signUpToSignupNext)
+
+                    findNavController().navigate(R.id.action_signUpFragment_to_signupPageVerificationFragment)
                 } else {
                     task.exception?.let { handleError(it) }
                 }

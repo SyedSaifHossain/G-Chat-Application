@@ -16,12 +16,9 @@ class NewChatAdapter(private val chatList: ArrayList<NewChatItem>) : RecyclerVie
             binding.friendName.text = chatItem.name
             binding.newChatsImg.setImageResource(chatItem.avatarResId)
 
-            // Set the RadioButton checked state
-            binding.newChatRadioButton.isChecked = chatItem.isSelected
+            binding.newChatCheckbox.isChecked = chatItem.isSelected
 
-            // Set a listener to update the isChecked state when the RadioButton is clicked
-            binding.newChatRadioButton.setOnCheckedChangeListener { _, isChecked ->
-                // Update the data when the RadioButton is toggled
+            binding.newChatCheckbox.setOnCheckedChangeListener { _, isChecked ->
                 chatItem.isSelected = isChecked
             }
         }

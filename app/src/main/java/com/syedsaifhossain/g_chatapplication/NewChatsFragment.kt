@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.syedsaifhossain.g_chatapplication.adapter.NewChatAdapter
@@ -14,20 +15,16 @@ import com.syedsaifhossain.g_chatapplication.models.NewChatItem
 class NewChatsFragment : Fragment() {
 
     private lateinit var binding: FragmentNewChatsBinding
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentNewChatsBinding.inflate(inflater, container, false)
-
         // Prepare some dummy data for the adapter
         val chatList = ArrayList<NewChatItem>().apply {
 
             add(NewChatItem("Friend 1", R.drawable.cityimg))  // Assuming you have avatar images
-            add(NewChatItem("Friend 2", R.drawable.cityimg))
-            add(NewChatItem("Friend 3", R.drawable.cityimg))
         }
 
         // Set up the RecyclerView
@@ -35,10 +32,9 @@ class NewChatsFragment : Fragment() {
         binding.friendsList.layoutManager = LinearLayoutManager(requireContext())
         binding.friendsList.adapter = adapter
 
-        binding.selectGroup.setOnClickListener{
-            findNavController().navigate(R.id.action_newChatsFragment_to_selectGroupFragment)
-        }
-
+binding.selectGroupText.setOnClickListener{
+    findNavController().navigate(R.id.action_newChatsFragment_to_selectGroupFragment)
+}
         return binding.root
     }
 

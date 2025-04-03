@@ -4,5 +4,4 @@ data class GroupItem(
     val selectImg : Int,
     val title: String,
     val description: String,
-    )
-
+)

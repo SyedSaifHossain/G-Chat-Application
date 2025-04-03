@@ -55,7 +55,16 @@
             app:cornerRadius="5dp" />
     </RelativeLayout>
 
-    <!-- Search Bar -->
+    <ImageView
+        android:id="@+id/searchIcon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_below="@+id/top_bar"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="140dp"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/search" />
+
     <EditText
         android:id="@+id/search_bar"
         android:layout_width="match_parent"
@@ -72,20 +81,8 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp" />
 
-
-    <!-- Group Selection -->
-    <ImageView
-        android:id="@+id/searchIcon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_below="@+id/top_bar"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="140dp"
-        android:layout_marginTop="24dp"
-        android:src="@drawable/search" />
-
     <TextView
-        android:id="@+id/select_group"
+        android:id="@+id/select_group_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/search_bar"
@@ -94,27 +91,16 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:textColor="#312D2D"
-        android:textSize="18sp"/>
-
-    <ImageView
-        android:id="@+id/newChatsRightArrow"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_below="@+id/search_bar"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:src="@drawable/arrowright"
-        app:tint="#000000" />
+        android:textSize="18sp"
+        android:drawableEnd="@drawable/arrowforward"/>
 
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_below="@id/select_group"
+        android:layout_below="@id/select_group_text"
         android:background="@android:color/darker_gray" />
 
-    <!-- List of Friends -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/friends_list"
         android:layout_width="match_parent"
@@ -124,8 +110,6 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:padding="8dp"
-        tools:listitem="@layout/new_chats_list"
-        android:scrollbars="vertical" />
-
+        tools:listitem="@layout/new_chats_list"/>
 
 </RelativeLayout>
