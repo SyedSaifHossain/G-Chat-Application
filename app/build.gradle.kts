@@ -2,15 +2,15 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
-    id ("androidx.navigation.safeargs.kotlin")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
     namespace = "com.syedsaifhossain.g_chatapplication"
     compileSdk = 35
-buildFeatures{
-    viewBinding = true
-}
+    buildFeatures {
+        viewBinding = true
+    }
     defaultConfig {
         applicationId = "com.syedsaifhossain.g_chatapplication"
         minSdk = 24
@@ -58,13 +58,23 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation ("com.github.bumptech.glide:glide:4.13.0")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.13.0")
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
-    implementation ("com.mikhaellopez:circularimageview:4.3.1")
-    implementation ("androidx.core:core-ktx:1.12.0")
-    implementation ("com.google.firebase:firebase-auth:22.0.0")
-    implementation ("com.googlecode.libphonenumber:libphonenumber:8.13.15")
+    implementation("com.github.bumptech.glide:glide:4.13.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.13.0")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.mikhaellopez:circularimageview:4.3.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("com.google.firebase:firebase-auth:22.0.0")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.15")
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-auth")
+
+    // Retrofit for network calls
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // Gson for JSON parsing
+    implementation ("com.google.code.gson:gson:2.8.8")
+    // Firebase for push notifications (optional, if you use Firebase)
+    implementation ("com.google.firebase:firebase-messaging:23.0.0")
+    // WebSocket dependency (optional, if you choose to use WebSocket for real-time updates)
+    implementation ("org.java-websocket:Java-WebSocket:1.5.2")
 }
