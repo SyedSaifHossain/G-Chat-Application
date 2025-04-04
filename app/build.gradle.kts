@@ -2,15 +2,16 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
-    id ("androidx.navigation.safeargs.kotlin")
+    id("androidx.navigation.safeargs.kotlin")
+    id("kotlin-parcelize")  // 只保留这一个新添加的
 }
 
 android {
     namespace = "com.syedsaifhossain.g_chatapplication"
     compileSdk = 35
-buildFeatures{
-    viewBinding = true
-}
+    buildFeatures{
+        viewBinding = true
+    }
     defaultConfig {
         applicationId = "com.syedsaifhossain.g_chatapplication"
         minSdk = 24
@@ -40,7 +41,7 @@ buildFeatures{
 }
 
 dependencies {
-
+    // 保持依赖部分不变
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -58,13 +59,13 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation ("com.github.bumptech.glide:glide:4.13.0")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.13.0")
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
-    implementation ("com.mikhaellopez:circularimageview:4.3.1")
-    implementation ("androidx.core:core-ktx:1.12.0")
-    implementation ("com.google.firebase:firebase-auth:22.0.0")
-    implementation ("com.googlecode.libphonenumber:libphonenumber:8.13.15")
+    implementation("com.github.bumptech.glide:glide:4.13.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.13.0")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.mikhaellopez:circularimageview:4.3.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("com.google.firebase:firebase-auth:22.0.0")
+    implementation("com.googlecode.libphonenumber:libphonenumber:8.13.15")
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-auth")
 }

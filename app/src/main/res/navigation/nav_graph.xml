@@ -124,6 +124,9 @@
         android:name="com.syedsaifhossain.g_chatapplication.DiscoverFragment"
         android:label="fragment_discover"
         tools:layout="@layout/fragment_discover" />
+    <action
+        android:id="@+id/action_discoverFragment3_to_dealDetailFragment"
+        app:destination="@id/dealDetailFragment" />
     <fragment
         android:id="@+id/newChatsFragment"
         android:name="com.syedsaifhossain.g_chatapplication.NewChatsFragment"
@@ -156,5 +159,14 @@
         <action
             android:id="@+id/action_splashScreenFragment_to_welcomeFragment"
             app:destination="@id/welcomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/dealDetailFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.DealDetailFragment"
+        android:label="Deal Detail"
+        tools:layout="@layout/fragment_deal_detail">
+        <argument
+            android:name="deal"
+            app:argType="com.syedsaifhossain.g_chatapplication.models.Deal" />
     </fragment>
 </navigation>

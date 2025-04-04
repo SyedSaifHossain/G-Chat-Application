@@ -69,6 +69,36 @@
         android:textSize="22sp"
         android:alpha="0.7"
         android:drawableEnd="@drawable/arrowforward"/>
+    <Button
+        android:id="@+id/sendCode"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/edtPhoneEmail"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="40dp"
+        android:layout_marginTop="8dp"
+        android:text="Send the code"
+        android:textAllCaps="false"
+        android:textColor="#0ABAB5"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="16sp"/>
+    <EditText
+        android:id="@+id/verificationEdt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sendCode"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="16dp"
+        android:hint="Enter verification code"
+        android:inputType="number"
+        android:maxLength="6"
+        android:padding="15dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#555C5C"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="22sp"
+        android:alpha="0.7"/>
 
     <Button
         android:id="@+id/nextButton"
