@@ -3,12 +3,13 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
     id("androidx.navigation.safeargs.kotlin")
+    id("kotlin-parcelize")  // 只保留这一个新添加的
 }
 
 android {
     namespace = "com.syedsaifhossain.g_chatapplication"
     compileSdk = 35
-    buildFeatures {
+    buildFeatures{
         viewBinding = true
     }
     defaultConfig {
@@ -40,7 +41,7 @@ android {
 }
 
 dependencies {
-
+    // 保持依赖部分不变
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -68,13 +69,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-auth")
 
-    // Retrofit for network calls
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    // Gson for JSON parsing
-    implementation ("com.google.code.gson:gson:2.8.8")
-    // Firebase for push notifications (optional, if you use Firebase)
-    implementation ("com.google.firebase:firebase-messaging:23.0.0")
-    // WebSocket dependency (optional, if you choose to use WebSocket for real-time updates)
-    implementation ("org.java-websocket:Java-WebSocket:1.5.2")
+
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1")
 }
