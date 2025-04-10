@@ -54,11 +54,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-        // Show PopupMenu when addButton is clicked
-        binding.addButton.setOnClickListener {
-            showPopupMenu(it)
-        }
-
         // Return the root view for the Fragment
         return binding.root
     }
@@ -70,40 +65,6 @@ class HomeFragment : Fragment() {
         val transaction: FragmentTransaction = childFragmentManager.beginTransaction() // Check if this is correct
         transaction.replace(R.id.nav_host_fragment, fragment) // Ensure frame_layout is the correct ID
         transaction.commit()
-    }
-
-    // Method to show PopupMenu
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun showPopupMenu(view: View) {
-        val popupMenu = PopupMenu(requireContext(), view)
-
-        // Inflate the menu resource file (popup_menu.xml)
-        popupMenu.inflate(R.menu.popup_menu)
-
-        // Force icons to show (for API 26 and above)
-        popupMenu.setForceShowIcon(true)
-
-        // Set a listener for the menu item clicks
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.newChats -> {
-                    findNavController().navigate(R.id.action_homeFragment_to_newChatsFragment)
-                    true
-                }
-                R.id.addContacts -> {
-                    findNavController().navigate(R.id.action_homeFragment_to_addContactsFragment)
-                    true
-                }
-                R.id.scan -> {
-                    findNavController().navigate(R.id.action_homeFragment_to_scanFragment)
-                    true
-                }
-                else -> false
-            }
-        }
-
-        // Show the PopupMenu
-        popupMenu.show()
     }
 
     // Add onDestroyView to clean up binding
