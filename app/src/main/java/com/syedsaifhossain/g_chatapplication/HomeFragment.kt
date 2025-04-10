@@ -68,7 +68,7 @@ class HomeFragment : Fragment() {
         // Use childFragmentManager if FrameLayout is inside HomeFragment's layout
         // Use parentFragmentManager if FrameLayout is in the Activity's layout
         val transaction: FragmentTransaction = childFragmentManager.beginTransaction() // Check if this is correct
-        transaction.replace(R.id.frame_layout, fragment) // Ensure frame_layout is the correct ID
+        transaction.replace(R.id.nav_host_fragment, fragment) // Ensure frame_layout is the correct ID
         transaction.commit()
     }
 
