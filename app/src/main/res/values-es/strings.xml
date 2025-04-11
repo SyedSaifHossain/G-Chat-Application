@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Aplicación G-Chat</string>
+    <!-- === 添加这些西班牙语翻译 === -->
+    <string name="settings_title">Ajustes</string>
+    <string name="select_language_title">Seleccionar idioma</string>
+    <string name="privacy_clicked">Se hizo clic en la configuración de privacidad</string>
+    <string name="about_clicked">Se hizo clic en Acerca de</string>
+    <string name="cannot_open_notification_settings">No se pudo abrir la configuración de notificaciones</string>
+    <string name="setting_language">Idioma</string>
+    <string name="setting_notifications">Notificaciones</string>
+    <string name="setting_privacy">Privacidad</string>
+    <string name="setting_about">Acerca de</string>
+    <string name="favorites_title">Favoritos</string>!-- === 添加结束 === -->
 </resources>
