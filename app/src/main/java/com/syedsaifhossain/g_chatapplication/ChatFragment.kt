@@ -62,7 +62,10 @@ class ChatFragment : Fragment() {
         )
 
         // Set adapter
-        chatAdapter = ChatAdapter(messageList)
+        chatAdapter = ChatAdapter(messageList){
+
+            findNavController().navigate(R.id.action_homeFragment_to_chatScreenFragment)
+        }
         recyclerView.adapter = chatAdapter
 
         // Show PopupMenu when addButton is clicked

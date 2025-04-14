@@ -2,22 +2,19 @@ package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
 import android.view.KeyEvent
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.syedsaifhossain.g_chatapplication.adapter.ChatMessageAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatScreenBinding
 import com.syedsaifhossain.g_chatapplication.models.ChatModel
-
 
 class ChatScreenFragment : Fragment() {
 
@@ -26,6 +23,7 @@ class ChatScreenFragment : Fragment() {
 
     private lateinit var chatMessageAdapter: ChatMessageAdapter
     private val chatList = mutableListOf<ChatModel>()
+    private lateinit var currentUserId: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,7 +36,9 @@ class ChatScreenFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        chatMessageAdapter = ChatMessageAdapter(chatList,"")
+        currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
+
+        chatMessageAdapter = ChatMessageAdapter(chatList, currentUserId)
         binding.chatScreenRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = chatMessageAdapter
@@ -46,6 +46,9 @@ class ChatScreenFragment : Fragment() {
 
         listenForMessages()
         handleMessageSendOnEnter()
+        binding.chatMessageBackImg.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
     private fun handleMessageSendOnEnter() {
@@ -84,6 +87,8 @@ class ChatScreenFragment : Fragment() {
                     val message = child.getValue(ChatModel::class.java)
                     message?.let { chatList.add(it) }
                 }
+
+                chatList.sortBy { it.timestamp } // Ensure proper order
                 chatMessageAdapter.notifyDataSetChanged()
                 binding.chatScreenRecyclerView.scrollToPosition(chatList.size - 1)
             }
@@ -98,4 +103,5 @@ class ChatScreenFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
 }
