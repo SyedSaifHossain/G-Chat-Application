@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     id("androidx.navigation.safeargs.kotlin")
     id("kotlin-parcelize")  // 只保留这一个新添加的
+    id("kotlin-android")
 }
 
 android {
@@ -64,7 +65,6 @@ dependencies {
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("com.mikhaellopez:circularimageview:4.3.1")
     implementation("androidx.core:core-ktx:1.12.0")
-    implementation("com.google.firebase:firebase-auth:22.0.0")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.15")
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-auth")
@@ -73,4 +73,7 @@ dependencies {
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1")
+    implementation("com.google.firebase:firebase-database:20.3.0")
+    implementation("com.google.firebase:firebase-auth:22.1.2")
+    implementation ("com.vanniktech:emoji-google:0.8.0")
 }
