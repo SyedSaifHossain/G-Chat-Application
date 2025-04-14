@@ -1,59 +1,101 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.syedsaifhossain.g_chatapplication.adapter.ChatMessageAdapter
+import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatScreenBinding
+import com.syedsaifhossain.g_chatapplication.models.ChatModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ChatScreenFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ChatScreenFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentChatScreenBinding? = null
+    private val binding get() = _binding!!
+
+    private lateinit var chatMessageAdapter: ChatMessageAdapter
+    private val chatList = mutableListOf<ChatModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_chat_screen, container, false)
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentChatScreenBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ChatScreenFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ChatScreenFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        chatMessageAdapter = ChatMessageAdapter(chatList,"")
+        binding.chatScreenRecyclerView.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = chatMessageAdapter
+        }
+
+        listenForMessages()
+        handleMessageSendOnEnter()
+    }
+
+    private fun handleMessageSendOnEnter() {
+        binding.chatMessageInput.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
+            ) {
+                val message = binding.chatMessageInput.text.toString().trim()
+                if (message.isNotEmpty()) {
+                    sendMessageToFirebase(message)
+                    binding.chatMessageInput.setText("")
                 }
+                true
+            } else {
+                false
             }
+        }
+    }
+
+    private fun sendMessageToFirebase(messageText: String) {
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats")
+        val messageId = chatRef.push().key ?: return
+
+        val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
+        val message = ChatModel(senderId, messageText, System.currentTimeMillis().toString())
+
+        chatRef.child(messageId).setValue(message)
+    }
+
+    private fun listenForMessages() {
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats")
+        chatRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                chatList.clear()
+                for (child in snapshot.children) {
+                    val message = child.getValue(ChatModel::class.java)
+                    message?.let { chatList.add(it) }
+                }
+                chatMessageAdapter.notifyDataSetChanged()
+                binding.chatScreenRecyclerView.scrollToPosition(chatList.size - 1)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
