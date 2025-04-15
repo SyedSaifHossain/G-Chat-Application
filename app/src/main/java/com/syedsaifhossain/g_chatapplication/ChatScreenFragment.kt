@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -24,6 +24,9 @@ class ChatScreenFragment : Fragment() {
     private lateinit var chatMessageAdapter: ChatMessageAdapter
     private val chatList = mutableListOf<ChatModel>()
     private lateinit var currentUserId: String
+    private lateinit var groupId: String
+
+    private val args: ChatScreenFragmentArgs by navArgs() // Make sure navArgs is set up in navigation
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,17 +40,18 @@ class ChatScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
+        groupId = args.groupId // Group ID passed from previous screen
 
+        setupRecyclerView()
+        listenForMessages()
+        handleMessageSendOnEnter()
+    }
+
+    private fun setupRecyclerView() {
         chatMessageAdapter = ChatMessageAdapter(chatList, currentUserId)
         binding.chatScreenRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = chatMessageAdapter
-        }
-
-        listenForMessages()
-        handleMessageSendOnEnter()
-        binding.chatMessageBackImg.setOnClickListener {
-            findNavController().popBackStack()
         }
     }
 
@@ -69,17 +73,27 @@ class ChatScreenFragment : Fragment() {
     }
 
     private fun sendMessageToFirebase(messageText: String) {
-        val chatRef = FirebaseDatabase.getInstance().getReference("chats")
-        val messageId = chatRef.push().key ?: return
+        val senderId = currentUserId
+        val chatRef = FirebaseDatabase.getInstance()
+            .getReference("groups")
+            .child(groupId)
+            .child("messages")
 
-        val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
+        val messageId = chatRef.push().key ?: return
         val message = ChatModel(senderId, messageText, System.currentTimeMillis().toString())
 
         chatRef.child(messageId).setValue(message)
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to send message", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun listenForMessages() {
-        val chatRef = FirebaseDatabase.getInstance().getReference("chats")
+        val chatRef = FirebaseDatabase.getInstance()
+            .getReference("groups")
+            .child(groupId)
+            .child("messages")
+
         chatRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 chatList.clear()
@@ -87,8 +101,7 @@ class ChatScreenFragment : Fragment() {
                     val message = child.getValue(ChatModel::class.java)
                     message?.let { chatList.add(it) }
                 }
-
-                chatList.sortBy { it.timestamp } // Ensure proper order
+                chatList.sortBy { it.timestamp }
                 chatMessageAdapter.notifyDataSetChanged()
                 binding.chatScreenRecyclerView.scrollToPosition(chatList.size - 1)
             }
@@ -103,5 +116,4 @@ class ChatScreenFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
 }

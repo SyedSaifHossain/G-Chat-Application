@@ -10,7 +10,7 @@ import com.syedsaifhossain.g_chatapplication.models.ChatModel
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ChatMessageAdapter(
+class GroupChatMessageAdapter(
     private val chatList: List<ChatModel>,
     private val currentUserId: String
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -25,10 +25,10 @@ class ChatMessageAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return if (viewType == VIEW_TYPE_SENT) {
-            val view = inflater.inflate(R.layout.item_message_sent, parent, false)
+            val view = inflater.inflate(R.layout.item_group_message_sent, parent, false)
             SentMessageViewHolder(view)
         } else {
-            val view = inflater.inflate(R.layout.item_message_received, parent, false)
+            val view = inflater.inflate(R.layout.item_group_message_received, parent, false)
             ReceivedMessageViewHolder(view)
         }
     }
@@ -45,8 +45,8 @@ class ChatMessageAdapter(
     }
 
     inner class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val textView: TextView = itemView.findViewById(R.id.sentMessageText)
-        private val timeView: TextView = itemView.findViewById(R.id.sentTime)
+        private val textView: TextView = itemView.findViewById(R.id.sentGroupMessageText)
+        private val timeView: TextView = itemView.findViewById(R.id.sentGroupTime)
 
         fun bind(message: ChatModel) {
             textView.text = message.message
@@ -55,8 +55,8 @@ class ChatMessageAdapter(
     }
 
     inner class ReceivedMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val textView: TextView = itemView.findViewById(R.id.receivedMessageText)
-        private val timeView: TextView = itemView.findViewById(R.id.receivedTime)
+        private val textView: TextView = itemView.findViewById(R.id.receivedGroupMessageText)
+        private val timeView: TextView = itemView.findViewById(R.id.receivedGroupTime)
 
         fun bind(message: ChatModel) {
             textView.text = message.message

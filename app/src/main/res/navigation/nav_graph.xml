@@ -9,7 +9,7 @@
         android:id="@+id/welcomeFragment"
         android:name="com.syedsaifhossain.g_chatapplication.WelcomeFragment"
         android:label="fragment_welcome"
-        tools:layout="@layout/fragment_welcome" >
+        tools:layout="@layout/fragment_welcome">
         <action
             android:id="@+id/welcomeFragmentTosignUpFragment"
             app:destination="@id/signUpFragment" />
@@ -21,7 +21,7 @@
         android:id="@+id/signUpFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignUpFragment"
         android:label="fragment_sign_up"
-        tools:layout="@layout/fragment_sign_up" >
+        tools:layout="@layout/fragment_sign_up">
 
         <action
             android:id="@+id/signUpToSignupNext"
@@ -37,7 +37,7 @@
         android:id="@+id/homeFragment"
         android:name="com.syedsaifhossain.g_chatapplication.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragment_to_newChatsFragment"
             app:destination="@id/newChatsFragment" />
@@ -55,7 +55,7 @@
         android:id="@+id/signInFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignInFragment"
         android:label="fragment_sign_in"
-        tools:layout="@layout/fragment_sign_in" >
+        tools:layout="@layout/fragment_sign_in">
         <action
             android:id="@+id/signInFragment_to_signInNextFragment"
             app:destination="@id/signInNextFragment" />
@@ -70,7 +70,7 @@
         android:id="@+id/signupNextFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignupNextFragment"
         android:label="fragment_signup_next"
-        tools:layout="@layout/fragment_signup_next" >
+        tools:layout="@layout/fragment_signup_next">
         <action
             android:id="@+id/signupNextFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -79,7 +79,7 @@
         android:id="@+id/signInNextFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignInNextFragment"
         android:label="fragment_sign_in_next"
-        tools:layout="@layout/fragment_sign_in_next" >
+        tools:layout="@layout/fragment_sign_in_next">
         <action
             android:id="@+id/signInNextFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -96,7 +96,7 @@
         android:id="@+id/loginViaEmailFragment"
         android:name="com.syedsaifhossain.g_chatapplication.LoginViaEmailFragment"
         android:label="fragment_login_via_email"
-        tools:layout="@layout/fragment_login_via_email" >
+        tools:layout="@layout/fragment_login_via_email">
         <action
             android:id="@+id/action_loginViaEmailFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -105,7 +105,7 @@
         android:id="@+id/loginViaPhoneFragment"
         android:name="com.syedsaifhossain.g_chatapplication.LoginViaPhoneFragment"
         android:label="fragment_login_via_phone"
-        tools:layout="@layout/fragment_login_via_phone" >
+        tools:layout="@layout/fragment_login_via_phone">
         <action
             android:id="@+id/action_loginViaPhoneFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -137,7 +137,7 @@
         android:id="@+id/newChatsFragment"
         android:name="com.syedsaifhossain.g_chatapplication.NewChatsFragment"
         android:label="fragment_new_chats"
-        tools:layout="@layout/fragment_new_chats" >
+        tools:layout="@layout/fragment_new_chats">
         <action
             android:id="@+id/action_newChatsFragment_to_selectGroupFragment"
             app:destination="@id/selectGroupFragment" />
@@ -156,7 +156,7 @@
         android:id="@+id/selectGroupFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SelectGroupFragment"
         android:label="fragment_select_group"
-        tools:layout="@layout/fragment_select_group" >
+        tools:layout="@layout/fragment_select_group">
         <action
             android:id="@+id/action_selectGroupFragment_to_groupChatFragment"
             app:destination="@id/groupChatFragment" />
@@ -165,7 +165,7 @@
         android:id="@+id/splashScreenFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SplashScreenFragment"
         android:label="fragment_splash_screen"
-        tools:layout="@layout/fragment_splash_screen" >
+        tools:layout="@layout/fragment_splash_screen">
         <action
             android:id="@+id/action_splashScreenFragment_to_welcomeFragment"
             app:destination="@id/welcomeFragment" />
@@ -179,25 +179,39 @@
             android:name="deal"
             app:argType="com.syedsaifhossain.g_chatapplication.models.Deal" />
     </fragment>
+
     <fragment
         android:id="@+id/groupChatFragment"
         android:name="com.syedsaifhossain.g_chatapplication.GroupChatFragment"
         android:label="fragment_group_chat"
-        tools:layout="@layout/fragment_group_chat" />
+        tools:layout="@layout/fragment_group_chat">
+
+        <argument
+            android:name="groupId"
+            android:defaultValue="default_group"
+            app:argType="string" />
+    </fragment>
+
+
     <fragment
         android:id="@+id/signupPageFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignupPageFragment"
         android:label="fragment_signup_page"
-        tools:layout="@layout/fragment_signup_page" >
-    </fragment>
+        tools:layout="@layout/fragment_signup_page"></fragment>
     <fragment
         android:id="@+id/signupPageVerificationFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignupPageVerificationFragment"
         android:label="fragment_signup_page_verification"
         tools:layout="@layout/fragment_signup_page_verification" />
+
     <fragment
         android:id="@+id/chatScreenFragment"
         android:name="com.syedsaifhossain.g_chatapplication.ChatScreenFragment"
-        android:label="fragment_chat_screen"
-        tools:layout="@layout/fragment_chat_screen" />
+        android:label="fragment_chat_screen" >
+
+        <argument
+            android:name="groupId"
+            app:argType="string" />
+    </fragment>
+
 </navigation>

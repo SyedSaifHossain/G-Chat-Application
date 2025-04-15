@@ -11,27 +11,34 @@ import com.syedsaifhossain.g_chatapplication.adapter.GroupAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentSelectGroupBinding
 import com.syedsaifhossain.g_chatapplication.models.GroupItem
 
-class SelectGroupFragment : Fragment(), GroupAdapter.OnItemClickListener {
+
+class SelectGroupFragment : Fragment() {
     private lateinit var binding: FragmentSelectGroupBinding
     private lateinit var groupAdapter: GroupAdapter
 
-    // Sample data for GroupItem
     private val groupList = arrayListOf(
-        GroupItem(selectImg = R.drawable.cityimg, title = "Group 1", description = "Description for group 1"),
-        GroupItem(selectImg = R.drawable.cityimg, title = "Group 2", description = "Description for group 2"),
-        GroupItem(selectImg = R.drawable.cityimg, title = "Group 3", description = "Description for group 3")
+        GroupItem(R.drawable.cityimg, "Group 1", "Description for group 1"),
+        GroupItem(R.drawable.cityimg, "Group 2", "Description for group 2"),
+        GroupItem(R.drawable.cityimg, "Group 3", "Description for group 3")
     )
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentSelectGroupBinding.inflate(inflater, container, false)
 
-        groupAdapter = GroupAdapter(groupList, this) // Passing the listener to the adapter
+        // Initialize adapter using lambda instead of interface
+        groupAdapter = GroupAdapter(groupList) { groupItem ->
+            // Navigate to GroupChatFragment when a group is clicked
+            val bundle = Bundle().apply {
+                putString("group_name", groupItem.title)
+            }
+            findNavController().navigate(R.id.action_selectGroupFragment_to_groupChatFragment, bundle)
+        }
 
         binding.selectGroupRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = groupAdapter
         }
 
@@ -41,15 +48,4 @@ class SelectGroupFragment : Fragment(), GroupAdapter.OnItemClickListener {
 
         return binding.root
     }
-
-    // Implementing onGroupItemClick method to navigate to GroupChatFragment and pass data using Bundle
-    override fun onGroupItemClick(groupItem: GroupItem) {
-
-        val bundle = Bundle()
-        bundle.putString("group_name", groupItem.title)
-
-        // Navigate to GroupChatFragment with the bundle
-        findNavController().navigate(R.id.action_selectGroupFragment_to_groupChatFragment, bundle)
-    }
-
 }
