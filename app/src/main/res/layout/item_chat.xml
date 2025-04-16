@@ -1,60 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingHorizontal="16dp"
     android:paddingVertical="8dp"
-    android:clipToPadding="false"> <!-- Outer wrapper for padding -->
+    android:padding="10dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@drawable/bg_chat_item_rounded"
-        android:padding="16dp"
-        android:gravity="center_vertical"
-        android:elevation="2dp"> <!-- Inner content LinearLayout -->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/ivAvatar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/profile"
+        app:civ_border_width="3dp"
+        app:civ_border_color="#000000"
+        app:civ_circle_background_color="#EFE7E7"
+        app:civ_border_overlay="false"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 
-        <!-- User Avatar -->
-        <ImageView
-            android:id="@+id/ivAvatar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/profile" /> <!-- Check if 'profile.png' exists -->
-
-        <!-- Name and Last Message Container -->
-        <LinearLayout
-            android:layout_width="0dp"
+    <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="16dp">
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="Aaron Loed"
+        android:layout_marginTop="10dp"
+            android:layout_marginStart="20dp"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@id/ivAvatar"/>
 
-            <TextView
-                android:id="@+id/tvName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="Aaron Loed"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+        <TextView
+            android:id="@+id/tvLastMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@+id/ivAvatar"
+            android:layout_below="@id/tvName"
+            tools:text="Last message" />
 
-            <TextView
-                android:id="@+id/tvLastMessage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                tools:text="Hi"
-                android:textColor="#666666"
-                android:textSize="14sp"
-                android:maxLines="1"
-                android:ellipsize="end"/>
 
-        </LinearLayout> <!-- End of Name and Last Message Container -->
-
-    </LinearLayout> <!-- End of Inner content LinearLayout -->
-
-</LinearLayout> <!-- End of Outer wrapper LinearLayout -->
+</RelativeLayout>
