@@ -44,12 +44,7 @@ class SelectGroupFragment : Fragment(), GroupAdapter.OnItemClickListener {
 
     // Implementing onGroupItemClick method to navigate to GroupChatFragment and pass data using Bundle
     override fun onGroupItemClick(groupItem: GroupItem) {
-
-        val bundle = Bundle()
-        bundle.putString("group_name", groupItem.title)
-
-        // Navigate to GroupChatFragment with the bundle
-        findNavController().navigate(R.id.action_selectGroupFragment_to_groupChatFragment, bundle)
+        findNavController().navigate(R.id.action_selectGroupFragment_to_groupChatFragment)
     }
 
 }

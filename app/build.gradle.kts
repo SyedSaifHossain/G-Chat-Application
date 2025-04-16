@@ -76,4 +76,5 @@ dependencies {
     implementation("com.google.firebase:firebase-database:20.3.0")
     implementation("com.google.firebase:firebase-auth:22.1.2")
     implementation ("com.vanniktech:emoji-google:0.8.0")
+    implementation("com.journeyapps:zxing-android-embedded:4.1.0")
 }

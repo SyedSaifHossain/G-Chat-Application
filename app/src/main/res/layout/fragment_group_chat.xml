@@ -53,28 +53,12 @@
             android:src="@drawable/moreicon"
             app:tint="#000000" />
     </RelativeLayout>
-
-    <!-- Group Name TextView -->
-    <TextView
-        android:id="@+id/group_name_textview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/groupchat_layout"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="20dp"
-        android:text="message"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
     <!-- RecyclerView for displaying chat messages -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/groupChatRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_below="@id/group_name_textview"
+        android:layout_below="@id/groupchat_layout"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_above="@+id/groupchat_bottom_layout" />
@@ -112,7 +96,8 @@
             android:background="@android:color/transparent"
             android:hint="Type a message..."
             android:padding="8dp"
-            android:imeOptions="actionDone"/>
+            android:imeOptions="actionSend"
+            android:inputType="text"/>
 
         <ImageView
             android:id="@+id/attach_button"
