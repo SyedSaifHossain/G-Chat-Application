@@ -1,50 +1,50 @@
 package com.syedsaifhossain.g_chatapplication.adapter
 
+import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.content.ContextCompat
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
 import com.syedsaifhossain.g_chatapplication.R
+import com.syedsaifhossain.g_chatapplication.databinding.ItemMessageBinding
 import com.syedsaifhossain.g_chatapplication.models.GroupMessage
 
+
 class GroupMessageAdapter(
-    private val messageList: List<GroupMessage>
-) : RecyclerView.Adapter<GroupMessageAdapter.MessageViewHolder>() {
+    private val messages: List<GroupMessage>,
+    private val currentUserId: String
 
-    inner class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val messageText: TextView = itemView.findViewById(R.id.message_text)
+) : RecyclerView.Adapter<GroupMessageAdapter.ChatViewHolder>() {
+
+    inner class ChatViewHolder(val binding: ItemMessageBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(message: GroupMessage) {
+            binding.messageText.text = message.text
+
+            val layoutParams = binding.messageText.layoutParams as LinearLayout.LayoutParams
+            layoutParams.gravity =
+                if (message.senderId == currentUserId) Gravity.END else Gravity.START
+            binding.messageText.layoutParams = layoutParams
+
+            // Optional: Different background per sender
+            if (message.senderId == currentUserId) {
+                binding.messageText.setBackgroundResource(R.drawable.bubble_bg_me)
+            } else {
+                binding.messageText.setBackgroundResource(R.drawable.bubble_bg_other)
+            }
+        }
+
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_message, parent, false)
-        return MessageViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
+        val binding = ItemMessageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ChatViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
-        val message = messageList[position]
-        val isMine = message.senderId == FirebaseAuth.getInstance().currentUser?.uid
-
-        holder.messageText.text = message.message
-
-        val layoutParams = holder.messageText.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.marginStart = if (isMine) 50 else 10
-        layoutParams.marginEnd = if (isMine) 10 else 50
-        holder.messageText.layoutParams = layoutParams
-
-        holder.messageText.background = ContextCompat.getDrawable(
-            holder.itemView.context,
-            if (isMine) R.drawable.bg_message_mine else R.drawable.bg_message_other
-        )
-        holder.messageText.textAlignment = if (isMine)
-            View.TEXT_ALIGNMENT_VIEW_END else View.TEXT_ALIGNMENT_VIEW_START
+    override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
+        holder.bind(messages[position])
     }
 
-
-
-
-    override fun getItemCount(): Int = messageList.size
+    override fun getItemCount(): Int = messages.size
 }
