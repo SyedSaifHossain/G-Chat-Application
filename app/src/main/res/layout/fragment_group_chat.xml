@@ -91,7 +91,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="25dp"
-            android:layout_toStartOf="@id/emoji_button"
+            android:layout_toStartOf="@id/attach_button"
             android:layout_toEndOf="@id/mic_button"
             android:background="@android:color/transparent"
             android:hint="Type a message..."
@@ -100,17 +100,17 @@
             android:inputType="text"/>
 
         <ImageView
-            android:id="@+id/attach_button"
+            android:id="@+id/emoji_btn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="25dp"
-            android:layout_toStartOf="@id/emoji_button"
+            android:layout_toStartOf="@id/attach_button"
             android:src="@drawable/sticker" />
 
         <ImageView
-            android:id="@+id/emoji_button"
+            android:id="@+id/attach_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentEnd="true"
