@@ -15,6 +15,14 @@ import com.google.firebase.database.*
 import com.syedsaifhossain.g_chatapplication.adapter.ChatMessageAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatScreenBinding
 import com.syedsaifhossain.g_chatapplication.models.ChatModel
+import com.vanniktech.emoji.EmojiPopup
+import com.vanniktech.emoji.EmojiEditText
+import com.vanniktech.emoji.EmojiManager
+import com.vanniktech.emoji.google.GoogleEmojiProvider
+import android.view.inputmethod.InputMethodManager
+import android.content.Context
+import com.vanniktech.emoji.EmojiImageView
+import com.vanniktech.emoji.emoji.Emoji
 
 class ChatScreenFragment : Fragment() {
 
@@ -24,6 +32,7 @@ class ChatScreenFragment : Fragment() {
     private lateinit var chatMessageAdapter: ChatMessageAdapter
     private val chatList = mutableListOf<ChatModel>()
     private lateinit var currentUserId: String
+    private lateinit var emojiPopup: EmojiPopup
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,12 +45,41 @@ class ChatScreenFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize EmojiManager with Google emojis
+        EmojiManager.install(GoogleEmojiProvider())
+
         currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
 
         chatMessageAdapter = ChatMessageAdapter(chatList, currentUserId)
         binding.chatScreenRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = chatMessageAdapter
+        }
+
+        // Initialize emoji popup with all emojis
+        emojiPopup = EmojiPopup.Builder.fromRootView(binding.root)
+            .setOnEmojiPopupDismissListener { 
+                binding.imoButton.setImageResource(R.drawable.sticker)
+            }
+            .setOnEmojiPopupShownListener { 
+                binding.imoButton.setImageResource(R.drawable.keyboard)
+            }
+            .setOnEmojiClickListener { imageView: EmojiImageView, emoji: Emoji ->
+                // Send the emoji immediately
+                sendMessageToFirebase(emoji.unicode)
+                // Hide emoji picker
+                emojiPopup.dismiss()
+            }
+            .setPageTransformer { page, position -> }  // Add page transformer for smooth scrolling
+            .build(binding.chatMessageInput)
+
+        // Set up emoji button click listener
+        binding.imoButton.setOnClickListener {
+            if (emojiPopup.isShowing) {
+                emojiPopup.dismiss()
+            } else {
+                emojiPopup.toggle()
+            }
         }
 
         listenForMessages()
@@ -103,5 +141,4 @@ class ChatScreenFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
 }
