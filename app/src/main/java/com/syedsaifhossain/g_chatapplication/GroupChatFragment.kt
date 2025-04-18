@@ -1,15 +1,20 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -21,8 +26,6 @@ import com.syedsaifhossain.g_chatapplication.adapter.GroupMessageAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentGroupChatBinding
 import com.syedsaifhossain.g_chatapplication.models.GroupMessage
 import java.io.File
-import android.content.pm.PackageManager
-import androidx.activity.result.contract.ActivityResultContracts
 
 class GroupChatFragment : Fragment() {
 
@@ -37,6 +40,7 @@ class GroupChatFragment : Fragment() {
     private var mediaRecorder: MediaRecorder? = null
     private lateinit var audioFilePath: String
 
+    // Request permission for voice recording
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -45,6 +49,16 @@ class GroupChatFragment : Fragment() {
                 Toast.makeText(context, "Microphone permission denied", Toast.LENGTH_SHORT).show()
             }
         }
+
+    // File picker launcher
+    private val filePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            val fileUri = result.data!!.data
+            fileUri?.let {
+                uploadFileToFirebase(it)
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,6 +78,7 @@ class GroupChatFragment : Fragment() {
 
         listenForMessages()
 
+        // Send text message
         binding.messageInput.setOnEditorActionListener { _, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_SEND ||
                 (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
@@ -75,7 +90,7 @@ class GroupChatFragment : Fragment() {
             }
         }
 
-        // Mic button for voice message
+        // Voice message
         binding.micButton.setOnClickListener {
             if (mediaRecorder == null) {
                 checkMicPermissionAndRecord()
@@ -84,6 +99,15 @@ class GroupChatFragment : Fragment() {
             }
         }
 
+        // File attachment
+        binding.attachButton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "*/*"
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            filePickerLauncher.launch(Intent.createChooser(intent, "Select File"))
+        }
+
+        // Back button
         binding.groupchatBackImg.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -93,7 +117,6 @@ class GroupChatFragment : Fragment() {
         val text = binding.messageInput.text.toString().trim()
         if (text.isNotEmpty()) {
             val messageId = chatRef.push().key!!
-
             val message = GroupMessage(
                 id = messageId,
                 senderId = auth.uid,
@@ -185,7 +208,7 @@ class GroupChatFragment : Fragment() {
         val message = GroupMessage(
             id = messageId,
             senderId = auth.uid,
-            text = null, // text is null for voice messages
+            text = null,
             audioUrl = audioUrl,
             timestamp = System.currentTimeMillis()
         )
@@ -195,6 +218,61 @@ class GroupChatFragment : Fragment() {
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Failed to send message", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun uploadFileToFirebase(uri: Uri) {
+        val fileName = getFileName(uri)
+        val storageRef = FirebaseStorage.getInstance().reference
+            .child("attachments/$fileName")
+
+        storageRef.putFile(uri)
+            .addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    sendAttachmentMessage(downloadUrl.toString(), fileName)
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun getFileName(uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = requireContext().contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    result = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.path
+            val cut = result?.lastIndexOf('/')
+            if (cut != -1 && cut != null) {
+                result = result?.substring(cut + 1)
+            }
+        }
+        return result ?: "file_${System.currentTimeMillis()}"
+    }
+
+    private fun sendAttachmentMessage(fileUrl: String, fileName: String) {
+        val messageId = chatRef.push().key!!
+        val message = GroupMessage(
+            id = messageId,
+            senderId = auth.uid,
+            text = null,
+            fileUrl = fileUrl,
+            fileName = fileName,
+            timestamp = System.currentTimeMillis()
+        )
+        chatRef.child(messageId).setValue(message)
+            .addOnSuccessListener {
+                Toast.makeText(context, "File sent", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Failed to send file", Toast.LENGTH_SHORT).show()
             }
     }
 
