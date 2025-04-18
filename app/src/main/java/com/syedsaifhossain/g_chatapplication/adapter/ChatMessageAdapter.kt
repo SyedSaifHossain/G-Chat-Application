@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.R
 import com.syedsaifhossain.g_chatapplication.models.ChatModel
+import com.vanniktech.emoji.EmojiTextView
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -46,22 +47,22 @@ class ChatMessageAdapter(
     }
 
     inner class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val textView: TextView = itemView.findViewById(R.id.sentMessageText)
+        private val textView: EmojiTextView = itemView.findViewById(R.id.sentMessageText)
         private val timeView: TextView = itemView.findViewById(R.id.sentTime)
 
         fun bind(message: ChatModel) {
             textView.text = message.message
-            timeView.text = formatTime(message.timestamp)
+            timeView.text = formatTime(message.timestamp.toLong())
         }
     }
 
     inner class ReceivedMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val textView: TextView = itemView.findViewById(R.id.receivedMessageText)
+        private val textView: EmojiTextView = itemView.findViewById(R.id.receivedMessageText)
         private val timeView: TextView = itemView.findViewById(R.id.receivedTime)
 
         fun bind(message: ChatModel) {
             textView.text = message.message
-            timeView.text = formatTime(message.timestamp)
+            timeView.text = formatTime(message.timestamp.toLong())
         }
     }
 
