@@ -5,5 +5,7 @@ data class GroupMessage(
     val senderId: String? = null,
     val text: String? = null,
     var audioUrl: String? = null,
+    val fileUrl: String? = null,
+    val fileName: String? = null,
     val timestamp: Long? = null
 )
