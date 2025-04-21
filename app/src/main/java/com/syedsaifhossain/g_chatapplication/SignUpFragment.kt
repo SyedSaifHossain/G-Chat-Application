@@ -66,6 +66,9 @@ class SignUpFragment : Fragment() {
             binding.edtPhoneEmail.setSelection(code.length)
         }
 
+        binding.button2.setOnClickListener {
+            findNavController().popBackStack()
+        }
 
         // Send code button
         binding.sendCode.setOnClickListener {

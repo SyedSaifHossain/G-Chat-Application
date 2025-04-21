@@ -36,6 +36,11 @@ class SignInFragment : Fragment() {
             findNavController().navigate(R.id.action_signInFragment_to_selectRegionFragment)
         }
 
+        binding.button2.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+
         parentFragmentManager.setFragmentResultListener("regionSelection", viewLifecycleOwner) { _, bundle ->
             val selectedCountry = bundle.getString("selectedCountry", "")
             binding.regionEdt.setText(selectedCountry)
