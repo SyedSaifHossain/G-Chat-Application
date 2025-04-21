@@ -36,29 +36,6 @@ class ChatFragment : Fragment() {
         // Example data (You can replace it with dynamic data)
         messageList = arrayListOf(
             Chats(R.drawable.profile,"Aaron Loed", "Hi"),
-            Chats(R.drawable.profile,"Aaron Loed", "How are you"),
-            Chats(R.drawable.profile,"Aaron Loed", "I am fine"),
-            Chats(R.drawable.profile,"Aaron Loed", "Hi"),
-            Chats(R.drawable.profile,"Aaron Loed", "How are you"),
-            Chats(R.drawable.profile,"Aaron Loed", "I am fine"),
-            Chats(R.drawable.profile,"Aaron Loed", "Hi"),
-            Chats(R.drawable.profile,"Aaron Loed", "How are you"),
-            Chats(R.drawable.profile,"Aaron Loed", "I am fine"),
-            Chats(R.drawable.profile,"Aaron Loed", "Hi"),
-            Chats(R.drawable.profile,"Aaron Loed", "How are you"),
-            Chats(R.drawable.profile,"Aaron Loed", "I am fine"),
-            Chats(R.drawable.profile,"Aaron Loed", "Hi"),
-            Chats(R.drawable.profile,"Aaron Loed", "How are you"),
-            Chats(R.drawable.profile,"Aaron Loed", "I am fine"),
-            Chats(R.drawable.profile,"Aaron Loed", "Hi"),
-            Chats(R.drawable.profile,"Aaron Loed", "How are you"),
-            Chats(R.drawable.profile,"Aaron Loed", "I am fine"),
-            Chats(R.drawable.profile,"Aaron Loed", "Hi"),
-            Chats(R.drawable.profile,"Aaron Loed", "How are you"),
-            Chats(R.drawable.profile,"Aaron Loed", "I am fine"),
-            Chats(R.drawable.profile,"Aaron Loed", "Hi"),
-            Chats(R.drawable.profile,"Aaron Loed", "How are you"),
-            Chats(R.drawable.profile,"Aaron Loed", "I am fine")
         )
 
         // Set adapter

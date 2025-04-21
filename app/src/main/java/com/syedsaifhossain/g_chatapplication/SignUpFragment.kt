@@ -80,9 +80,6 @@ class SignUpFragment : Fragment() {
                     // Send the verification code
                     sendVerificationCode(phoneNumber)
 
-                    // Show toast confirming that the code is being sent
-                    Toast.makeText(requireContext(), "Code has been sent", Toast.LENGTH_SHORT).show()
-
                     // Start the resend timer
                     startResendTimer()
                 } else {
@@ -164,18 +161,16 @@ class SignUpFragment : Fragment() {
     }
 
     private fun sendVerificationCode(phoneNumber: String) {
-        // Use libphonenumber to parse and validate the phone number
-        val phoneNumberUtil = PhoneNumberUtil.getInstance()
-        val parsedNumber: PhoneNumber = phoneNumberUtil.parse(phoneNumber, "")
+        val correctedPhoneNumber = if (phoneNumber.startsWith("+88") && !phoneNumber.startsWith("+880")) {
+            phoneNumber.replaceFirst("+88", "+880")
+        } else {
+            phoneNumber
+        }
 
-        val countryCode = parsedNumber.countryCode
-        val regionCode = phoneNumberUtil.getRegionCodeForCountryCode(countryCode)
-
-        // Format the phone number to include the country code
-        val formattedPhoneNumber = if (!phoneNumber.startsWith("+$countryCode")) "+$countryCode$phoneNumber" else phoneNumber
+        Toast.makeText(requireContext(), "Sending OTP to $correctedPhoneNumber", Toast.LENGTH_SHORT).show()
 
         val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(formattedPhoneNumber)
+            .setPhoneNumber(correctedPhoneNumber)
             .setTimeout(60L, TimeUnit.SECONDS)
             .setActivity(requireActivity())
             .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -193,13 +188,15 @@ class SignUpFragment : Fragment() {
                     verificationId = id
                     disableButtons(false)
                     binding.nextButton.isEnabled = true
-                    Toast.makeText(requireContext(), "Verification code sent successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "OTP sent to your phone", Toast.LENGTH_SHORT).show()
                     startResendTimer()
                 }
             })
             .build()
+
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
+
 
     private fun verifyCode(code: String) {
         verificationId?.let {
@@ -215,7 +212,7 @@ class SignUpFragment : Fragment() {
                 if (task.isSuccessful) {
                     Toast.makeText(requireContext(), "Authentication successful!", Toast.LENGTH_SHORT).show()
 
-                    findNavController().navigate(R.id.action_signUpFragment_to_signupPageVerificationFragment)
+                    findNavController().navigate(R.id.signUpToSignupNext)
                 } else {
                     task.exception?.let { handleError(it) }
                 }
@@ -235,7 +232,7 @@ class SignUpFragment : Fragment() {
             val countryName = java.util.Locale("", regionCode).displayCountry
 
             val countryCode = if (countryName == "Bangladesh") {
-                "+88" // ✅ Custom override
+                "+880" // <-- correct format
             } else {
                 "+${phoneUtil.getCountryCodeForRegion(regionCode)}"
             }
