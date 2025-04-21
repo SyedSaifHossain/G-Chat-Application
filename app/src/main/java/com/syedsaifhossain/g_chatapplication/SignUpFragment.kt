@@ -233,7 +233,12 @@ class SignUpFragment : Fragment() {
 
         val countryList = phoneUtil.supportedRegions.map { regionCode ->
             val countryName = java.util.Locale("", regionCode).displayCountry
-            val countryCode = "+${phoneUtil.getCountryCodeForRegion(regionCode)}"
+
+            val countryCode = if (countryName == "Bangladesh") {
+                "+88" // ✅ Custom override
+            } else {
+                "+${phoneUtil.getCountryCodeForRegion(regionCode)}"
+            }
 
             countryRegionMap[countryName] = regionCode
             countryCodeMap[countryName] = countryCode
@@ -243,7 +248,6 @@ class SignUpFragment : Fragment() {
         val adapter = android.widget.ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, countryList)
         binding.countryEdit.setAdapter(adapter)
 
-        // When country selected from dropdown
         binding.countryEdit.setOnItemClickListener { _, _, position, _ ->
             val selectedCountry = countryList[position]
             val code = countryCodeMap[selectedCountry] ?: "+1"
