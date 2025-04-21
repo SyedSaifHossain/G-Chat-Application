@@ -22,10 +22,6 @@
         android:name="com.syedsaifhossain.g_chatapplication.SignUpFragment"
         android:label="fragment_sign_up"
         tools:layout="@layout/fragment_sign_up" >
-
-        <action
-            android:id="@+id/signUpToSignupNext"
-            app:destination="@id/signupNextFragment" />
         <action
             android:id="@+id/action_signUpFragment_to_selectRegionFragment"
             app:destination="@id/selectRegionFragment" />
@@ -47,9 +43,6 @@
         <action
             android:id="@+id/action_homeFragment_to_scanFragment"
             app:destination="@id/scanFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_chatScreenFragment"
-            app:destination="@id/chatScreenFragment" />
     </fragment>
     <fragment
         android:id="@+id/signInFragment"
@@ -130,9 +123,6 @@
         android:name="com.syedsaifhossain.g_chatapplication.DiscoverFragment"
         android:label="fragment_discover"
         tools:layout="@layout/fragment_discover" />
-    <action
-        android:id="@+id/action_discoverFragment3_to_dealDetailFragment"
-        app:destination="@id/dealDetailFragment" />
     <fragment
         android:id="@+id/newChatsFragment"
         android:name="com.syedsaifhossain.g_chatapplication.NewChatsFragment"
@@ -153,15 +143,6 @@
         android:label="fragment_scan"
         tools:layout="@layout/fragment_scan" />
     <fragment
-        android:id="@+id/selectGroupFragment"
-        android:name="com.syedsaifhossain.g_chatapplication.SelectGroupFragment"
-        android:label="fragment_select_group"
-        tools:layout="@layout/fragment_select_group" >
-        <action
-            android:id="@+id/action_selectGroupFragment_to_groupChatFragment"
-            app:destination="@id/groupChatFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/splashScreenFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SplashScreenFragment"
         android:label="fragment_splash_screen"
@@ -171,33 +152,27 @@
             app:destination="@id/welcomeFragment" />
     </fragment>
     <fragment
-        android:id="@+id/dealDetailFragment"
-        android:name="com.syedsaifhossain.g_chatapplication.DealDetailFragment"
-        android:label="Deal Detail"
-        tools:layout="@layout/fragment_deal_detail">
-        <argument
-            android:name="deal"
-            app:argType="com.syedsaifhossain.g_chatapplication.models.Deal" />
+        android:id="@+id/signupPageVerificationFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SignupPageVerificationFragment"
+        android:label="fragment_signup_page_verification"
+        tools:layout="@layout/fragment_signup_page_verification" />
+    <fragment
+        android:id="@+id/signupPageFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SignupPageFragment"
+        android:label="fragment_signup_page"
+        tools:layout="@layout/fragment_signup_page" />
+    <fragment
+        android:id="@+id/selectGroupFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SelectGroupFragment"
+        android:label="fragment_select_group"
+        tools:layout="@layout/fragment_select_group" >
+        <action
+            android:id="@+id/action_selectGroupFragment_to_groupChatFragment"
+            app:destination="@id/groupChatFragment" />
     </fragment>
     <fragment
         android:id="@+id/groupChatFragment"
         android:name="com.syedsaifhossain.g_chatapplication.GroupChatFragment"
         android:label="fragment_group_chat"
         tools:layout="@layout/fragment_group_chat" />
-    <fragment
-        android:id="@+id/signupPageFragment"
-        android:name="com.syedsaifhossain.g_chatapplication.SignupPageFragment"
-        android:label="fragment_signup_page"
-        tools:layout="@layout/fragment_signup_page" >
-    </fragment>
-    <fragment
-        android:id="@+id/signupPageVerificationFragment"
-        android:name="com.syedsaifhossain.g_chatapplication.SignupPageVerificationFragment"
-        android:label="fragment_signup_page_verification"
-        tools:layout="@layout/fragment_signup_page_verification" />
-    <fragment
-        android:id="@+id/chatScreenFragment"
-        android:name="com.syedsaifhossain.g_chatapplication.ChatScreenFragment"
-        android:label="fragment_chat_screen"
-        tools:layout="@layout/fragment_chat_screen" />
 </navigation>

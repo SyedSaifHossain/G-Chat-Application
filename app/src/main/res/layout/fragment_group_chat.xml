@@ -53,12 +53,28 @@
             android:src="@drawable/moreicon"
             app:tint="#000000" />
     </RelativeLayout>
+
+    <!-- Group Name TextView -->
+    <TextView
+        android:id="@+id/group_name_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/groupchat_layout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="20dp"
+        android:text="message"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
     <!-- RecyclerView for displaying chat messages -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/groupChatRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_below="@id/groupchat_layout"
+        android:layout_below="@id/group_name_textview"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_above="@+id/groupchat_bottom_layout" />
@@ -91,26 +107,25 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="25dp"
-            android:layout_toStartOf="@id/attach_button"
+            android:layout_toStartOf="@id/emoji_button"
             android:layout_toEndOf="@id/mic_button"
             android:background="@android:color/transparent"
             android:hint="Type a message..."
             android:padding="8dp"
-            android:imeOptions="actionSend"
-            android:inputType="text"/>
+            android:imeOptions="actionDone"/>
 
         <ImageView
-            android:id="@+id/emoji_btn"
+            android:id="@+id/attach_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="25dp"
-            android:layout_toStartOf="@id/attach_button"
+            android:layout_toStartOf="@id/emoji_button"
             android:src="@drawable/sticker" />
 
         <ImageView
-            android:id="@+id/attach_button"
+            android:id="@+id/emoji_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentEnd="true"

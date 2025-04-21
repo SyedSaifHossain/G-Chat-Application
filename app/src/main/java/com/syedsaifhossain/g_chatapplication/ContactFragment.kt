@@ -1,55 +1,59 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.syedsaifhossain.g_chatapplication.adapter.ContactAdapter
-import com.syedsaifhossain.g_chatapplication.databinding.FragmentContactBinding
 
+// TODO: Rename parameter arguments, choose names that match
+// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+private const val ARG_PARAM1 = "param1"
+private const val ARG_PARAM2 = "param2"
+
+/**
+ * A simple [Fragment] subclass.
+ * Use the [ContactFragment.newInstance] factory method to
+ * create an instance of this fragment.
+ */
 class ContactFragment : Fragment() {
+    // TODO: Rename and change types of parameters
+    private var param1: String? = null
+    private var param2: String? = null
 
-    private lateinit var binding: FragmentContactBinding
-
-    private lateinit var contactAdapter: ContactAdapter
-    private var contactsList: List<String> = listOf(
-        "John Doe", "Jane Smith", "Alice Johnson", "Bob Brown", "Charlie Davis"
-    ) // Example list, replace with actual data
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
-        binding = FragmentContactBinding.inflate(inflater, container, false)
-        val view = binding.root
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_contact, container, false)
+    }
 
-        // Set up RecyclerView
-        setupRecyclerView()
-
-        // Handle search input using EditText
-        binding.contactSearchbar.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
-                // Filter contacts based on search query
-                val filteredContacts = contactAdapter.filterContacts(charSequence.toString())
-                contactAdapter.updateData(filteredContacts)
+    companion object {
+        /**
+         * Use this factory method to create a new instance of
+         * this fragment using the provided parameters.
+         *
+         * @param param1 Parameter 1.
+         * @param param2 Parameter 2.
+         * @return A new instance of fragment ContactFragment.
+         */
+        // TODO: Rename and change types and number of parameters
+        @JvmStatic
+        fun newInstance(param1: String, param2: String) =
+            ContactFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_PARAM1, param1)
+                    putString(ARG_PARAM2, param2)
+                }
             }
-
-            override fun afterTextChanged(editable: Editable?) {}
-        })
-
-        return view
     }
-
-    private fun setupRecyclerView() {
-        binding.contactRecyclerView.layoutManager = LinearLayoutManager(context)
-        contactAdapter = ContactAdapter(requireContext(), contactsList)
-        binding.contactRecyclerView.adapter = contactAdapter
-    }
-
 }

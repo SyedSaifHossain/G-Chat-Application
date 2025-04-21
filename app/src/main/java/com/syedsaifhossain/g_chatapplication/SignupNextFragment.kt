@@ -49,9 +49,6 @@ class SignupNextFragment : Fragment() {
             builder.show()
         }
 
-        binding.button2.setOnClickListener {
-            findNavController().navigateUp()
-        }
 
         binding.completeButton.setOnClickListener {
 
