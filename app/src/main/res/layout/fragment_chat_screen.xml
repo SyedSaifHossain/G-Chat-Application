@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ChatScreenFragment">
+
+    <RelativeLayout
+        android:id="@+id/chatMessageLayout"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:background="#E0D9D9"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/chatMessage_back_img"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/arrowback"
+            app:tint="#000000" />
+
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignTop="@+id/chatMessage_back_img"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/moreicon"
+            app:tint="#000000" />
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chatScreenRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/chatScreen_bottom_layout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/chatMessageLayout"/>
+
+    <RelativeLayout
+        android:id="@+id/chatScreen_bottom_layout"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:background="#E0D9D9">
+
+        <ImageView
+            android:id="@+id/chat_mic_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="25dp"
+            android:src="@drawable/voice" />
+
+        <EditText
+            android:id="@+id/chatMessage_input"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="25dp"
+            android:layout_toStartOf="@id/chatAdd_button"
+            android:layout_toEndOf="@id/chat_mic_button"
+            android:background="@android:color/transparent"
+            android:hint="Enter your message..."
+            android:imeOptions="actionDone"
+            android:padding="8dp" />
+
+        <ImageView
+            android:id="@+id/imo_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="25dp"
+            android:layout_toStartOf="@id/chatAdd_button"
+            android:src="@drawable/sticker" />
+
+        <ImageView
+            android:id="@+id/chatAdd_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginBottom="25dp"
+            android:src="@drawable/addbutton" />
+    </RelativeLayout>
+
+</RelativeLayout>

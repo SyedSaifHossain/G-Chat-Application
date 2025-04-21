@@ -15,8 +15,9 @@ import com.syedsaifhossain.g_chatapplication.databinding.FragmentSignInBinding
 import java.util.Locale
 
 class SignInFragment : Fragment() {
+
     private lateinit var binding: FragmentSignInBinding
-    private val countryCodeMap = mutableMapOf<String, String>() // Holds country name -> code mapping
+    private val countryCodeMap = mutableMapOf<String, String>() // country name -> code
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,100 +30,93 @@ class SignInFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loadCountryList() // Load country names and codes dynamically
+        loadCountryList()
 
-        // Open SelectRegionFragment when regionEdt is clicked
         binding.regionEdt.setOnClickListener {
             findNavController().navigate(R.id.action_signInFragment_to_selectRegionFragment)
         }
 
-        // Listen for selected country result from the SelectRegionFragment
+        binding.button2.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+
         parentFragmentManager.setFragmentResultListener("regionSelection", viewLifecycleOwner) { _, bundle ->
             val selectedCountry = bundle.getString("selectedCountry", "")
             binding.regionEdt.setText(selectedCountry)
-
-            // Set country code to the countryCodeTextView
-            if (countryCodeMap.containsKey(selectedCountry)) {
-                val countryCode = countryCodeMap[selectedCountry]
-                binding.countryCodeTextView.text = countryCode // Display country code in TextView
+            countryCodeMap[selectedCountry]?.let {
+                binding.countryCodeTextView.text = it
             }
         }
 
-        // 🔥 Click on arrowImg to insert country code into phoneNumberEdt with a space
         binding.arrowImg.setOnClickListener {
             val selectedCountry = binding.regionEdt.text.toString().trim()
-
             if (countryCodeMap.containsKey(selectedCountry)) {
-                val countryCode = countryCodeMap[selectedCountry]
-                val enteredPhoneNumber = binding.phoneNumberEdt.text.toString().trim()
-
-                // If phone number is empty, just set the country code with a space
-                if (enteredPhoneNumber.isEmpty()) {
-                    binding.phoneNumberEdt.setText("")
-                } else {
-                    // If phone number is entered, append it after the country code with a space
-                    binding.phoneNumberEdt.setText(enteredPhoneNumber)
-                }
+                val enteredPhone = binding.phoneNumberEdt.text.toString().trim()
+                binding.phoneNumberEdt.setText(enteredPhone)
             } else {
                 Toast.makeText(requireContext(), "Please select a country first", Toast.LENGTH_SHORT).show()
             }
 
-            // Move focus to phoneNumberEdt and open the keyboard
             binding.phoneNumberEdt.requestFocus()
             val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(binding.phoneNumberEdt, InputMethodManager.SHOW_IMPLICIT)
         }
 
-        binding.loginViaEmailTxt.setOnClickListener{
+        binding.loginViaEmailTxt.setOnClickListener {
             findNavController().navigate(R.id.action_signInFragment_to_loginViaEmailFragment)
         }
 
-        // Next Button Click Event
-        // Next Button Click Event
         binding.signInButton.setOnClickListener {
             val selectedCountry = binding.regionEdt.text.toString().trim()
-            val phoneNumber = binding.phoneNumberEdt.text.toString().trim()
+            val phone = binding.phoneNumberEdt.text.toString().trim()
 
-            // Check if the country is selected and available in the countryCodeMap
+            // --- Field Validations ---
+            if (selectedCountry.isEmpty()) {
+                binding.regionEdt.error = "Please select a country"
+                binding.regionEdt.requestFocus()
+                return@setOnClickListener
+            }
+
             if (!countryCodeMap.containsKey(selectedCountry)) {
-                Toast.makeText(requireContext(), "Please select a valid country", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Invalid country selected", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Check if the phone number is empty
-            if (phoneNumber.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter your phone number", Toast.LENGTH_SHORT).show()
+            if (phone.isEmpty()) {
+                binding.phoneNumberEdt.error = "Phone number cannot be empty"
+                binding.phoneNumberEdt.requestFocus()
                 return@setOnClickListener
             }
 
-            // Get the country code from the map
-            val countryCode = countryCodeMap[selectedCountry]
+            if (!phone.matches(Regex("^[0-9]{6,15}\$"))) {
+                binding.phoneNumberEdt.error = "Enter a valid phone number"
+                binding.phoneNumberEdt.requestFocus()
+                return@setOnClickListener
+            }
 
-            // Combine the country code with the phone number
-            val fullPhoneNumber = "$countryCode $phoneNumber" // Country code + phone number with a space in between
+            val countryCode = countryCodeMap[selectedCountry]!!
+            val fullPhoneNumber = "$countryCode $phone"
 
-            // Show the full phone number for demonstration (optional)
-            Toast.makeText(requireContext(), "Proceeding with phone: $fullPhoneNumber", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Using phone: $fullPhoneNumber", Toast.LENGTH_SHORT).show()
 
-            // Pass the combined phone number to the next fragment
-            val bundle = Bundle()
-            bundle.putString("fullPhoneNumber", fullPhoneNumber) // Use "fullPhoneNumber" as the key
+            // Passing phone to next fragment (optional)
+            val bundle = Bundle().apply {
+                putString("fullPhoneNumber", fullPhoneNumber)
+            }
             findNavController().navigate(R.id.signInNextFragment, bundle)
         }
-
     }
 
-    // 🔥 Load country list dynamically using libphonenumber
     private fun loadCountryList() {
         val phoneUtil = PhoneNumberUtil.getInstance()
         val countryList = phoneUtil.supportedRegions.map { regionCode ->
-            val countryName = Locale("", regionCode).displayCountry // Get country name
-            val countryCode = "+${phoneUtil.getCountryCodeForRegion(regionCode)}" // Get country code
-            countryCodeMap[countryName] = countryCode // Store in map
+            val countryName = Locale("", regionCode).displayCountry
+            val countryCode = "+${phoneUtil.getCountryCodeForRegion(regionCode)}"
+            countryCodeMap[countryName] = countryCode
             countryName
         }.sorted()
 
-        // **✅ Set adapter for regionEdt so users can see country name suggestions**
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, countryList)
         binding.regionEdt.setAdapter(adapter)
     }

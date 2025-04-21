@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">G-Chat Application</string>
+    <!-- === 添加这些土耳其语翻译 === -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="select_language_title">Dil Seçin</string>
+    <string name="privacy_clicked">Gizlilik ayarlarına tıklandı</string>
+    <string name="about_clicked">Hakkında tıklandı</string>
+    <string name="cannot_open_notification_settings">Bildirim ayarları açılamadı</string>
+    <string name="setting_language">Dil</string>
+    <string name="setting_notifications">Bildirimler</string>
+    <string name="setting_privacy">Gizlilik</string>
+    <string name="setting_about">Hakkında</string>
+    <string name="favorites_title">Favoriler</string>
+</resources>

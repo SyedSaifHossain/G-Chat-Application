@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.compose.ui.text.intl.Locale
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
@@ -28,6 +27,9 @@ class SignUpFragment : Fragment() {
     private var verificationId: String? = null
     private var resendTimer: CountDownTimer? = null
     private var isTimerRunning = false
+    private val countryRegionMap = mutableMapOf<String, String>()
+    private val countryCodeMap = mutableMapOf<String, String>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,9 +61,13 @@ class SignUpFragment : Fragment() {
             val selectedCountry = bundle.getString("selectedCountry", "")
             binding.countryEdit.setText(selectedCountry)
 
-            // Fetch and set the country code dynamically using libphonenumber
-            val countryCode = getCountryCode(selectedCountry)
-            binding.edtPhoneEmail.setText(countryCode)
+            val code = getCountryCode(selectedCountry)
+            binding.edtPhoneEmail.setText(code)
+            binding.edtPhoneEmail.setSelection(code.length)
+        }
+
+        binding.button2.setOnClickListener {
+            findNavController().popBackStack()
         }
 
         // Send code button
@@ -102,6 +108,8 @@ class SignUpFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please enter a valid 6-digit code", Toast.LENGTH_SHORT).show()
             }
         }
+        setupCountryList()
+
     }
 
     private fun isValidPhoneNumber(phone: String): Boolean {
@@ -217,17 +225,41 @@ class SignUpFragment : Fragment() {
             }
     }
 
+
     private fun getCountryCode(countryName: String): String {
-        // Use libphonenumber to fetch the country code dynamically
-        val phoneNumberUtil = PhoneNumberUtil.getInstance()
-        val regionCode = java.util.Locale("", countryName).country
-        return try {
-            val countryCode = phoneNumberUtil.getCountryCodeForRegion(regionCode)
-            "+$countryCode"
-        } catch (e: Exception) {
-            "+1" // Default country code if region is invalid or not found
+        return countryCodeMap[countryName] ?: "+1"
+    }
+
+
+    private fun setupCountryList() {
+        val phoneUtil = PhoneNumberUtil.getInstance()
+
+        val countryList = phoneUtil.supportedRegions.map { regionCode ->
+            val countryName = java.util.Locale("", regionCode).displayCountry
+
+            val countryCode = if (countryName == "Bangladesh") {
+                "+88" // ✅ Custom override
+            } else {
+                "+${phoneUtil.getCountryCodeForRegion(regionCode)}"
+            }
+
+            countryRegionMap[countryName] = regionCode
+            countryCodeMap[countryName] = countryCode
+            countryName
+        }.sorted()
+
+        val adapter = android.widget.ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, countryList)
+        binding.countryEdit.setAdapter(adapter)
+
+        binding.countryEdit.setOnItemClickListener { _, _, position, _ ->
+            val selectedCountry = countryList[position]
+            val code = countryCodeMap[selectedCountry] ?: "+1"
+            binding.edtPhoneEmail.setText(code)
+            binding.edtPhoneEmail.setSelection(code.length)
         }
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
