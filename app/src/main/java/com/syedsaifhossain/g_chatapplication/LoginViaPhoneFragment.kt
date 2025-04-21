@@ -50,6 +50,11 @@ class LoginViaPhoneFragment : Fragment() {
             }
         }
 
+        binding.button3.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
+
         // Set click listener for the "Login" button
         binding.loginViaPhoneBtn.setOnClickListener {
             val verificationCode = binding.verifyInputViaPhoneEdt.text.toString().trim()

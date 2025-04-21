@@ -64,6 +64,13 @@ class SignUpFragment : Fragment() {
             val code = getCountryCode(selectedCountry)
             binding.edtPhoneEmail.setText(code)
             binding.edtPhoneEmail.setSelection(code.length)
+<<<<<<< HEAD
+=======
+        }
+
+        binding.button2.setOnClickListener {
+            findNavController().popBackStack()
+>>>>>>> parent of f9214b0 (Merge pull request #4 from SyedSaifHossain/revert-3-add-send-code-button)
         }
 
 
@@ -232,7 +239,11 @@ class SignUpFragment : Fragment() {
             val countryName = java.util.Locale("", regionCode).displayCountry
 
             val countryCode = if (countryName == "Bangladesh") {
+<<<<<<< HEAD
                 "+880" // <-- correct format
+=======
+                "+88" // ✅ Custom override
+>>>>>>> parent of f9214b0 (Merge pull request #4 from SyedSaifHossain/revert-3-add-send-code-button)
             } else {
                 "+${phoneUtil.getCountryCodeForRegion(regionCode)}"
             }
