@@ -119,5 +119,15 @@
         android:layout_marginBottom="50dp"
         android:textStyle="bold"/>
 
+    <ImageButton
+        android:id="@+id/button2"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@null"
+        android:src="@drawable/arrowback"
+        android:contentDescription="Arrow button" />
+
 
 </RelativeLayout>
