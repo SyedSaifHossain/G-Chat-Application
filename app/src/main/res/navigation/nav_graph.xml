@@ -188,14 +188,6 @@
         tools:layout="@layout/fragment_signup_page" >
     </fragment>
     <fragment
-<<<<<<< HEAD
-=======
-        android:id="@+id/signupPageVerificationFragment"
-        android:name="com.syedsaifhossain.g_chatapplication.SignupPageVerificationFragment"
-        android:label="fragment_signup_page_verification"
-        tools:layout="@layout/fragment_signup_page_verification" />
-    <fragment
->>>>>>> parent of f9214b0 (Merge pull request #4 from SyedSaifHossain/revert-3-add-send-code-button)
         android:id="@+id/chatScreenFragment"
         android:name="com.syedsaifhossain.g_chatapplication.ChatScreenFragment"
         android:label="fragment_chat_screen"
