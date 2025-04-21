@@ -36,14 +36,6 @@ class SignInFragment : Fragment() {
             findNavController().navigate(R.id.action_signInFragment_to_selectRegionFragment)
         }
 
-<<<<<<< HEAD
-=======
-        binding.button2.setOnClickListener {
-            findNavController().popBackStack()
-        }
-
-
->>>>>>> parent of f9214b0 (Merge pull request #4 from SyedSaifHossain/revert-3-add-send-code-button)
         parentFragmentManager.setFragmentResultListener("regionSelection", viewLifecycleOwner) { _, bundle ->
             val selectedCountry = bundle.getString("selectedCountry", "")
             binding.regionEdt.setText(selectedCountry)
