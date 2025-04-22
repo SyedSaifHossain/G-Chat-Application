@@ -16,15 +16,12 @@ import com.syedsaifhossain.g_chatapplication.adapter.ChatMessageAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatScreenBinding
 import com.syedsaifhossain.g_chatapplication.models.ChatModel
 import com.vanniktech.emoji.EmojiPopup
-import com.vanniktech.emoji.EmojiEditText
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
-import android.view.inputmethod.InputMethodManager
-import android.content.Context
 import com.vanniktech.emoji.EmojiImageView
 import com.vanniktech.emoji.emoji.Emoji
 
-class ChatScreenFragment : Fragment() {
+class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListener {
 
     private var _binding: FragmentChatScreenBinding? = null
     private val binding get() = _binding!!
@@ -56,36 +53,36 @@ class ChatScreenFragment : Fragment() {
             adapter = chatMessageAdapter
         }
 
-        // Initialize emoji popup with all emojis
+        // Emoji Popup
         emojiPopup = EmojiPopup.Builder.fromRootView(binding.root)
-            .setOnEmojiPopupDismissListener { 
+            .setOnEmojiPopupDismissListener {
                 binding.imoButton.setImageResource(R.drawable.sticker)
             }
-            .setOnEmojiPopupShownListener { 
+            .setOnEmojiPopupShownListener {
                 binding.imoButton.setImageResource(R.drawable.keyboard)
             }
-            .setOnEmojiClickListener { imageView: EmojiImageView, emoji: Emoji ->
-                // Send the emoji immediately
+            .setOnEmojiClickListener { _: EmojiImageView, emoji: Emoji ->
                 sendMessageToFirebase(emoji.unicode)
-                // Hide emoji picker
                 emojiPopup.dismiss()
             }
-            .setPageTransformer { page, position -> }  // Add page transformer for smooth scrolling
             .build(binding.chatMessageInput)
 
-        // Set up emoji button click listener
+        // Toggle emoji popup
         binding.imoButton.setOnClickListener {
-            if (emojiPopup.isShowing) {
-                emojiPopup.dismiss()
-            } else {
-                emojiPopup.toggle()
-            }
+            if (emojiPopup.isShowing) emojiPopup.dismiss()
+            else emojiPopup.toggle()
         }
 
         listenForMessages()
         handleMessageSendOnEnter()
+
         binding.chatMessageBackImg.setOnClickListener {
             findNavController().popBackStack()
+        }
+
+        binding.chatAddButton.setOnClickListener {
+            AddOptionsBottomSheet(this@ChatScreenFragment)
+                .show(parentFragmentManager, "AddOptionsBottomSheet")
         }
     }
 
@@ -126,7 +123,7 @@ class ChatScreenFragment : Fragment() {
                     message?.let { chatList.add(it) }
                 }
 
-                chatList.sortBy { it.timestamp } // Ensure proper order
+                chatList.sortBy { it.timestamp }
                 chatMessageAdapter.notifyDataSetChanged()
                 binding.chatScreenRecyclerView.scrollToPosition(chatList.size - 1)
             }
@@ -135,6 +132,22 @@ class ChatScreenFragment : Fragment() {
                 Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    // Interface implementation (👇 These methods solve your error)
+    override fun onAlbumClicked() {
+        Toast.makeText(requireContext(), "Album Clicked", Toast.LENGTH_SHORT).show()
+        // TODO: Open gallery
+    }
+
+    override fun onCameraClicked() {
+        Toast.makeText(requireContext(), "Camera Clicked", Toast.LENGTH_SHORT).show()
+        // TODO: Launch camera
+    }
+
+    override fun onVideoCallClicked() {
+        Toast.makeText(requireContext(), "Video Call Clicked", Toast.LENGTH_SHORT).show()
+        // TODO: Start video call
     }
 
     override fun onDestroyView() {
