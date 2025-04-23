@@ -16,6 +16,16 @@
         android:padding="10dp"
         android:textColor="#000" />
 
+    <ImageView
+        android:id="@+id/receivedMessageImage"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:adjustViewBounds="true"
+        android:maxHeight="300dp"
+        android:maxWidth="200dp"/>
+
     <TextView
         android:id="@+id/receivedTime"
         android:layout_width="wrap_content"

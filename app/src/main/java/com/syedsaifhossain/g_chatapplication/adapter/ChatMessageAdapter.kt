@@ -3,8 +3,10 @@ package com.syedsaifhossain.g_chatapplication.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.syedsaifhossain.g_chatapplication.R
 import com.syedsaifhossain.g_chatapplication.models.ChatModel
 import com.vanniktech.emoji.EmojiTextView
@@ -49,9 +51,20 @@ class ChatMessageAdapter(
     inner class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val textView: EmojiTextView = itemView.findViewById(R.id.sentMessageText)
         private val timeView: TextView = itemView.findViewById(R.id.sentTime)
+        private val imageView: ImageView = itemView.findViewById(R.id.sentMessageImage)
 
         fun bind(message: ChatModel) {
-            textView.text = message.message
+            if (message.imageUrl != null) {
+                textView.visibility = View.GONE
+                imageView.visibility = View.VISIBLE
+                Glide.with(itemView.context)
+                    .load(message.imageUrl)
+                    .into(imageView)
+            } else {
+                textView.visibility = View.VISIBLE
+                imageView.visibility = View.GONE
+                textView.text = message.message
+            }
             timeView.text = formatTime(message.timestamp.toLong())
         }
     }
@@ -59,9 +72,20 @@ class ChatMessageAdapter(
     inner class ReceivedMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val textView: EmojiTextView = itemView.findViewById(R.id.receivedMessageText)
         private val timeView: TextView = itemView.findViewById(R.id.receivedTime)
+        private val imageView: ImageView = itemView.findViewById(R.id.receivedMessageImage)
 
         fun bind(message: ChatModel) {
-            textView.text = message.message
+            if (message.imageUrl != null) {
+                textView.visibility = View.GONE
+                imageView.visibility = View.VISIBLE
+                Glide.with(itemView.context)
+                    .load(message.imageUrl)
+                    .into(imageView)
+            } else {
+                textView.visibility = View.VISIBLE
+                imageView.visibility = View.GONE
+                textView.text = message.message
+            }
             timeView.text = formatTime(message.timestamp.toLong())
         }
     }
