@@ -16,6 +16,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,7 +31,12 @@ import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
 import com.vanniktech.emoji.EmojiImageView
 import com.vanniktech.emoji.emoji.Emoji
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
+import android.os.Environment
 
 class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListener {
 
@@ -42,6 +48,8 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
     private lateinit var currentUserId: String
     private lateinit var emojiPopup: EmojiPopup
     private var selectedImageUri: Uri? = null
+    private var currentPhotoPath: String? = null
+    private var selectedCameraPhotoUri: Uri? = null
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -58,6 +66,32 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
             openGallery()
         } else {
             Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Camera permission launcher
+    private val requestCameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                openCamera()
+            } else {
+                Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    // Camera launcher
+    private val cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            currentPhotoPath?.let { path ->
+                val photoFile = File(path)
+                val photoUri = FileProvider.getUriForFile(
+                    requireContext(),
+                    "${requireContext().packageName}.fileprovider",
+                    photoFile
+                )
+                selectedCameraPhotoUri = photoUri
+                binding.chatMessageInput.setText("📷 Photo taken. Press Enter to send.")
+            }
         }
     }
 
@@ -121,7 +155,11 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
             if (actionId == EditorInfo.IME_ACTION_DONE ||
                 (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
             ) {
-                if (selectedImageUri != null) {
+                if (selectedCameraPhotoUri != null) {
+                    uploadImageToFirebase(selectedCameraPhotoUri!!)
+                    selectedCameraPhotoUri = null
+                    binding.chatMessageInput.setText("")
+                } else if (selectedImageUri != null) {
                     uploadImageToFirebase(selectedImageUri!!)
                     selectedImageUri = null
                 } else {
@@ -336,8 +374,53 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
     }
 
     override fun onCameraClicked() {
-        Toast.makeText(requireContext(), "Camera Clicked", Toast.LENGTH_SHORT).show()
-        // TODO: Launch camera
+        checkCameraPermission()
+    }
+
+    private fun checkCameraPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                openCamera()
+            }
+            else -> {
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    private fun openCamera() {
+        try {
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                val photoFile = createImageFile()
+                val photoURI = FileProvider.getUriForFile(
+                    requireContext(),
+                    "${requireContext().packageName}.fileprovider",
+                    photoFile
+                )
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                cameraLauncher.launch(intent)
+            } else {
+                Toast.makeText(requireContext(), "No camera app found", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun createImageFile(): File {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+            "JPEG_${timeStamp}_",
+            ".jpg",
+            storageDir
+        ).apply {
+            currentPhotoPath = absolutePath
+        }
     }
 
     override fun onVideoCallClicked() {
