@@ -41,6 +41,7 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
     private val chatList = mutableListOf<ChatModel>()
     private lateinit var currentUserId: String
     private lateinit var emojiPopup: EmojiPopup
+    private var selectedImageUri: Uri? = null
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -120,10 +121,15 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
             if (actionId == EditorInfo.IME_ACTION_DONE ||
                 (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
             ) {
-                val message = binding.chatMessageInput.text.toString().trim()
-                if (message.isNotEmpty()) {
-                    sendMessageToFirebase(message)
-                    binding.chatMessageInput.setText("")
+                if (selectedImageUri != null) {
+                    uploadImageToFirebase(selectedImageUri!!)
+                    selectedImageUri = null
+                } else {
+                    val message = binding.chatMessageInput.text.toString().trim()
+                    if (message.isNotEmpty()) {
+                        sendMessageToFirebase(message)
+                        binding.chatMessageInput.setText("")
+                    }
                 }
                 true
             } else {
@@ -137,9 +143,19 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
         val messageId = chatRef.push().key ?: return
 
         val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
-        val message = ChatModel(senderId, messageText, System.currentTimeMillis().toString())
+        val message = ChatModel(
+            senderId = senderId,
+            message = messageText,
+            timestamp = System.currentTimeMillis()
+        )
 
         chatRef.child(messageId).setValue(message)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Message sent", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Failed to send message: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun listenForMessages() {
@@ -197,23 +213,126 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
     }
 
     private fun uploadImageToFirebase(imageUri: Uri) {
-        val storageRef = FirebaseStorage.getInstance().reference
-        val imageRef = storageRef.child("chat_images/${UUID.randomUUID()}")
-        
-        binding.progressBar.visibility = View.VISIBLE // Add a progress bar to your layout
-        
-        imageRef.putFile(imageUri)
-            .addOnSuccessListener { taskSnapshot ->
-                imageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
-                    // Send the image URL as a message
-                    sendMessageToFirebase("📷 " + downloadUrl.toString())
+        try {
+            // Check if the URI is valid
+            if (imageUri == Uri.EMPTY) {
+                Toast.makeText(requireContext(), "Invalid image selected", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            // Check if the file exists
+            val inputStream = requireContext().contentResolver.openInputStream(imageUri)
+            if (inputStream == null) {
+                Toast.makeText(requireContext(), "Cannot access the selected image", Toast.LENGTH_SHORT).show()
+                return
+            }
+            inputStream.close()
+
+            // Compress the image
+            val compressedImageUri = compressImage(imageUri)
+            if (compressedImageUri == null) {
+                Toast.makeText(requireContext(), "Failed to compress image", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val storageRef = FirebaseStorage.getInstance().reference
+            val imageRef = storageRef.child("chat_images/${UUID.randomUUID()}")
+            
+            binding.progressBar.visibility = View.VISIBLE
+            
+            // Get the file extension
+            val mimeType = requireContext().contentResolver.getType(imageUri)
+            val extension = mimeType?.substringAfterLast("/") ?: "jpg"
+            val finalImageRef = imageRef.child("image.$extension")
+            
+            // Create metadata
+            val metadata = com.google.firebase.storage.StorageMetadata.Builder()
+                .setContentType(mimeType)
+                .build()
+            
+            finalImageRef.putFile(compressedImageUri, metadata)
+                .addOnProgressListener { taskSnapshot ->
+                    val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
+                    binding.progressBar.progress = progress
+                }
+                .addOnSuccessListener { taskSnapshot ->
+                    finalImageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
+                        // Create a chat message with the image URL
+                        val chatRef = FirebaseDatabase.getInstance().getReference("chats")
+                        val messageId = chatRef.push().key ?: return@addOnSuccessListener
+
+                        val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
+                        val message = ChatModel(
+                            senderId = senderId,
+                            message = "📷 Image",
+                            imageUrl = downloadUrl.toString(),
+                            timestamp = System.currentTimeMillis()
+                        )
+
+                        chatRef.child(messageId).setValue(message)
+                            .addOnSuccessListener {
+                                Toast.makeText(requireContext(), "Image sent successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(requireContext(), "Failed to send image: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        binding.progressBar.visibility = View.GONE
+                    }
+                }
+                .addOnFailureListener { e ->
+                    val errorMessage = when {
+                        e.message?.contains("permission") == true -> "Storage permission denied"
+                        e.message?.contains("network") == true -> "Network error. Please check your connection"
+                        else -> "Failed to upload image: ${e.message}"
+                    }
+                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
                     binding.progressBar.visibility = View.GONE
                 }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            binding.progressBar.visibility = View.GONE
+        }
+    }
+
+    private fun compressImage(imageUri: Uri): Uri? {
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(imageUri)
+            val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+
+            // Calculate new dimensions
+            val maxDimension = 1024 // Maximum dimension for the compressed image
+            val width = bitmap.width
+            val height = bitmap.height
+            var newWidth = width
+            var newHeight = height
+
+            if (width > height && width > maxDimension) {
+                newWidth = maxDimension
+                newHeight = (height * maxDimension) / width
+            } else if (height > maxDimension) {
+                newHeight = maxDimension
+                newWidth = (width * maxDimension) / height
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
-                binding.progressBar.visibility = View.GONE
-            }
+
+            // Create compressed bitmap
+            val compressedBitmap = android.graphics.Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+
+            // Create a temporary file for the compressed image
+            val tempFile = java.io.File.createTempFile("compressed_", ".jpg", requireContext().cacheDir)
+            val outputStream = java.io.FileOutputStream(tempFile)
+            compressedBitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 80, outputStream)
+            outputStream.close()
+
+            // Clean up
+            bitmap.recycle()
+            compressedBitmap.recycle()
+
+            return Uri.fromFile(tempFile)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 
     override fun onCameraClicked() {
