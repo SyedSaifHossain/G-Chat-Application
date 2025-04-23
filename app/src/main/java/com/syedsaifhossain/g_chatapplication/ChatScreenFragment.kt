@@ -1,17 +1,27 @@
 package com.syedsaifhossain.g_chatapplication
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
 import com.syedsaifhossain.g_chatapplication.adapter.ChatMessageAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatScreenBinding
 import com.syedsaifhossain.g_chatapplication.models.ChatModel
@@ -20,6 +30,7 @@ import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
 import com.vanniktech.emoji.EmojiImageView
 import com.vanniktech.emoji.emoji.Emoji
+import java.util.UUID
 
 class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListener {
 
@@ -30,6 +41,24 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
     private val chatList = mutableListOf<ChatModel>()
     private lateinit var currentUserId: String
     private lateinit var emojiPopup: EmojiPopup
+
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                uploadImageToFirebase(uri)
+            }
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            openGallery()
+        } else {
+            Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -136,8 +165,55 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
 
     // Interface implementation (👇 These methods solve your error)
     override fun onAlbumClicked() {
-        Toast.makeText(requireContext(), "Album Clicked", Toast.LENGTH_SHORT).show()
-        // TODO: Open gallery
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                // For Android 13 and above, use READ_MEDIA_IMAGES
+                checkAndRequestPermission(Manifest.permission.READ_MEDIA_IMAGES)
+            }
+            else -> {
+                // For Android 12 and below, use READ_EXTERNAL_STORAGE
+                checkAndRequestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+    }
+
+    private fun checkAndRequestPermission(permission: String) {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                permission
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                openGallery()
+            }
+            else -> {
+                requestPermissionLauncher.launch(permission)
+            }
+        }
+    }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        galleryLauncher.launch(intent)
+    }
+
+    private fun uploadImageToFirebase(imageUri: Uri) {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("chat_images/${UUID.randomUUID()}")
+        
+        binding.progressBar.visibility = View.VISIBLE // Add a progress bar to your layout
+        
+        imageRef.putFile(imageUri)
+            .addOnSuccessListener { taskSnapshot ->
+                imageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    // Send the image URL as a message
+                    sendMessageToFirebase("📷 " + downloadUrl.toString())
+                    binding.progressBar.visibility = View.GONE
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Failed to upload image: ${e.message}", Toast.LENGTH_SHORT).show()
+                binding.progressBar.visibility = View.GONE
+            }
     }
 
     override fun onCameraClicked() {
