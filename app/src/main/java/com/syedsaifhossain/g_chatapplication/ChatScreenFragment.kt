@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -50,6 +51,8 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
     private var selectedImageUri: Uri? = null
     private var currentPhotoPath: String? = null
     private var selectedCameraPhotoUri: Uri? = null
+    private var mediaRecorder: MediaRecorder? = null
+    private var audioFile: File? = null
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -147,6 +150,24 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
         binding.chatAddButton.setOnClickListener {
             AddOptionsBottomSheet(this@ChatScreenFragment)
                 .show(parentFragmentManager, "AddOptionsBottomSheet")
+        }
+
+        binding.chatMicButton.setOnClickListener {
+            if (checkAudioPermission()) {
+                startRecording()
+            } else {
+                requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 101)
+            }
+        }
+
+        binding.chatMessageInput.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                stopRecording()
+                sendAudioMessage()
+                true
+            } else {
+                false
+            }
         }
     }
 
@@ -275,19 +296,19 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
 
             val storageRef = FirebaseStorage.getInstance().reference
             val imageRef = storageRef.child("chat_images/${UUID.randomUUID()}")
-            
+
             binding.progressBar.visibility = View.VISIBLE
-            
+
             // Get the file extension
             val mimeType = requireContext().contentResolver.getType(imageUri)
             val extension = mimeType?.substringAfterLast("/") ?: "jpg"
             val finalImageRef = imageRef.child("image.$extension")
-            
+
             // Create metadata
             val metadata = com.google.firebase.storage.StorageMetadata.Builder()
                 .setContentType(mimeType)
                 .build()
-            
+
             finalImageRef.putFile(compressedImageUri, metadata)
                 .addOnProgressListener { taskSnapshot ->
                     val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
@@ -422,6 +443,48 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
             currentPhotoPath = absolutePath
         }
     }
+
+    private fun checkAudioPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(), Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun startRecording() {
+        try {
+            audioFile = File(requireContext().cacheDir, "voice_message.3gp")
+            mediaRecorder = MediaRecorder().apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                setOutputFile(audioFile!!.absolutePath)
+                prepare()
+                start()
+            }
+            Toast.makeText(context, "Recording started...", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun stopRecording() {
+        mediaRecorder?.apply {
+            stop()
+            release()
+        }
+        mediaRecorder = null
+        Toast.makeText(context, "Recording stopped", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun sendAudioMessage() {
+        if (audioFile?.exists() == true) {
+            // Upload file / send via chat logic here
+            Toast.makeText(context, "Voice message ready to send", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "No recording found", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     override fun onVideoCallClicked() {
         findNavController().navigate(R.id.action_chatScreenFragment_to_videoCallFragment)
