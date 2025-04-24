@@ -191,5 +191,14 @@
         android:id="@+id/chatScreenFragment"
         android:name="com.syedsaifhossain.g_chatapplication.ChatScreenFragment"
         android:label="fragment_chat_screen"
-        tools:layout="@layout/fragment_chat_screen" />
+        tools:layout="@layout/fragment_chat_screen" >
+        <action
+            android:id="@+id/action_chatScreenFragment_to_videoCallFragment"
+            app:destination="@id/videoCallFragment5" />
+    </fragment>
+    <fragment
+        android:id="@+id/videoCallFragment5"
+        android:name="com.syedsaifhossain.g_chatapplication.VideoCallFragment"
+        android:label="fragment_video_call"
+        tools:layout="@layout/fragment_video_call" />
 </navigation>

@@ -424,8 +424,7 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
     }
 
     override fun onVideoCallClicked() {
-        Toast.makeText(requireContext(), "Video Call Clicked", Toast.LENGTH_SHORT).show()
-        // TODO: Start video call
+        findNavController().navigate(R.id.action_chatScreenFragment_to_videoCallFragment)
     }
 
     override fun onDestroyView() {
