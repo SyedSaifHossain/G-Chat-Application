@@ -7,7 +7,17 @@
     android:background="#E0E0E0"
     tools:context=".VideoCallFragment">
 
-    <!-- Profile picture and user name -->
+    <FrameLayout
+        android:id="@+id/localVideoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <FrameLayout
+        android:id="@+id/remoteVideoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
     <LinearLayout
         android:id="@+id/userInfoLayout"
         android:layout_width="wrap_content"
