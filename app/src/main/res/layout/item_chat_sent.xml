@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:paddingEnd="16dp"
+    android:paddingStart="60dp">
+    <!-- Add paddingStart to prevent bubble touching edge -->
+
+    <ImageView
+        android:id="@+id/iv_avatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="8dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/profile" />
+    <!-- Placeholder, ensure R.drawable.profile exists -->
+
+    <!-- Bubble background drawable -->
+    <LinearLayout
+        android:id="@+id/layout_message_bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/iv_avatar"
+        android:layout_alignTop="@id/iv_avatar"
+        android:orientation="vertical"
+        android:background="@drawable/bg_chat_sent"
+        android:padding="10dp">
+
+        <!-- Sent messages often use white text -->
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:text="Sent message text" />
+
+        <!-- Optional: TextView for timestamp -->
+        <!-- Lighter gray for sent timestamp -->
+        <TextView
+            android:id="@+id/tv_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:layout_marginTop="4dp"
+            android:layout_gravity="end"
+            android:textColor="#B0FFFFFF"
+            android:text="10:01 AM"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
