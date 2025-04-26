@@ -13,6 +13,8 @@ import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
 import io.agora.rtc.video.VideoCanvas
 import android.Manifest
+import android.os.Build
+import androidx.annotation.RequiresApi
 
 class VideoCallFragment : Fragment() {
 
@@ -32,15 +34,17 @@ class VideoCallFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        view.importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
 
         if (hasPermissions()) {
             setupUI()
         } else {
             ActivityCompat.requestPermissions(
                 requireActivity(),
-
                 arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO),
                 1
             )
@@ -53,11 +57,16 @@ class VideoCallFragment : Fragment() {
         binding.userName.text = "User Name"
         binding.userStatus.text = "View Her Recent Activity"
 
+
         binding.micButton.setOnClickListener {
             isMuted = !isMuted
             rtcEngine.muteLocalAudioStream(isMuted)
-            // Update UI icon
+            binding.micButton.setImageResource(
+                if (isMuted) R.drawable.micoff else R.drawable.micon
+            )
+            binding.micButton.alpha = if (isMuted) 0.5f else 1.0f
         }
+
 
         binding.cameraButton.setOnClickListener {
             isVideoEnabled = !isVideoEnabled
@@ -79,6 +88,7 @@ class VideoCallFragment : Fragment() {
             rtcEngine.switchCamera()
         }
     }
+
 
     private fun initializeAgoraEngine() {
         try {
@@ -104,7 +114,7 @@ class VideoCallFragment : Fragment() {
             setupLocalVideo()
         }
 
-        rtcEngine.joinChannel(null, "channelName", "", 0)
+        rtcEngine.joinChannel("d9a756176e49445a81c1af8f6051ebd1", "channelName", "", 0)
     }
 
 
