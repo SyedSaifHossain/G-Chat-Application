@@ -9,30 +9,37 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.syedsaifhossain.g_chatapplication.R
 import com.syedsaifhossain.g_chatapplication.models.ChatModel
-import com.vanniktech.emoji.EmojiTextView
+// Remove EmojiTextView import if not needed, our new layout uses standard TextView
+// import com.vanniktech.emoji.EmojiTextView
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 class ChatMessageAdapter(
     private val chatList: List<ChatModel>,
-    private val currentUserId: String
+    private val currentUserId: String,
+    // --- ADDED: Avatar URLs ---
+    private val myAvatarUrl: String?,
+    private val otherUserAvatarUrl: String?
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    // View types remain the same
     private val VIEW_TYPE_SENT = 1
     private val VIEW_TYPE_RECEIVED = 2
 
     override fun getItemViewType(position: Int): Int {
+        // Logic remains the same
         return if (chatList[position].senderId == currentUserId) VIEW_TYPE_SENT else VIEW_TYPE_RECEIVED
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
+        // --- MODIFIED: Inflate the NEW layout files ---
         return if (viewType == VIEW_TYPE_SENT) {
-            val view = inflater.inflate(R.layout.item_message_sent, parent, false)
+            val view = inflater.inflate(R.layout.item_chat_sent, parent, false) // Use item_chat_sent
             SentMessageViewHolder(view)
         } else {
-            val view = inflater.inflate(R.layout.item_message_received, parent, false)
+            val view = inflater.inflate(R.layout.item_chat_received, parent, false) // Use item_chat_received
             ReceivedMessageViewHolder(view)
         }
     }
@@ -41,56 +48,72 @@ class ChatMessageAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = chatList[position]
+        // --- MODIFIED: Pass avatar URLs to bind methods ---
         if (holder is SentMessageViewHolder) {
-            holder.bind(message)
+            holder.bind(message, myAvatarUrl) // Pass my avatar URL
         } else if (holder is ReceivedMessageViewHolder) {
-            holder.bind(message)
+            holder.bind(message, otherUserAvatarUrl) // Pass other user's avatar URL
         }
     }
 
+    // --- MODIFIED: Sent Message ViewHolder ---
     inner class SentMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val textView: EmojiTextView = itemView.findViewById(R.id.sentMessageText)
-        private val timeView: TextView = itemView.findViewById(R.id.sentTime)
-        private val imageView: ImageView = itemView.findViewById(R.id.sentMessageImage)
+        // --- Find views using IDs from item_chat_sent.xml ---
+        private val messageText: TextView = itemView.findViewById(R.id.tv_message)
+        private val timeText: TextView = itemView.findViewById(R.id.tv_timestamp)
+        private val avatarImage: ImageView = itemView.findViewById(R.id.iv_avatar)
+        // TODO: Add handling for image messages if needed later (find ImageView for message content)
 
-        fun bind(message: ChatModel) {
-            if (message.imageUrl != null) {
-                textView.visibility = View.GONE
-                imageView.visibility = View.VISIBLE
+        // --- Modified bind method to accept avatar URL ---
+        fun bind(message: ChatModel, avatarUrl: String?) {
+            // TODO: Handle image messages (message.imageUrl) if needed
+            // For now, assuming only text messages
+            messageText.text = message.message
+            timeText.text = formatTime(message.timestamp) // Ensure timestamp is Long
+
+            // Load avatar
+            if (avatarUrl != null) {
                 Glide.with(itemView.context)
-                    .load(message.imageUrl)
-                    .into(imageView)
+                    .load(avatarUrl)
+                    .placeholder(R.drawable.profile) // Your placeholder
+                    .error(R.drawable.profile)       // Your error placeholder
+                    .into(avatarImage)
             } else {
-                textView.visibility = View.VISIBLE
-                imageView.visibility = View.GONE
-                textView.text = message.message
+                avatarImage.setImageResource(R.drawable.profile) // Fallback to placeholder
             }
-            timeView.text = formatTime(message.timestamp.toLong())
         }
     }
 
+    // --- MODIFIED: Received Message ViewHolder ---
     inner class ReceivedMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val textView: EmojiTextView = itemView.findViewById(R.id.receivedMessageText)
-        private val timeView: TextView = itemView.findViewById(R.id.receivedTime)
-        private val imageView: ImageView = itemView.findViewById(R.id.receivedMessageImage)
+        // --- Find views using IDs from item_chat_received.xml ---
+        private val messageText: TextView = itemView.findViewById(R.id.tv_message)
+        private val timeText: TextView = itemView.findViewById(R.id.tv_timestamp)
+        private val avatarImage: ImageView = itemView.findViewById(R.id.iv_avatar)
+        // TODO: Add handling for image messages if needed later
 
-        fun bind(message: ChatModel) {
-            if (message.imageUrl != null) {
-                textView.visibility = View.GONE
-                imageView.visibility = View.VISIBLE
+        // --- Modified bind method to accept avatar URL ---
+        fun bind(message: ChatModel, avatarUrl: String?) {
+            // TODO: Handle image messages (message.imageUrl) if needed
+            messageText.text = message.message
+            timeText.text = formatTime(message.timestamp) // Ensure timestamp is Long
+
+            // Load avatar
+            if (avatarUrl != null) {
                 Glide.with(itemView.context)
-                    .load(message.imageUrl)
-                    .into(imageView)
+                    .load(avatarUrl)
+                    .placeholder(R.drawable.profile) // Your placeholder
+                    .error(R.drawable.profile)       // Your error placeholder
+                    .into(avatarImage)
             } else {
-                textView.visibility = View.VISIBLE
-                imageView.visibility = View.GONE
-                textView.text = message.message
+                avatarImage.setImageResource(R.drawable.profile) // Fallback to placeholder
             }
-            timeView.text = formatTime(message.timestamp.toLong())
         }
     }
 
-    private fun formatTime(timestamp: Long): String {
+    // --- formatTime method (ensure timestamp is Long) ---
+    private fun formatTime(timestamp: Long?): String {
+        if (timestamp == null) return "" // Handle null timestamp
         val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
         return sdf.format(Date(timestamp))
     }
