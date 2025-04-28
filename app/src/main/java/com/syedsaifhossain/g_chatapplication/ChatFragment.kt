@@ -1,6 +1,6 @@
 package com.syedsaifhossain.g_chatapplication
 
-import android.os.Build
+import android.os.Build // Keep existing imports
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -13,13 +13,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.adapter.ChatAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatBinding
-import com.syedsaifhossain.g_chatapplication.models.Chats
+import com.syedsaifhossain.g_chatapplication.models.Chats // Make sure Chats model is imported
 
 class ChatFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var chatAdapter: ChatAdapter
-    private lateinit var messageList: ArrayList<Chats> // Change to ArrayList
+    // messageList will now hold Chats objects with more fields
+    private lateinit var messageList: ArrayList<Chats>
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
@@ -33,17 +34,64 @@ class ChatFragment : Fragment() {
         recyclerView = binding.chatRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(context) // Vertical List
 
-        // Example data (You can replace it with dynamic data)
+        // --- MODIFICATION START ---
+
+        // 1. TODO: Replace this with REAL data loading from Firebase later!
+        // Create NEW example data that includes all required fields from the updated Chats class
         messageList = arrayListOf(
-            Chats(R.drawable.profile,"Aaron Loed", "Hi"),
+            Chats(
+                imageRes = R.drawable.profile, // Still using drawable for now
+                name = "Aaron Loed (Example)", // This will be otherUserName (original data)
+                message = "Hi from example!",
+                // Add values for the new fields:
+                otherUserId = "user_id_aaron", // Example other user ID
+                otherUserAvatarUrl = "https://example.com/aaron_avatar.png" // Example avatar URL (can be null)
+            ),
+            Chats(
+                imageRes = R.drawable.cityimg, // Another example image
+                name = "Jane Smith (Example)", // This will be otherUserName (original data)
+                message = "See you soon!",
+                // Add values for the new fields:
+                otherUserId = "user_id_jane",
+                otherUserAvatarUrl = null // Example where avatar URL might be null
+            )
+            // Add more sample chats here if needed for testing
         )
 
-        // Set adapter
-        chatAdapter = ChatAdapter(messageList){
+        // TODO: Get the current user's avatar URL (replace with actual logic)
+        // For now, using a placeholder. You might get this after login or from user profile data.
+        val myAvatarUrlPlaceholder = "https://example.com/my_avatar.png"
 
-            findNavController().navigate(R.id.action_homeFragment_to_chatScreenFragment)
+        // 2. Set adapter WITH argument passing logic in onItemClick
+        chatAdapter = ChatAdapter(messageList) { clickedChatItem ->
+            // This lambda is executed when a chat item is clicked
+            // clickedChatItem is the Chats object for the clicked row
+
+            // Prepare arguments to pass to ChatScreenFragment using a Bundle
+            val args = Bundle().apply {
+                putString("otherUserId", clickedChatItem.otherUserId)
+
+                // --- MODIFIED: Clean the name before passing ---
+                val originalName = clickedChatItem.name
+                val cleanedName = if (originalName.endsWith(" (Example)")) {
+                    originalName.removeSuffix(" (Example)")
+                } else {
+                    originalName
+                }
+                putString("otherUserName", cleanedName) // Pass the cleaned name
+                // --- END MODIFICATION ---
+
+                putString("otherUserAvatarUrl", clickedChatItem.otherUserAvatarUrl) // Pass the URL (can be null)
+                putString("myAvatarUrl", myAvatarUrlPlaceholder) // Pass your own avatar URL placeholder
+            }
+
+            // Navigate to ChatScreenFragment, passing the arguments Bundle
+            // Make sure the action ID is correct (it was defined in nav_graph.xml)
+            findNavController().navigate(R.id.action_homeFragment_to_chatScreenFragment, args)
         }
         recyclerView.adapter = chatAdapter
+
+        // --- MODIFICATION END ---
 
         // Show PopupMenu when addButton is clicked
         binding.addButton.setOnClickListener {
@@ -52,7 +100,7 @@ class ChatFragment : Fragment() {
         return binding.root
     }
 
-    // Method to show PopupMenu
+    // Method to show PopupMenu (remains the same)
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun showPopupMenu(view: View) {
         val popupMenu = PopupMenu(requireContext(), view)
