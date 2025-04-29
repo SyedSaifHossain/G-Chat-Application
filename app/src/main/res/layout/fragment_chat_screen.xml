@@ -125,7 +125,7 @@
                 android:background="@android:drawable/editbox_background_normal"
                 android:hint="Enter your message..."
                 android:imeOptions="actionSend"
-                android:inputType="textMultiLine|textCapSentences"
+                android:inputType="text"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:paddingTop="8dp"
