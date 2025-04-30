@@ -2,65 +2,65 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/black">
 
-    <!-- CardView wrapping the content -->
-    <androidx.cardview.widget.CardView
+    <RelativeLayout
+        android:id="@+id/chatItemLayout"
         android:layout_width="match_parent"
-        android:layout_height="110dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_margin="8dp"
-        app:cardCornerRadius="15dp"
-        app:cardElevation="4dp"
-        app:cardUseCompatPadding="true">
+        android:layout_alignParentEnd="true"
+        android:padding="10dp">
 
-        <!-- Content inside the CardView (RelativeLayout) -->
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/chatsImg"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_gravity="center"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/round_shape_bg"
+            android:src="@drawable/default_avatar" />
+
+        <TextView
+            android:id="@+id/nameId"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp">
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@+id/chatsImg"
+            android:text="Aaron Loeb"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/chatsImg"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_alignParentStart="true"
-                android:layout_gravity="center"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="15dp"
-                app:civ_border_color="#FFFFFF"
-                app:civ_border_width="3dp"
-                app:civ_shadow="true"
-                app:civ_shadow_radius="10dp" />
+        <TextView
+            android:id="@+id/messageId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nameId"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@+id/chatsImg"
+            android:text="Hi! How are you"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/nameId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="10dp"
-                android:text="Aaron Loeb"
-                android:textStyle="bold"
-                android:layout_marginStart="20dp"
-                android:layout_toEndOf="@+id/chatsImg"
-                android:textSize="22sp" />
-
-            <TextView
-                android:id="@+id/messageId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/nameId"
-                android:layout_marginTop="10dp"
-                android:text="Hi! How are you"
-                android:textStyle="bold"
-                android:layout_marginStart="20dp"
-                android:layout_toEndOf="@+id/chatsImg"
-                android:textSize="18sp" />
-
-        </RelativeLayout>
-
-    </androidx.cardview.widget.CardView>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_below="@id/messageId"
+            android:layout_alignStart="@+id/messageId"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="15dp"
+            android:background="#636363" />
+    </RelativeLayout>
 
 </RelativeLayout>
