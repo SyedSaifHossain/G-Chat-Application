@@ -4,64 +4,86 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black"
     tools:context=".ChatScreenFragment">
 
     <!--vvv MODIFIED TOOLBAR LAYOUT vvv-->
     <RelativeLayout
         android:id="@+id/chatMessageLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
+        android:layout_height="80dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:background="#E0D9D9"
+        android:gravity="center_vertical"
+        android:minHeight="?attr/actionBarSize"
         android:paddingStart="8dp"
         android:paddingEnd="8dp">
 
         <ImageView
             android:id="@+id/chatMessage_back_img"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:padding="12dp"
+            android:layout_marginStart="10dp"
             android:src="@drawable/arrowback"
-            app:tint="#000000"
-            android:background="?attr/selectableItemBackgroundBorderless" />
+            app:tint="#0ABAB5" />
 
-        <!-- 头像 ImageView 已被移除 -->
+        <ImageView
+            android:id="@+id/toolbarUserImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/chatMessage_back_img"
+            android:src="@drawable/default_avatar"
+            app:tint="#0ABAB5" />
 
-        <!-- === MODIFIED: User Name TextView === -->
-        <!-- Make sure the actual name is set in code -->
         <TextView
             android:id="@+id/tvToolbarUserName"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/chatMessage_back_img"
-            android:layout_toStartOf="@+id/more_icon"
             android:layout_centerVertical="true"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:gravity="center_horizontal"
-            android:text="User Name"
-            android:textColor="@android:color/black"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@+id/videoIcon"
+            android:layout_toEndOf="@id/toolbarUserImage"
             android:maxLines="1"
-            android:ellipsize="end"/>
+            android:text="User Name"
+            android:textColor="#0ABAB5"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-        <!-- Existing More Icon -->
+        <ImageView
+            android:id="@+id/videoIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:layout_toStartOf="@+id/callIcon"
+            android:src="@drawable/videocall"
+            app:tint="#0ABAB5" />
+
+        <ImageView
+            android:id="@+id/callIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:layout_toStartOf="@+id/more_icon"
+            android:src="@drawable/callend"
+            android:backgroundTint="#0ABAB5" />
+
         <ImageView
             android:id="@+id/more_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="12dp"
             android:src="@drawable/moreicon"
-            app:tint="#000000"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+            app:tint="#0ABAB5" />
 
     </RelativeLayout>
     <!--^^^ MODIFIED TOOLBAR LAYOUT ^^^-->
@@ -71,90 +93,90 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_above="@+id/chatScreen_bottom_layout"
+        android:layout_below="@+id/chatMessageLayout"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/chatMessageLayout"/>
+        android:layout_alignParentEnd="true" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <RelativeLayout
         android:id="@+id/chatScreen_bottom_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="80dp"
+        android:layout_height="80dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:background="#E0D9D9"
         android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        android:paddingBottom="8dp"
+        android:gravity="center_vertical">
 
-        <ImageView
-            android:id="@+id/chat_mic_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+
+        <EditText
+            android:id="@+id/chatMessage_input"
+            android:layout_width="340dp"
+            android:layout_height="60dp"
             android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="8dp"
-            android:src="@drawable/voice"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="8dp"/>
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/rounded_edit_field"
+            android:hint="Message"
+            android:gravity="center"
+            android:textColorHint="@color/black"
+            android:imeOptions="actionSend"
+            android:inputType="text"
+            android:layout_marginStart="10dp"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/chatMessageInputLayout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_toStartOf="@id/imo_button"
-            android:layout_toEndOf="@id/chat_mic_button"
-            app:boxBackgroundMode="none"
-            app:hintEnabled="false">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/chatMessage_input"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="50dp"
-                android:background="@android:drawable/editbox_background_normal"
-                android:hint="Enter your message..."
-                android:imeOptions="actionSend"
-                android:inputType="text"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"/>
-
-        </com.google.android.material.textfield.TextInputLayout>
 
 
         <ImageView
             android:id="@+id/imo_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="8dp"
+            android:layout_alignTop="@id/chatMessage_input"
+            android:layout_alignBottom="@id/chatMessage_input"
+            android:layout_marginStart="8dp"
+            android:padding="5dp"
+
+            android:layout_marginEnd="10dp"
+            android:layout_alignStart="@id/chatMessage_input"
+            android:src="@drawable/addbutton" />
+
+        <ImageView
+            android:id="@+id/cameraIcon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="16dp"
             android:layout_toStartOf="@id/chatAdd_button"
-            android:src="@drawable/sticker"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="8dp"/>
+            android:src="@drawable/camera" />
 
         <ImageView
             android:id="@+id/chatAdd_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="16dp"
+            android:layout_toStartOf="@id/chat_mic_button"
+            android:padding="5dp"
             android:layout_marginEnd="8dp"
-            android:src="@drawable/addbutton"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="8dp"/>
+            android:src="@drawable/addbutton" />
+
+        <ImageView
+            android:id="@+id/chat_mic_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:padding="5dp"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/voice"
+            android:backgroundTint="#0ABAB5"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/round_shape_bg"/>
     </RelativeLayout>
 
 </RelativeLayout>
