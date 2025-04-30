@@ -61,6 +61,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_toStartOf="@+id/callIcon"
+
             android:src="@drawable/videocall"
             app:tint="#0ABAB5" />
 
@@ -71,8 +72,9 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_toStartOf="@+id/more_icon"
-            android:src="@drawable/callend"
-            android:backgroundTint="#0ABAB5" />
+            android:src="@drawable/callicon"
+            android:backgroundTint="#0ABAB5"
+            app:tint="#0ABAB5" />
 
         <ImageView
             android:id="@+id/more_icon"
@@ -121,29 +123,31 @@
             android:layout_width="340dp"
             android:layout_height="60dp"
             android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
+            android:layout_marginStart="10dp"
             android:background="@drawable/rounded_edit_field"
-            android:hint="Message"
             android:gravity="center"
-            android:textColorHint="@color/black"
+            android:hint="Message"
             android:imeOptions="actionSend"
             android:inputType="text"
-            android:layout_marginStart="10dp"/>
-
+            android:layout_alignParentEnd=""
+            android:textColorHint="@color/black" />
 
 
         <ImageView
             android:id="@+id/imo_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_alignStart="@id/chatMessage_input"
             android:layout_alignTop="@id/chatMessage_input"
             android:layout_alignBottom="@id/chatMessage_input"
             android:layout_marginStart="8dp"
-            android:padding="5dp"
 
             android:layout_marginEnd="10dp"
-            android:layout_alignStart="@id/chatMessage_input"
-            android:src="@drawable/addbutton" />
+            android:padding="5dp"
+            android:src="@drawable/goat"
+            app:strokeWidth="1dp" />
 
         <ImageView
             android:id="@+id/cameraIcon"
@@ -151,8 +155,9 @@
             android:layout_height="40dp"
             android:layout_alignParentTop="true"
             android:layout_marginTop="16dp"
+            android:padding="5dp"
             android:layout_toStartOf="@id/chatAdd_button"
-            android:src="@drawable/camera" />
+            android:src="@drawable/cameraoutline" />
 
         <ImageView
             android:id="@+id/chatAdd_button"
@@ -173,7 +178,7 @@
             android:layout_marginStart="8dp"
             android:padding="5dp"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/voice"
+            android:src="@drawable/mike"
             android:backgroundTint="#0ABAB5"
             android:layout_marginEnd="10dp"
             android:background="@drawable/round_shape_bg"/>
