@@ -87,6 +87,18 @@
             app:tint="#0ABAB5" />
 
     </RelativeLayout>
+
+    <View
+        android:id="@+id/horizontalLine"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:background="#0ABAB5"
+        android:layout_marginHorizontal="20dp"
+        android:layout_below="@id/chatMessageLayout"
+        />
+
     <!--^^^ MODIFIED TOOLBAR LAYOUT ^^^-->
 
     <androidx.recyclerview.widget.RecyclerView
@@ -108,7 +120,7 @@
     <RelativeLayout
         android:id="@+id/chatScreen_bottom_layout"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="70dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
@@ -120,67 +132,64 @@
 
         <EditText
             android:id="@+id/chatMessage_input"
-            android:layout_width="340dp"
+            android:layout_width="335dp"
             android:layout_height="60dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
             android:layout_marginStart="10dp"
+            android:paddingLeft="60dp"
             android:background="@drawable/rounded_edit_field"
-            android:gravity="center"
             android:hint="Message"
             android:imeOptions="actionSend"
             android:inputType="text"
-            android:textColorHint="@color/black" />
+            android:textSize="28sp"
+            android:textColorHint="#3C3939" />
 
-
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/imo_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignStart="@id/chatMessage_input"
-            android:layout_alignTop="@id/chatMessage_input"
-            android:layout_alignBottom="@id/chatMessage_input"
             android:layout_marginStart="8dp"
-
             android:layout_marginEnd="10dp"
             android:padding="5dp"
-            android:src="@drawable/goat"
-            app:strokeWidth="1dp" />
+            app:civ_border_width="3dp"
+            app:civ_border_overlay="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/goat"/>
 
         <ImageView
             android:id="@+id/cameraIcon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="16dp"
-            android:padding="5dp"
+            android:layout_marginEnd="0dp"
             android:layout_toStartOf="@id/chatAdd_button"
+            android:padding="5dp"
+            android:layout_centerVertical="true"
             android:src="@drawable/cameraoutline" />
 
         <ImageView
             android:id="@+id/chatAdd_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="16dp"
+            android:layout_marginEnd="20dp"
             android:layout_toStartOf="@id/chat_mic_button"
             android:padding="5dp"
-            android:layout_marginEnd="8dp"
+            android:layout_centerVertical="true"
             android:src="@drawable/addbutton" />
 
         <ImageView
             android:id="@+id/chat_mic_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="8dp"
-            android:padding="5dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/mike"
-            android:backgroundTint="#0ABAB5"
+            android:layout_centerVertical="true"
             android:layout_marginEnd="10dp"
-            android:background="@drawable/round_shape_bg"/>
+            android:background="@drawable/round_shape_bg"
+            android:backgroundTint="#0ABAB5"
+            android:padding="10dp"
+            android:src="@drawable/mike" />
     </RelativeLayout>
 
 </RelativeLayout>

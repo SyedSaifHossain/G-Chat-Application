@@ -58,10 +58,6 @@ class SignInNextFragment : Fragment() {
             findNavController().navigate(R.id.signInNextFragment_to_homeFragment)
         }
 
-        binding.smsVerifyCodeTxt.setOnClickListener{
-            findNavController().navigate(R.id.action_signInNextFragment_to_loginViaPhoneFragment)
-        }
-
         return binding.root
     }
 
