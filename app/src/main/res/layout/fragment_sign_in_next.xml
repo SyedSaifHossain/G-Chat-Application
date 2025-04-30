@@ -17,24 +17,48 @@
         android:layout_marginTop="50dp"
         android:src="@drawable/gchatsplashscreen"/>
 
+    <TextView
+        android:id="@+id/welcomeTxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:text="Welcome back"
+        android:textColor="#636363"
+        android:textStyle="bold"
+        android:textSize="28sp"
+        android:gravity="center_horizontal"
+        android:layout_below="@+id/gchatLogoSignInNext" />
+
     <EditText
         android:id="@+id/signInPagePhoneEdt"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:inputType="text"
-        android:layout_below="@+id/gchatLogoSignInNext"
+        android:layout_below="@+id/welcomeTxt"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_marginHorizontal="40dp"
-        android:layout_marginTop="50dp"
+
+        android:layout_marginTop="45dp"
         android:fontFamily="@font/poppins_regular"
-        android:hint="Phone"
+        android:hint="Phone/Email"
         android:paddingLeft="20dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#636363"
         android:textSize="22sp"
         android:alpha="0.7"/>
 
+    <ImageView
+        android:id="@+id/phoneArrowImg"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_below="@+id/welcomeTxt"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="53dp"
+        android:layout_marginEnd="43dp"
+        android:src="@drawable/arrowright"
+        app:tint="#636363" />
 
     <EditText
         android:id="@+id/passwordEdtSignInNext"
@@ -46,8 +70,6 @@
         android:layout_alignParentEnd="true"
         android:layout_marginHorizontal="40dp"
         android:layout_marginTop="15dp"
-        android:drawableEnd="@drawable/helpicon"
-        android:drawableTint="#FFFFFF"
         android:hint="Password"
         android:paddingLeft="20dp"
         android:textColor="#FFFFFF"
@@ -56,18 +78,18 @@
         android:fontFamily="@font/poppins_regular"
         android:alpha="0.7"/>
 
-    <TextView
-        android:id="@+id/smsVerifyCodeTxt"
-        android:layout_below="@+id/passwordEdtSignInNext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Login via sms verification code"
-        android:textSize="18sp"
-        android:textColor="#636363"
-        android:layout_marginTop="25dp"
-        android:layout_alignParentStart="true"
+
+    <ImageView
+        android:id="@+id/passwordArrowImg"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+
+        android:layout_below="@+id/signInPagePhoneEdt"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="60dp"/>
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="43dp"
+        android:src="@drawable/arrowright"
+        app:tint="#636363" />
 
     <Button
         android:id="@+id/signPageeLoginButton"
@@ -77,7 +99,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginHorizontal="30dp"
+        android:layout_marginHorizontal="40dp"
         android:backgroundTint="#0ABAb5"
         android:padding="15dp"
         android:text="Log In"
