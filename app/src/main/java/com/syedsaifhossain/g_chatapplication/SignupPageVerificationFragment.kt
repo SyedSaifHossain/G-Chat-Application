@@ -41,7 +41,8 @@ class SignupPageVerificationFragment : Fragment() {
 
         // Retrieve phone number and country name from arguments
         arguments?.let {
-            phoneNumber = it.getString("phoneNumber")
+
+            phoneNumber = it.getString("phoneNumberWithCode")
             val countryName = it.getString("countryName")
             binding.singupPageCountryEdit.setText(countryName)
             binding.singupVerificationEdtPhoneEmail.setText(phoneNumber)

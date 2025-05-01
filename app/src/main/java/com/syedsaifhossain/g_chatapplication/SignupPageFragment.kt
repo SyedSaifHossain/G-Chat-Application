@@ -51,8 +51,11 @@ class SignupPageFragment : Fragment() {
             binding.signupPagecountryEdit.setText(selectedCountryName)
 
             val code = getCountryCode(selectedCountryName!!)
-            binding.signupPageEdtPhoneEmail.setText(code)
-            binding.signupPageEdtPhoneEmail.setSelection(code.length)
+            val currentPhoneNumber = binding.signupPageEdtPhoneEmail.text.toString()
+            if (!currentPhoneNumber.startsWith(code)) {
+                binding.signupPageEdtPhoneEmail.setText(code)
+                binding.signupPageEdtPhoneEmail.setSelection(code.length)
+            }
         }
 
         binding.signupPageNextButton.setOnClickListener {
@@ -65,9 +68,8 @@ class SignupPageFragment : Fragment() {
 
             if (isValidPhoneNumber(phoneNumberWithCode!!)) {
                 val bundle = Bundle()
-
                 bundle.putString("countryName", selectedCountryName)
-                bundle.putString("phoneNumber", phoneNumberWithCode)
+                bundle.putString("phoneNumberWithCode", phoneNumberWithCode)
                 findNavController().navigate(R.id.action_signupPageFragment_to_signupPageVerificationFragment, bundle)
             } else {
                 Toast.makeText(requireContext(), "Please enter a valid phone number with country code", Toast.LENGTH_SHORT).show()
