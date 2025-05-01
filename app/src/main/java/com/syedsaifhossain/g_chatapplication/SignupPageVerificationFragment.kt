@@ -19,201 +19,165 @@ import com.syedsaifhossain.g_chatapplication.databinding.FragmentSignupPageVerif
 import java.util.concurrent.TimeUnit
 
 class SignupPageVerificationFragment : Fragment() {
-    private lateinit var binding: FragmentSignupPageVerificationBinding
+
+    private var _binding: FragmentSignupPageVerificationBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var auth: FirebaseAuth
-    private var verificationId: String? = null
+    private var storedVerificationId: String? = null
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
-    private var resendTimer: CountDownTimer? = null
-    private var isTimerRunning = false
-    private var phoneNumber: String? = null
+    private var countDownTimer: CountDownTimer? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentSignupPageVerificationBinding.inflate(inflater, container, false)
+        _binding = FragmentSignupPageVerificationBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+
         auth = FirebaseAuth.getInstance()
 
-        // Retrieve phone number and country name from arguments
         arguments?.let {
-
-            phoneNumber = it.getString("phoneNumberWithCode")
+            val phoneNumber = it.getString("phoneNumberWithCode")
             val countryName = it.getString("countryName")
+
             binding.singupPageCountryEdit.setText(countryName)
             binding.singupVerificationEdtPhoneEmail.setText(phoneNumber)
         }
 
-        setupClickListeners()
-        startResendTimer() // Initial start of the timer
-    }
-
-    private fun setupClickListeners() {
         binding.sendCode.setOnClickListener {
-            if (!isTimerRunning && phoneNumber != null) {
-                disableButtons(true)
-                sendVerificationCode(phoneNumber!!)
-                startResendTimer()
+            val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
+
+            if (phone.isNotEmpty() && phone.startsWith("+")) {
+                Toast.makeText(requireContext(), "Sending OTP to $phone", Toast.LENGTH_SHORT).show()
+                startPhoneNumberVerification(phone)
             } else {
-                Toast.makeText(requireContext(), "Please wait before resending the code", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Phone number must include country code, e.g., +8801234567890", Toast.LENGTH_LONG).show()
+            }
+        }
+
+
+        binding.resendCode.setOnClickListener {
+            val phone = binding.singupVerificationEdtPhoneEmail.text.toString()
+            if (phone.isNotEmpty() && resendToken != null) {
+                resendVerificationCode(phone, resendToken!!)
             }
         }
 
         binding.signupVerificationNextButton.setOnClickListener {
-            val code = binding.verificationEdt.text.toString().trim()
-            if (code.length == 6 && verificationId != null) {
-                disableButtons(true)
-                verifyCode(code)
-            } else {
-                Toast.makeText(requireContext(), "Please enter a valid 6-digit code", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        binding.resendCode.setOnClickListener {
-            if (!isTimerRunning && phoneNumber != null) {
-                disableButtons(true)
-                resendVerificationCode(phoneNumber!!)
-                startResendTimer()
-            } else {
-                Toast.makeText(requireContext(), "Please wait before resending the code", Toast.LENGTH_SHORT).show()
+            val code = binding.verificationEdt.text.toString()
+            if (code.isNotEmpty() && storedVerificationId != null) {
+                verifyPhoneNumberWithCode(storedVerificationId!!, code)
             }
         }
     }
 
-    private fun disableButtons(disable: Boolean) {
-        binding.sendCode.isEnabled = !disable
-        binding.signupVerificationNextButton.isEnabled = !disable
-        binding.resendCode.isEnabled = !disable
-    }
+    private fun startPhoneNumberVerification(phoneNumber: String) {
+        startTimer()
 
-    private fun startResendTimer() {
-        resendTimer?.cancel()
-        var timeLeft = 60
-        binding.sendCode.isEnabled = false
-        binding.resendCode.isEnabled = false
-        isTimerRunning = true
-
-        resendTimer = object : CountDownTimer(60000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                binding.sendCode.text = "${timeLeft}s"
-                timeLeft--
-            }
-
-            override fun onFinish() {
-                isTimerRunning = false
-                binding.sendCode.isEnabled = true
-                binding.resendCode.isEnabled = true
-                binding.sendCode.text = "Send"
-            }
-        }.start()
-    }
-
-    private fun handleError(exception: Exception) {
-        disableButtons(false)
-        isTimerRunning = false
-        binding.sendCode.text = "Send"
-
-        when (exception) {
-            is FirebaseAuthInvalidCredentialsException -> {
-                Toast.makeText(requireContext(), "Invalid credentials. Please try again", Toast.LENGTH_SHORT).show()
-            }
-            is FirebaseTooManyRequestsException -> {
-                Toast.makeText(requireContext(), "Too many requests. Please try again later", Toast.LENGTH_SHORT).show()
-            }
-            else -> {
-                Toast.makeText(requireContext(), "Error: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun sendVerificationCode(phoneNumber: String) {
         val options = PhoneAuthOptions.newBuilder(auth)
             .setPhoneNumber(phoneNumber)
             .setTimeout(60L, TimeUnit.SECONDS)
             .setActivity(requireActivity())
-            .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-                    disableButtons(false)
-                    signInWithCredential(credential)
-                }
-
-                override fun onVerificationFailed(e: FirebaseException) {
-                    disableButtons(false)
-                    handleError(e)
-                }
-
-                override fun onCodeSent(id: String, token: PhoneAuthProvider.ForceResendingToken) {
-                    verificationId = id
-                    resendToken = token
-                    disableButtons(false)
-                    Toast.makeText(requireContext(), "OTP sent to your phone", Toast.LENGTH_SHORT).show()
-                    startResendTimer()
-                }
-            })
+            .setCallbacks(callbacks)
             .build()
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-    private fun resendVerificationCode(phoneNumber: String) {
-        resendToken?.let { token ->
-            val options = PhoneAuthOptions.newBuilder(auth)
-                .setPhoneNumber(phoneNumber)
-                .setTimeout(60L, TimeUnit.SECONDS)
-                .setActivity(requireActivity())
-                .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                    override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-                        disableButtons(false)
-                        signInWithCredential(credential)
-                    }
+    private fun resendVerificationCode(phoneNumber: String, token: PhoneAuthProvider.ForceResendingToken) {
+        startTimer()
 
-                    override fun onVerificationFailed(e: FirebaseException) {
-                        disableButtons(false)
-                        handleError(e)
-                    }
+        val options = PhoneAuthOptions.newBuilder(auth)
+            .setPhoneNumber(phoneNumber)
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setActivity(requireActivity())
+            .setCallbacks(callbacks)
+            .setForceResendingToken(token)
+            .build()
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
 
-                    override fun onCodeSent(id: String, token: PhoneAuthProvider.ForceResendingToken) {
-                        verificationId = id
-                        resendToken = token
-                        disableButtons(false)
-                        Toast.makeText(requireContext(), "OTP resent to your phone", Toast.LENGTH_SHORT).show()
-                        startResendTimer()
-                    }
-                })
-                .setForceResendingToken(token)
-                .build()
-            PhoneAuthProvider.verifyPhoneNumber(options)
-        } ?: run {
-            Toast.makeText(requireContext(), "Cannot resend code at this time.", Toast.LENGTH_SHORT).show()
-            disableButtons(false)
+    private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+            if (!isAdded) return
+            val code = credential.smsCode
+            if (code != null) {
+                binding.verificationEdt.setText(code)
+                verifyPhoneNumberWithCode(storedVerificationId!!, code)
+            }
+        }
+
+        override fun onVerificationFailed(e: FirebaseException) {
+
+            if (!isAdded) return
+            when (e) {
+                is FirebaseAuthInvalidCredentialsException -> {
+                    Toast.makeText(requireContext(), "Invalid request: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+                is FirebaseTooManyRequestsException -> {
+                    Toast.makeText(requireContext(), "SMS quota exceeded.", Toast.LENGTH_LONG).show()
+                }
+                else -> {
+                    Toast.makeText(requireContext(), "Verification failed: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
+
+        override fun onCodeSent(
+            verificationId: String,
+            token: PhoneAuthProvider.ForceResendingToken
+        ) {
+            storedVerificationId = verificationId
+            resendToken = token
+            Toast.makeText(requireContext(), "OTP Sent", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun verifyCode(code: String) {
-        verificationId?.let {
-            val credential = PhoneAuthProvider.getCredential(it, code)
-            signInWithCredential(credential)
-        }
+    private fun verifyPhoneNumberWithCode(verificationId: String, code: String) {
+        val credential = PhoneAuthProvider.getCredential(verificationId, code)
+        signInWithPhoneAuthCredential(credential)
     }
 
-    private fun signInWithCredential(credential: PhoneAuthCredential) {
+    private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(requireActivity()) { task ->
-                disableButtons(false)
                 if (task.isSuccessful) {
-                    Toast.makeText(requireContext(), "Authentication successful!", Toast.LENGTH_SHORT).show()
-                    findNavController().navigate(R.id.action_signupPageVerificationFragment_to_homeFragment) // Replace with your actual home navigation action
+                    Toast.makeText(requireContext(), "Verification successful", Toast.LENGTH_SHORT).show()
+                    navigateToHomePage()
                 } else {
-                    task.exception?.let { handleError(it) }
+                    Toast.makeText(requireContext(), "Invalid OTP", Toast.LENGTH_SHORT).show()
                 }
             }
     }
 
+    private fun startTimer() {
+        countDownTimer?.cancel()
+        binding.resendCode.isEnabled = false
+        Toast.makeText(requireContext(), "Timer started", Toast.LENGTH_SHORT).show() // Debug toast
+        countDownTimer = object : CountDownTimer(60000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                binding.timeCount.text = "Resend in ${millisUntilFinished / 1000}s"
+            }
+
+            override fun onFinish() {
+                binding.timeCount.text = ""
+                binding.resendCode.isEnabled = true
+            }
+        }.start()
+    }
+
+    private fun navigateToHomePage() {
+        findNavController().navigate(R.id.action_signupPageVerificationFragment_to_homeFragment)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
-        resendTimer?.cancel()
+        _binding = null
+        countDownTimer?.cancel()
     }
+
 }
