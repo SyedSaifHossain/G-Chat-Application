@@ -16,6 +16,9 @@
         <action
             android:id="@+id/welcomeFragmentToSignIn"
             app:destination="@id/signInFragment" />
+        <action
+            android:id="@+id/action_welcomeFragment_to_signupPageFragment"
+            app:destination="@id/signupPageFragment" />
     </fragment>
     <fragment
         android:id="@+id/signUpFragment"
@@ -186,6 +189,12 @@
         android:name="com.syedsaifhossain.g_chatapplication.SignupPageFragment"
         android:label="fragment_signup_page"
         tools:layout="@layout/fragment_signup_page" >
+        <action
+            android:id="@+id/action_signupPageFragment_to_selectRegionFragment"
+            app:destination="@id/selectRegionFragment" />
+        <action
+            android:id="@+id/action_signupPageFragment_to_signupPageVerificationFragment"
+            app:destination="@id/signupPageVerificationFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatScreenFragment"
@@ -196,9 +205,21 @@
             android:id="@+id/action_chatScreenFragment_to_videoCallFragment"
             app:destination="@id/videoCallFragment5" />
     </fragment>
+
     <fragment
         android:id="@+id/videoCallFragment5"
         android:name="com.syedsaifhossain.g_chatapplication.VideoCallFragment"
         android:label="fragment_video_call"
         tools:layout="@layout/fragment_video_call" />
+
+    <fragment
+        android:id="@+id/signupPageVerificationFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SignupPageVerificationFragment"
+        android:label="fragment_signup_page_verification"
+        tools:layout="@layout/fragment_signup_page_verification" >
+        <action
+            android:id="@+id/action_signupPageVerificationFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+
 </navigation>

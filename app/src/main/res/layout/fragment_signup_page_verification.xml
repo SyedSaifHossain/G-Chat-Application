@@ -59,7 +59,6 @@
         android:layout_marginEnd="1dp"
         android:layout_marginRight="7dp"
         android:fontFamily="@font/poppins_regular"
-        android:padding="5dp"
         android:text="Send"
         android:textAllCaps="false"
         android:textColor="#555C5C"
@@ -85,7 +84,9 @@
         android:textColorHint="#555C5C"
         android:fontFamily="@font/poppins_regular"
         android:textSize="22sp"
-        android:alpha="0.7"/>
+        android:alpha="0.7"
+        android:drawableTint="#555C5C"
+        android:drawableEnd="@drawable/arrowforward"/>
 
     <EditText
         android:id="@+id/verificationEdt"
@@ -104,6 +105,22 @@
         android:textColorHint="#555C5C"
         android:textSize="22sp"
         android:alpha="0.7"/>
+
+
+    <Button
+        android:id="@+id/resendCode"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_below="@+id/verificationEdt"
+        android:layout_alignStart="@+id/verificationEdt"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Resend Code?"
+        android:textAllCaps="false"
+        android:textColor="#555C5C"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
 
     <Button
         android:id="@+id/signupVerificationNextButton"
