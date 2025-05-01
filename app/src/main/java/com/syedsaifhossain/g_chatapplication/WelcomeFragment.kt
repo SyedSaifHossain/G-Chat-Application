@@ -18,7 +18,7 @@ class WelcomeFragment : Fragment() {
     ): View? {
         binding = FragmentWelcomeBinding.inflate(inflater, container, false)
         binding.signUpButton.setOnClickListener{
-            findNavController().navigate(R.id.welcomeFragmentTosignUpFragment)
+            findNavController().navigate(R.id.action_welcomeFragment_to_signupPageFragment)
         }
 
 
