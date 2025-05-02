@@ -24,7 +24,7 @@ class WelcomeFragment : Fragment() {
 
         binding.signInButton.setOnClickListener{
 
-            findNavController().navigate(R.id.welcomeFragmentToSignIn)
+            findNavController().navigate(R.id.action_welcomeFragment_to_loginPage)
         }
         return binding.root
     }
