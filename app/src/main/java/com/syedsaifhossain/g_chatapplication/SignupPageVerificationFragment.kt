@@ -40,6 +40,8 @@ class SignupPageVerificationFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
 
+        binding.resendCodeVerify.visibility = View.INVISIBLE
+
         arguments?.let {
             val phoneNumber = it.getString("phoneNumberWithCode")
             val countryName = it.getString("countryName")
@@ -48,26 +50,50 @@ class SignupPageVerificationFragment : Fragment() {
             binding.singupVerificationEdtPhoneEmail.setText(phoneNumber)
         }
 
-        binding.sendCode.setOnClickListener {
+        binding.singupPageCountryEdit.setOnClickListener {
+            findNavController().navigate(R.id.action_signupPageFragment_to_selectRegionFragment)
+        }
+
+
+        binding.sendCodeVerify.setOnClickListener {
             val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
+            val country = binding.singupPageCountryEdit.text.toString().trim()
 
             if (phone.isNotEmpty() && phone.startsWith("+")) {
-                Toast.makeText(requireContext(), "Sending OTP to $phone", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Sending OTP to $country $phone", Toast.LENGTH_SHORT).show()
+
+                binding.resendCodeVerify.visibility = View.VISIBLE
+                binding.resendCodeVerify.isEnabled = false
                 startPhoneNumberVerification(phone)
-            } else {
-                Toast.makeText(requireContext(), "Phone number must include country code, e.g., +8801234567890", Toast.LENGTH_LONG).show()
+            }
+            else {
+                Toast.makeText(
+                    requireContext(),
+                    "Phone number must include country code, e.g., +8801234567890",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                // ✅ Hide resend button if phone is invalid
+                binding.resendCodeVerify.visibility = View.INVISIBLE
+                binding.timeCount.text = ""
             }
         }
 
 
-        binding.resendCode.setOnClickListener {
+        binding.resendCodeVerify.setOnClickListener {
             val phone = binding.singupVerificationEdtPhoneEmail.text.toString()
-            if (phone.isNotEmpty() && resendToken != null) {
+
+            if (resendToken != null) {
+                startTimer() // Start the countdown immediately
                 resendVerificationCode(phone, resendToken!!)
+            } else {
+                Toast.makeText(requireContext(), "Resend token not available yet", Toast.LENGTH_SHORT).show()
             }
         }
 
-        binding.signupVerificationNextButton.setOnClickListener {
+
+
+        binding.verificationNextButton.setOnClickListener {
             val code = binding.verificationEdt.text.toString()
             if (code.isNotEmpty() && storedVerificationId != null) {
                 verifyPhoneNumberWithCode(storedVerificationId!!, code)
@@ -111,8 +137,10 @@ class SignupPageVerificationFragment : Fragment() {
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
-
             if (!isAdded) return
+            binding.resendCodeVerify.isEnabled = true
+            binding.timeCount.text = ""
+
             when (e) {
                 is FirebaseAuthInvalidCredentialsException -> {
                     Toast.makeText(requireContext(), "Invalid request: ${e.message}", Toast.LENGTH_LONG).show()
@@ -125,6 +153,7 @@ class SignupPageVerificationFragment : Fragment() {
                 }
             }
         }
+
 
 
         override fun onCodeSent(
@@ -154,21 +183,25 @@ class SignupPageVerificationFragment : Fragment() {
             }
     }
 
+
     private fun startTimer() {
         countDownTimer?.cancel()
-        binding.resendCode.isEnabled = false
-        Toast.makeText(requireContext(), "Timer started", Toast.LENGTH_SHORT).show() // Debug toast
+        binding.resendCodeVerify.isEnabled = false
+        binding.resendCodeVerify.visibility = View.VISIBLE
+
         countDownTimer = object : CountDownTimer(60000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                binding.timeCount.text = "Resend in ${millisUntilFinished / 1000}s"
+                binding.timeCount.text = "${millisUntilFinished / 1000}s"
             }
 
             override fun onFinish() {
                 binding.timeCount.text = ""
-                binding.resendCode.isEnabled = true
+                binding.resendCodeVerify.isEnabled = true
             }
         }.start()
     }
+
+
 
     private fun navigateToHomePage() {
         findNavController().navigate(R.id.action_signupPageVerificationFragment_to_homeFragment)
