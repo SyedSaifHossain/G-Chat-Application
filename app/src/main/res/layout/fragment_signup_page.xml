@@ -29,8 +29,7 @@
         android:fontFamily="@font/poppins_regular" />
 
     <AutoCompleteTextView
-
-        android:id="@+id/signupPagecountryEdit"
+        android:id="@+id/signupPageCountryEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/signupPageText"
@@ -49,17 +48,17 @@
         android:drawableEnd="@drawable/arrowforward"/>
 
     <EditText
-        android:id="@+id/signupPageEdtPhoneEmail"
+        android:id="@+id/signupPagePhoneEdt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="phone"
-        android:layout_below="@+id/signupPagecountryEdit"
+        android:layout_below="@+id/signupPageCountryEdit"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_marginHorizontal="40dp"
         android:layout_marginTop="8dp"
         android:drawableTint="#555C5C"
-        android:hint="Phone/Email"
+        android:hint="Phone"
         android:padding="15dp"
         android:paddingVertical="20dp"
         android:textColor="#FFFFFF"
@@ -68,6 +67,21 @@
         android:textSize="22sp"
         android:alpha="0.7"
         android:drawableEnd="@drawable/arrowforward"/>
+
+    <TextView
+        android:id="@+id/signupViaEmailTxt"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/signupPagePhoneEdt"
+        android:layout_alignStart="@+id/signupPagePhoneEdt"
+        android:padding="15dp"
+        android:text="Signup via email"
+        android:textAllCaps="false"
+        android:textColor="#636363"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
 
     <Button
         android:id="@+id/signupPageNextButton"

@@ -42,24 +42,25 @@ class SignupPageFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        binding.signupPagecountryEdit.setOnClickListener {
+        binding.signupPageCountryEdit.setOnClickListener {
             findNavController().navigate(R.id.action_signupPageFragment_to_selectRegionFragment)
         }
 
         parentFragmentManager.setFragmentResultListener("regionSelection", viewLifecycleOwner) { _, bundle ->
             selectedCountryName = bundle.getString("selectedCountry", "")
-            binding.signupPagecountryEdit.setText(selectedCountryName)
+            binding.signupPageCountryEdit.setText(selectedCountryName)
 
             val code = getCountryCode(selectedCountryName!!)
-            val currentPhoneNumber = binding.signupPageEdtPhoneEmail.text.toString()
+
+            val currentPhoneNumber = binding.signupPagePhoneEdt.text.toString()
             if (!currentPhoneNumber.startsWith(code)) {
-                binding.signupPageEdtPhoneEmail.setText(code)
-                binding.signupPageEdtPhoneEmail.setSelection(code.length)
+                binding.signupPagePhoneEdt.setText(code)
+                binding.signupPagePhoneEdt.setSelection(code.length)
             }
         }
 
         binding.signupPageNextButton.setOnClickListener {
-            phoneNumberWithCode = binding.signupPageEdtPhoneEmail.text.toString().trim()
+            phoneNumberWithCode = binding.signupPagePhoneEdt.text.toString().trim()
 
             if (selectedCountryName.isNullOrEmpty()) {
                 Toast.makeText(requireContext(), "Please select a country/region", Toast.LENGTH_SHORT).show()
@@ -109,13 +110,14 @@ class SignupPageFragment : Fragment() {
         }.sorted()
 
         val adapter = android.widget.ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, countryList)
-        binding.signupPagecountryEdit.setAdapter(adapter)
+        binding.signupPageCountryEdit.setAdapter(adapter)
 
-        binding.signupPagecountryEdit.setOnItemClickListener { _, _, position, _ ->
+        binding.signupPageCountryEdit.setOnItemClickListener { _, _, position, _ ->
             selectedCountryName = countryList[position]
             val code = countryCodeMap[selectedCountryName] ?: "+1"
-            binding.signupPageEdtPhoneEmail.setText(code)
-            binding.signupPageEdtPhoneEmail.setSelection(code.length)
+            binding.signupPagePhoneEdt.setText(code)
+            binding.signupPagePhoneEdt.setSelection(code.length)
         }
     }
+
 }
