@@ -53,7 +53,7 @@ class SignUpFragment : Fragment() {
     private fun setupClickListeners() {
         // Open SelectRegionFragment when countryEdit is clicked
         binding.countryEdit.setOnClickListener {
-            findNavController().navigate(R.id.action_signUpFragment_to_selectRegionFragment)
+            findNavController()
         }
 
         // Listen for selected country result
@@ -212,7 +212,7 @@ class SignUpFragment : Fragment() {
                 if (task.isSuccessful) {
                     Toast.makeText(requireContext(), "Authentication successful!", Toast.LENGTH_SHORT).show()
 
-                    findNavController().navigate(R.id.signUpToSignupNext)
+                    findNavController()
                 } else {
                     task.exception?.let { handleError(it) }
                 }
