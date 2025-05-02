@@ -38,13 +38,17 @@ class SignupPageVerificationFragment : Fragment() {
 
         binding.resendCodeVerify.visibility = View.INVISIBLE
 
+        var isLoginFlow = false
+
         arguments?.let {
             val phoneNumber = it.getString("phoneNumberWithCode")
             val countryName = it.getString("countryName")
+            isLoginFlow = it.getBoolean("isLogin", false)
 
             binding.singupPageCountryEdit.setText(countryName)
             binding.singupVerificationEdtPhoneEmail.setText(phoneNumber)
         }
+
 
         binding.singupPageCountryEdit.setOnClickListener {
             findNavController().navigate(R.id.action_signupPageFragment_to_selectRegionFragment)

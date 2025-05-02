@@ -11,11 +11,11 @@
         android:label="fragment_welcome"
         tools:layout="@layout/fragment_welcome" >
         <action
-            android:id="@+id/welcomeFragmentToSignIn"
-            app:destination="@id/signInFragment" />
-        <action
             android:id="@+id/action_welcomeFragment_to_signupPageFragment"
             app:destination="@id/signupPageFragment" />
+        <action
+            android:id="@+id/action_welcomeFragment_to_loginPage"
+            app:destination="@id/loginPage" />
     </fragment>
     <fragment
         android:id="@+id/homeFragment"
@@ -210,5 +210,17 @@
         android:name="com.syedsaifhossain.g_chatapplication.SignUpFragment"
         android:label="fragment_sign_up"
         tools:layout="@layout/fragment_sign_up" />
+    <fragment
+        android:id="@+id/loginPage"
+        android:name="com.syedsaifhossain.g_chatapplication.LoginPage"
+        android:label="fragment_login_page"
+        tools:layout="@layout/fragment_login_page" >
+        <action
+            android:id="@+id/action_loginPage_to_signupPageFragment"
+            app:destination="@id/signupPageFragment" />
+        <action
+            android:id="@+id/action_loginPage_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 
 </navigation>
