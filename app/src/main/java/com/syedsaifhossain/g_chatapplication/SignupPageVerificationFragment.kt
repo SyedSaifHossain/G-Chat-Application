@@ -10,11 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
-import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.*
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentSignupPageVerificationBinding
 import java.util.concurrent.TimeUnit
 
@@ -54,49 +50,57 @@ class SignupPageVerificationFragment : Fragment() {
             findNavController().navigate(R.id.action_signupPageFragment_to_selectRegionFragment)
         }
 
-
         binding.sendCodeVerify.setOnClickListener {
             val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
             val country = binding.singupPageCountryEdit.text.toString().trim()
 
-            if (phone.isNotEmpty() && phone.startsWith("+")) {
-                Toast.makeText(requireContext(), "Sending OTP to $country $phone", Toast.LENGTH_SHORT).show()
-
-                binding.resendCodeVerify.visibility = View.VISIBLE
-                binding.resendCodeVerify.isEnabled = false
-                startPhoneNumberVerification(phone)
+            if (phone.isEmpty()) {
+                Toast.makeText(requireContext(), "Phone number is required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
-            else {
-                Toast.makeText(
-                    requireContext(),
-                    "Phone number must include country code, e.g., +8801234567890",
-                    Toast.LENGTH_LONG
-                ).show()
-
-                // ✅ Hide resend button if phone is invalid
-                binding.resendCodeVerify.visibility = View.INVISIBLE
-                binding.timeCount.text = ""
+            if (!phone.startsWith("+") || phone.length < 11) {
+                Toast.makeText(requireContext(), "Enter a valid phone number with country code", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            if (country.isEmpty()) {
+                Toast.makeText(requireContext(), "Please select a country", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            Toast.makeText(requireContext(), "Sending OTP to $country $phone", Toast.LENGTH_SHORT).show()
+            binding.resendCodeVerify.visibility = View.VISIBLE
+            binding.resendCodeVerify.isEnabled = false
+            startPhoneNumberVerification(phone)
         }
 
-
         binding.resendCodeVerify.setOnClickListener {
-            val phone = binding.singupVerificationEdtPhoneEmail.text.toString()
+            val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
 
             if (resendToken != null) {
-                startTimer() // Start the countdown immediately
+                startTimer()
                 resendVerificationCode(phone, resendToken!!)
             } else {
                 Toast.makeText(requireContext(), "Resend token not available yet", Toast.LENGTH_SHORT).show()
             }
         }
 
-
-
         binding.verificationNextButton.setOnClickListener {
-            val code = binding.verificationEdt.text.toString()
-            if (code.isNotEmpty() && storedVerificationId != null) {
+            val code = binding.verificationEdt.text.toString().trim()
+
+            if (code.isEmpty()) {
+                Toast.makeText(requireContext(), "Please enter the OTP", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (code.length < 6) {
+                Toast.makeText(requireContext(), "OTP must be 6 digits", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (storedVerificationId != null) {
                 verifyPhoneNumberWithCode(storedVerificationId!!, code)
+            } else {
+                Toast.makeText(requireContext(), "Verification ID not found", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -154,8 +158,6 @@ class SignupPageVerificationFragment : Fragment() {
             }
         }
 
-
-
         override fun onCodeSent(
             verificationId: String,
             token: PhoneAuthProvider.ForceResendingToken
@@ -183,7 +185,6 @@ class SignupPageVerificationFragment : Fragment() {
             }
     }
 
-
     private fun startTimer() {
         countDownTimer?.cancel()
         binding.resendCodeVerify.isEnabled = false
@@ -200,8 +201,6 @@ class SignupPageVerificationFragment : Fragment() {
             }
         }.start()
     }
-
-
 
     private fun navigateToHomePage() {
         findNavController().navigate(R.id.action_signupPageVerificationFragment_to_homeFragment)
