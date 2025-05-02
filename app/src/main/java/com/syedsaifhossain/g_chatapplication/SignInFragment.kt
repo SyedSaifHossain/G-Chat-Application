@@ -59,7 +59,7 @@ class SignInFragment : Fragment() {
         }
 
         binding.loginViaEmailTxt.setOnClickListener {
-            findNavController().navigate(R.id.action_signInFragment_to_loginViaEmailFragment)
+
         }
 
         binding.signInButton.setOnClickListener {

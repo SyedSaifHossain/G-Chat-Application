@@ -46,9 +46,6 @@
         <action
             android:id="@+id/action_signInFragment_to_selectRegionFragment"
             app:destination="@id/selectRegionFragment" />
-        <action
-            android:id="@+id/action_signInFragment_to_loginViaEmailFragment"
-            app:destination="@id/loginViaEmailFragment" />
     </fragment>
     <fragment
         android:id="@+id/signupNextFragment"
@@ -84,6 +81,9 @@
         <action
             android:id="@+id/action_loginViaEmailFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_loginViaEmailFragment_to_selectRegionFragment"
+            app:destination="@id/selectRegionFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginViaPhoneFragment"
@@ -179,6 +179,9 @@
         <action
             android:id="@+id/action_signupPageFragment_to_signupPageVerificationFragment"
             app:destination="@id/signupPageVerificationFragment" />
+        <action
+            android:id="@+id/action_signupPageFragment_to_loginViaEmailFragment"
+            app:destination="@id/loginViaEmailFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatScreenFragment"
