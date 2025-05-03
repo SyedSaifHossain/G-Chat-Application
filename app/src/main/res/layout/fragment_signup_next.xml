@@ -17,20 +17,21 @@
         android:layout_marginTop="50dp"
         android:background="@drawable/circle_shape"
         android:padding="25dp"
-        android:backgroundTint="#FFFFFF"
+        android:backgroundTint="#0ABAB5"
         android:scaleType="centerCrop"
         android:src="@drawable/profile" />
 
-    <ImageView
+
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/addImageButton"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_below="@id/profile_image"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="-69dp"
-        android:layout_marginEnd="145dp"
+        android:layout_marginTop="-42dp"
+        android:layout_marginEnd="133dp"
         android:src="@drawable/addcirclebutton"
-        app:tint="#000000" />
+        app:civ_circle_background_color="#0ABAB5" />
 
     <EditText
         android:id="@+id/nameEdit"
@@ -40,7 +41,7 @@
         android:layout_below="@+id/addImageButton"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginHorizontal="20dp"
+        android:layout_marginHorizontal="40dp"
         android:layout_marginTop="50dp"
         android:fontFamily="@font/poppins_regular"
         android:hint="Name"
@@ -58,7 +59,7 @@
         android:layout_below="@+id/nameEdit"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginHorizontal="20dp"
+        android:layout_marginHorizontal="40dp"
         android:layout_marginTop="15dp"
         android:drawableEnd="@drawable/helpicon"
         android:drawableTint="#555C5C"
@@ -79,7 +80,7 @@
         android:layout_below="@+id/passwordEdit"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginHorizontal="20dp"
+        android:layout_marginHorizontal="40dp"
         android:layout_marginTop="15dp"
         android:hint="Confirm Password"
         android:drawableEnd="@drawable/helpicon"
@@ -98,7 +99,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginHorizontal="30dp"
+        android:layout_marginHorizontal="40dp"
         android:padding="15dp"
         android:text="Complete"
         android:textAllCaps="false"

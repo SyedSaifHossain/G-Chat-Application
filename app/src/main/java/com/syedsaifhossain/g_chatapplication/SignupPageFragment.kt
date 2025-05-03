@@ -35,6 +35,11 @@ class SignupPageFragment : Fragment() {
         initializeViews()
         setupClickListeners()
         setupCountryList()
+
+        binding.signupViaEmailTxt.setOnClickListener {
+            findNavController().navigate(R.id.action_signupPageFragment_to_loginViaEmailFragment)
+        }
+
     }
 
     private fun initializeViews() {

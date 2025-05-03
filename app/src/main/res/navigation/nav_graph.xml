@@ -205,14 +205,9 @@
         android:label="fragment_signup_page_verification"
         tools:layout="@layout/fragment_signup_page_verification" >
         <action
-            android:id="@+id/action_signupPageVerificationFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            android:id="@+id/action_signupPageVerificationFragment_to_signupNextFragment"
+            app:destination="@id/signupNextFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/signUpFragment"
-        android:name="com.syedsaifhossain.g_chatapplication.SignUpFragment"
-        android:label="fragment_sign_up"
-        tools:layout="@layout/fragment_sign_up" />
     <fragment
         android:id="@+id/loginPage"
         android:name="com.syedsaifhossain.g_chatapplication.LoginPage"
@@ -225,5 +220,4 @@
             android:id="@+id/action_loginPage_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
-
 </navigation>
