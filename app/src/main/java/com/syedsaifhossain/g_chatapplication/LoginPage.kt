@@ -7,76 +7,71 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentLoginPageBinding
+
 
 class LoginPage : Fragment() {
 
     private var _binding: FragmentLoginPageBinding? = null
     private val binding get() = _binding!!
-    private lateinit var auth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentLoginPageBinding.inflate(inflater, container, false)
-        auth = FirebaseAuth.getInstance()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         binding.loginButton.setOnClickListener {
-            val input = binding.phoneLoginEdt.text.toString().trim()
+            val phoneOrEmail = binding.phoneLoginEdt.text.toString().trim()
             val password = binding.passwordLoginEdt.text.toString().trim()
 
-            if (input.isEmpty()) {
-                showToast("Please enter phone or email")
-                return@setOnClickListener
-            }
-
-            if (password.isEmpty()) {
-                showToast("Please enter your password")
-                return@setOnClickListener
-            }
-
-            if (isValidEmail(input)) {
-                loginWithEmail(input, password)
-            } else if (isValidPhone(input)) {
-                val fakeEmail = "$input@yourapp.com"  // 👈 use same format as sign-up
-                loginWithEmail(fakeEmail, password)
-            } else {
-                showToast("Invalid phone or email format")
+            if (validateInput(phoneOrEmail, password)) {
+                Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(R.id.action_loginPage_to_homeFragment)
             }
         }
 
         binding.backToSignup.setOnClickListener {
-            findNavController().navigate(R.id.action_loginPage_to_signupPageFragment)
+           findNavController().navigate(R.id.action_loginPage_to_signupPageFragment)
         }
     }
 
-    private fun loginWithEmail(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                showToast("Login successful")
-                findNavController().navigate(R.id.action_loginPage_to_homeFragment)
-            }
-            .addOnFailureListener {
-                showToast("Login failed: ${it.localizedMessage}")
-            }
+
+    private fun validateInput(phoneOrEmail: String, password: String): Boolean {
+        if (phoneOrEmail.isEmpty()) {
+            binding.phoneLoginEdt.error = "Phone or Email is required"
+            return false
+        }
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(phoneOrEmail).matches() &&
+            !phoneOrEmail.matches(Regex("^[+]?[0-9]{10,13}\$"))) {
+            binding.phoneLoginEdt.error = "Enter a valid email or phone number"
+            return false
+        }
+
+        if (password.isEmpty()) {
+            binding.passwordLoginEdt.error = "Password is required"
+            return false
+        }
+
+        if (password.length < 6) {
+            binding.passwordLoginEdt.error = "Password must be at least 6 characters"
+            return false
+        }
+
+        val passwordPattern = Regex("^(?=.*[A-Za-z])(?=.*\\d).{6,}$")
+        if (!password.matches(passwordPattern)) {
+            binding.passwordLoginEdt.error = "Password must include at least one letter and one digit"
+            return false
+        }
+        return true
     }
 
-    private fun isValidEmail(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
-    }
-
-    private fun isValidPhone(phone: String): Boolean {
-        return phone.startsWith("+") && phone.length >= 10
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
