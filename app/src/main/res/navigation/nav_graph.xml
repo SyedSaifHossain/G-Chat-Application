@@ -52,9 +52,6 @@
         android:name="com.syedsaifhossain.g_chatapplication.SignupNextFragment"
         android:label="fragment_signup_next"
         tools:layout="@layout/fragment_signup_next" >
-        <action
-            android:id="@+id/signupNextFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
     </fragment>
     <fragment
         android:id="@+id/signInNextFragment"
@@ -205,8 +202,8 @@
         android:label="fragment_signup_page_verification"
         tools:layout="@layout/fragment_signup_page_verification" >
         <action
-            android:id="@+id/action_signupPageVerificationFragment_to_signupNextFragment"
-            app:destination="@id/signupNextFragment" />
+            android:id="@+id/action_signupPageVerificationFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginPage"

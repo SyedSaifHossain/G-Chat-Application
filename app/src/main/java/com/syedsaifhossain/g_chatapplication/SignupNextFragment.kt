@@ -99,7 +99,7 @@ class SignupNextFragment : Fragment() {
                 binding.comfirmPasswordEdit.text.clear()
 
             }
-            findNavController().navigate(R.id.signupNextFragment_to_homeFragment)
+
 
         }
         return binding.root
