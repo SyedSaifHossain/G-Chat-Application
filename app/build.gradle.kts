@@ -82,4 +82,7 @@ dependencies {
     implementation ("io.agora.rtc:full-sdk:3.7.0")
     implementation ("com.google.firebase:firebase-firestore:24.9.0")
 
+    implementation("com.stripe:stripe-android:20.45.0")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.google.code.gson:gson:2.10")
 }
