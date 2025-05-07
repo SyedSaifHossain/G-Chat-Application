@@ -55,7 +55,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".WalletActivity" />
+        <activity android:name=".WalletFragment" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
