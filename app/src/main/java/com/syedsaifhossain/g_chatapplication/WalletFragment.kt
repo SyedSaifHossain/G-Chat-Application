@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.stripe.android.Stripe
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import com.stripe.android.model.PaymentMethod
@@ -33,9 +34,21 @@ class WalletFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.btnAddMoney.setOnClickListener { transferIn() }
-        binding.btnWithdraw.setOnClickListener { transferOut() }
+        //binding.btnAddMoney.setOnClickListener { transferIn() }
+       // binding.btnWithdraw.setOnClickListener { transferOut() }
         binding.btnGetBalance.setOnClickListener { fetchBalance() }
+
+        binding.topUpBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_walletFragment_to_topUpFragment)
+        }
+
+        binding.withdrawBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_walletFragment_to_withdrawFragment)
+        }
+
+        binding.walletBackImg.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
     private fun transferIn() {

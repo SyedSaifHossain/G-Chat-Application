@@ -6,20 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import com.syedsaifhossain.g_chatapplication.databinding.FragmentWithdrawBinding
+import com.syedsaifhossain.g_chatapplication.databinding.FragmentTopUpBinding
+import com.syedsaifhossain.g_chatapplication.databinding.FragmentWalletBinding
 
-class WithdrawFragment : Fragment() {
-private lateinit var binding : FragmentWithdrawBinding
+
+class TopUpFragment : Fragment() {
+
+    private lateinit var binding: FragmentTopUpBinding
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
+        binding = FragmentTopUpBinding.inflate(inflater,container, false)
 
-        binding = FragmentWithdrawBinding.inflate(inflater, container, false)
-        binding.withdrawBackImg.setOnClickListener {
+
+        binding.topUpBackImg.setOnClickListener {
             findNavController().popBackStack()
         }
         return binding.root
-
     }
 }
