@@ -231,5 +231,17 @@
         android:id="@+id/walletFragment"
         android:name="com.syedsaifhossain.g_chatapplication.WalletFragment"
         android:label="fragment_wallet5"
-        tools:layout="@layout/fragment_wallet" />
+        tools:layout="@layout/fragment_wallet" >
+        <action
+            android:id="@+id/action_walletFragment_to_topUpFragment"
+            app:destination="@id/topUpFragment" />
+        <action
+            android:id="@+id/action_walletFragment_to_withdrawFragment"
+            app:destination="@id/withdrawFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/topUpFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.TopUpFragment"
+        android:label="fragment_top_up"
+        tools:layout="@layout/fragment_top_up" />
 </navigation>

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:orientation="vertical"
+android:background="#000000"
+tools:context=".TopUpFragment">
+
+<RelativeLayout
+    android:id="@+id/topUpHeaderLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentEnd="true"
+    android:paddingTop="20dp"
+    android:layout_marginTop="30dp">
+
+    <ImageView
+        android:id="@+id/topUpBackImg"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/arrowback"
+        app:tint="#0ABAB5" />
+
+    <TextView
+        android:id="@+id/topUpTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:fontFamily="@font/poppins_regular"
+        android:padding="12dp"
+        android:text="Top Up"
+        android:textColor="#0ABAB5"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/menuOption"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:src="@drawable/moreicon"
+        android:layout_marginEnd="20dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center_horizontal"
+        app:tint="#0ABAB5" />
+
+</RelativeLayout>
+
+<View
+    android:layout_width="match_parent"
+    android:layout_height="3dp"
+    android:background="#0ABAB5"
+    android:layout_marginHorizontal="20dp"/>
+
+<RelativeLayout
+    android:id="@+id/walletHeaderLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentEnd="true"
+    android:layout_marginTop="30dp">
+
+    <TextView
+        android:id="@+id/topUpVisaTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:fontFamily="@font/poppins_regular"
+        android:layout_alignParentStart="true"
+        android:text="Top-up method visa"
+        android:layout_marginStart="20dp"
+        android:textColor="#0ABAB5"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/withdrawRightArrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_arrow_right"
+        android:layout_marginEnd="20dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center_horizontal"
+        app:tint="#0ABAB5" />
+
+</RelativeLayout>
+
+<View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="#0ABAB5"
+    android:layout_marginTop="10dp"
+    android:layout_marginHorizontal="20dp"/>
+
+<TextView
+    android:id="@+id/topUpAmountTxt"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:fontFamily="@font/poppins_regular"
+    android:padding="12dp"
+    android:text="Top-up amount"
+    android:textColor="#0ABAB5"
+    android:layout_marginStart="40dp"
+    android:textSize="20sp"
+    android:textStyle="bold" />
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/currencyTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="45dp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="A$"
+        android:textColor="#0ABAB5"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/etAmount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginHorizontal="40dp"
+        android:fontFamily="@font/poppins_regular"
+        android:hint="Enter amount in USD"
+
+        android:inputType="number"
+        android:paddingLeft="50dp"
+        android:text="735"
+        android:textColor="#0ABAB5"
+        android:textSize="50sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:padding="15dp"
+        android:background="@drawable/round_shape_bg_top_up_page">
+
+        <ImageView
+            android:id="@+id/topGoldIcon"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/goldicon"/>
+
+        <TextView
+            android:id="@+id/txtContentFirst"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_regular"
+            android:text="Go Top Up Mini Fund"
+            android:textColor="#0ABAB5"
+            android:layout_alignParentTop="true"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_toEndOf="@+id/topGoldIcon"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/txtContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_regular"
+            android:text="Transfer To Mini Fund For Return"
+            android:textColor="#0ABAB5"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_toEndOf="@+id/topGoldIcon"
+            android:layout_marginStart="10dp"
+            android:layout_below="@+id/txtContentFirst"/>
+
+        <ImageView
+            android:id="@+id/topUpIconRight"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_arrow_right"/>
+    </RelativeLayout>
+
+<Button
+    android:id="@+id/btnGetBalance"
+    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="50dp"
+    android:backgroundTint="#0ABAB5"
+    android:fontFamily="@font/poppins_regular"
+    android:padding="15dp"
+    android:text="Check Balance"
+    android:textAllCaps="false"
+    android:textColor="#000000"
+    android:layout_marginTop="30dp"
+    android:textSize="24sp"
+    android:textStyle="bold" />
+
+</LinearLayout>
