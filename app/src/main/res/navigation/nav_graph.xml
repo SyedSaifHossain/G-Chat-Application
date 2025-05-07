@@ -100,7 +100,11 @@
         android:id="@+id/meFragment3"
         android:name="com.syedsaifhossain.g_chatapplication.MeFragment"
         android:label="fragment_me"
-        tools:layout="@layout/fragment_me" />
+        tools:layout="@layout/fragment_me" >
+        <action
+            android:id="@+id/action_meFragment_to_walletFragment"
+            app:destination="@id/walletFragment" />
+    </fragment>
     <fragment
         android:id="@+id/contactFragment3"
         android:name="com.syedsaifhossain.g_chatapplication.ContactFragment"
@@ -217,4 +221,15 @@
             android:id="@+id/action_loginPage_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/withdrawFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.WithdrawFragment"
+        android:label="fragment_withdraw"
+        tools:layout="@layout/fragment_withdraw" >
+    </fragment>
+    <fragment
+        android:id="@+id/walletFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.WalletFragment"
+        android:label="fragment_wallet5"
+        tools:layout="@layout/fragment_wallet" />
 </navigation>

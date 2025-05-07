@@ -6,18 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentMeBinding
 
 class MeFragment : Fragment() {
-    private var _binding: FragmentMeBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentMeBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
-        _binding = FragmentMeBinding.inflate(inflater, container, false)
+        binding = FragmentMeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -39,7 +39,7 @@ class MeFragment : Fragment() {
             }
 
             layoutWallet.setOnClickListener {
-                startActivity(Intent(requireContext(), WalletActivity::class.java))
+                findNavController().navigate(R.id.walletFragment)
             }
 
             layoutFavorites.setOnClickListener {
@@ -52,8 +52,4 @@ class MeFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }
