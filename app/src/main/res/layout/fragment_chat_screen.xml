@@ -53,6 +53,7 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
+
         <ImageView
             android:id="@+id/videoIcon"
             android:layout_width="50dp"
