@@ -55,35 +55,32 @@
 
         <ImageView
             android:id="@+id/videoIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_toStartOf="@+id/callIcon"
-
-            android:src="@drawable/videocall"
-            app:tint="#0ABAB5" />
+            android:src="@drawable/videocamera"/>
 
         <ImageView
             android:id="@+id/callIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_toStartOf="@+id/more_icon"
-            android:src="@drawable/callicon"
-            android:backgroundTint="#0ABAB5"
+            android:src="@drawable/call"
             app:tint="#0ABAB5" />
 
         <ImageView
             android:id="@+id/more_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="12dp"
-            android:src="@drawable/moreicon"
+            android:src="@drawable/more"
             app:tint="#0ABAB5" />
 
     </RelativeLayout>
@@ -146,34 +143,33 @@
             android:textSize="28sp"
             android:textColorHint="#3C3939" />
 
-        <de.hdodenhof.circleimageview.CircleImageView
+
+        <ImageView
             android:id="@+id/imo_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_alignStart="@id/chatMessage_input"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="10dp"
             android:padding="5dp"
-            app:civ_border_width="3dp"
-            app:civ_border_overlay="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/goat"/>
+            android:src="@drawable/goatnewicon"/>
 
         <ImageView
             android:id="@+id/cameraIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginEnd="0dp"
             android:layout_toStartOf="@id/chatAdd_button"
             android:padding="5dp"
             android:layout_centerVertical="true"
-            android:src="@drawable/cameraoutline" />
+            android:src="@drawable/camera" />
 
         <ImageView
             android:id="@+id/chatAdd_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginEnd="25dp"
             android:layout_toStartOf="@id/chat_mic_button"
             android:padding="5dp"
             android:layout_centerVertical="true"
@@ -189,7 +185,7 @@
             android:background="@drawable/round_shape_bg"
             android:backgroundTint="#0ABAB5"
             android:padding="10dp"
-            android:src="@drawable/mike" />
+            android:src="@drawable/voicemike" />
     </RelativeLayout>
 
 </RelativeLayout>

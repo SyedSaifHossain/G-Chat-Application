@@ -244,8 +244,6 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
     }
 
 
-
-
     private fun sendMessageToFirebase(messageText: String) {
         Log.d("sendMessageToFirebase", "sendMessageToFirebase() called with message: $messageText")
         if (otherUserId == null) {
