@@ -39,6 +39,8 @@ import java.util.UUID
 import android.os.Environment
 // Added Imports
 import android.util.Log
+import android.view.ContextThemeWrapper
+import android.widget.PopupMenu
 
 // Ensure the class declaration includes the interface implementation from your original
 class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListener {
@@ -181,11 +183,54 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
             findNavController().popBackStack()
         }
 
-        // Setup add button listener (Original)
-        binding.chatAddButton.setOnClickListener {
-            AddOptionsBottomSheet(this@ChatScreenFragment)
-                .show(parentFragmentManager, "AddOptionsBottomSheet")
+
+
+
+        binding.chatAddButton.setOnClickListener { view ->
+            val wrapper = ContextThemeWrapper(requireContext(), R.style.CustomPopupMenuStyle)
+            val popupMenu = PopupMenu(wrapper, view)
+            popupMenu.menuInflater.inflate(R.menu.add_options_menu, popupMenu.menu)
+
+            // Force icons to show
+            try {
+                val fields = popupMenu.javaClass.declaredFields
+                for (field in fields) {
+                    if ("mPopup" == field.name) {
+                        field.isAccessible = true
+                        val menuPopupHelper = field.get(popupMenu)
+                        val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
+                        val setForceIcons = classPopupHelper.getMethod("setForceShowIcon", Boolean::class.javaPrimitiveType)
+                        setForceIcons.invoke(menuPopupHelper, true)
+                        break
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.galleryId -> {
+                        // Handle Gallery
+                        true
+                    }
+                    R.id.documentId -> {
+                        // Handle Document
+                        true
+                    }
+                    R.id.contactId -> {
+                        // Handle Contact
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            popupMenu.show()
         }
+
+
+
 
         // Setup mic button listener (Original)
         binding.chatMicButton.setOnClickListener {
