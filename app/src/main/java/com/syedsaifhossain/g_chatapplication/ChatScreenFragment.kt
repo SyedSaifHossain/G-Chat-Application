@@ -184,6 +184,10 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
         }
 
 
+        binding.videoIcon.setOnClickListener {
+            findNavController().navigate(R.id.action_chatScreenFragment_to_videoCallFragment)
+        }
+
         binding.callIcon.setOnClickListener {
             findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment)
         }
