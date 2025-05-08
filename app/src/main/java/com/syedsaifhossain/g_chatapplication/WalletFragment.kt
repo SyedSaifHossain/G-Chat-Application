@@ -36,7 +36,7 @@ class WalletFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         //binding.btnAddMoney.setOnClickListener { transferIn() }
        // binding.btnWithdraw.setOnClickListener { transferOut() }
-        binding.btnGetBalance.setOnClickListener { fetchBalance() }
+       // binding.btnGetBalance.setOnClickListener { fetchBalance() }
 
         binding.topUpBtn.setOnClickListener {
             findNavController().navigate(R.id.action_walletFragment_to_topUpFragment)
