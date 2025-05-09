@@ -1,6 +1,5 @@
 package com.syedsaifhossain.g_chatapplication
 
-// Original Imports
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
@@ -31,8 +30,6 @@ import com.syedsaifhossain.g_chatapplication.models.ChatModel
 import com.vanniktech.emoji.EmojiPopup
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
-import com.vanniktech.emoji.EmojiImageView
-import com.vanniktech.emoji.emoji.Emoji
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -46,7 +43,7 @@ import android.widget.PopupMenu
 import com.bumptech.glide.Glide // Keep Glide import for later use in RecyclerView
 
 // Ensure the class declaration includes the interface implementation from your original
-class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListener {
+class ChatScreenFragment : Fragment(){
 
     private var _binding: FragmentChatScreenBinding? = null
     private val binding get() = _binding!!
@@ -379,12 +376,6 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
     }
     // --- END MODIFICATION ---
 
-    override fun onAlbumClicked() {
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> checkAndRequestPermission(Manifest.permission.READ_MEDIA_IMAGES)
-            else -> checkAndRequestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-    }
 
     private fun checkAndRequestPermission(permission: String) {
         when {
@@ -479,10 +470,6 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
         } catch (e: Exception) { Log.e("ChatScreenFragment", "Error compressing image", e); return null }
     }
 
-    override fun onCameraClicked() { checkCameraPermission() }
-
-    private fun checkCameraPermission() { checkAndRequestPermission(Manifest.permission.CAMERA) }
-
     private fun openCamera() {
         try {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -554,11 +541,7 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
         } else { Toast.makeText(context, "No valid recording found", Toast.LENGTH_SHORT).show(); Log.w("ChatScreenFragment", "sendAudioMessage called but audioFile invalid.") }
         audioFile = null // Reset after attempt
     }
-    // --- END MODIFICATION ---
 
-    override fun onVideoCallClicked() {
-        Toast.makeText(requireContext(), "Video call feature not implemented yet", Toast.LENGTH_SHORT).show()
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
