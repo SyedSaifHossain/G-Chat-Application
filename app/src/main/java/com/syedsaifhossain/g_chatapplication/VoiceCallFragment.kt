@@ -2,36 +2,37 @@ package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
 import android.util.Log
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import com.syedsaifhossain.g_chatapplication.databinding.FragmentVideoCallBinding
+import com.syedsaifhossain.g_chatapplication.databinding.FragmentVoiceCallBinding
 import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
-import io.agora.rtc.video.VideoCanvas
 
-class VideoCallFragment : Fragment() {
+class VoiceCallFragment : Fragment() {
 
-    private var _binding: FragmentVideoCallBinding? = null
+
+    private var _binding: FragmentVoiceCallBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var rtcEngine: RtcEngine
-    private val appId = "8cf64d493e8b460f91b10bf531f6d678"
-    private val channelName = "testChannel"
-    private val token: String? = null
+    private val appId = "8cf64d493e8b460f91b10bf531f6d678" // Replace with your actual App ID
+    private val token: String? = null       // Use null if not using token
+    private val channelName = "testChannel" // Unique per conversation
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentVideoCallBinding.inflate(inflater, container, false)
+        _binding = FragmentVoiceCallBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         initAgoraEngine()
-        setupVideo()
         joinChannel()
 
         binding.endCallButton.setOnClickListener {
@@ -43,30 +44,23 @@ class VideoCallFragment : Fragment() {
     private fun initAgoraEngine() {
         rtcEngine = RtcEngine.create(requireContext(), appId, object : IRtcEngineEventHandler() {
             override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
-                Log.d("Agora", "Joined video channel: $channel")
+                Log.d("Agora", "Joined channel: $channel")
             }
 
             override fun onUserJoined(uid: Int, elapsed: Int) {
-                activity?.runOnUiThread { setupRemoteVideo(uid) }
+                Log.d("Agora", "User joined: $uid")
+                activity?.runOnUiThread {
+                    binding.callStatus.text = "Connected"
+                }
+            }
+
+            override fun onUserOffline(uid: Int, reason: Int) {
+                Log.d("Agora", "User offline: $uid")
+                activity?.runOnUiThread {
+                    binding.callStatus.text = "User left"
+                }
             }
         })
-    }
-
-    private fun setupVideo() {
-        rtcEngine.enableVideo()
-
-        val localSurface = RtcEngine.CreateRendererView(requireContext())
-        localSurface.setZOrderMediaOverlay(true)
-        binding.localVideoViewContainer.addView(localSurface)
-
-        rtcEngine.setupLocalVideo(VideoCanvas(localSurface, VideoCanvas.RENDER_MODE_HIDDEN, 0))
-    }
-
-    private fun setupRemoteVideo(uid: Int) {
-        val remoteSurface = RtcEngine.CreateRendererView(requireContext())
-        binding.remoteVideoViewContainer.addView(remoteSurface)
-
-        rtcEngine.setupRemoteVideo(VideoCanvas(remoteSurface, VideoCanvas.RENDER_MODE_HIDDEN, uid))
     }
 
     private fun joinChannel() {

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#000000"
+    tools:context=".WithdrawFragment">
+
+
+    <RelativeLayout
+
+        android:id="@+id/withdrawHeaderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:paddingTop="20dp"
+        android:layout_marginTop="30dp">
+
+        <ImageView
+            android:id="@+id/withdrawBackImg"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/arrowback"
+            app:tint="#0ABAB5" />
+
+        <TextView
+            android:id="@+id/withdrawTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/poppins_regular"
+            android:padding="12dp"
+            android:text="Withdraw Balance"
+            android:textColor="#0ABAB5"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/menuOption"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/moreicon"
+            android:layout_marginEnd="20dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="center_horizontal"
+            app:tint="#0ABAB5" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="#0ABAB5"
+        android:layout_marginHorizontal="20dp"/>
+
+    <RelativeLayout
+        android:id="@+id/walletHeaderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="30dp">
+
+
+        <TextView
+            android:id="@+id/withdrawToVisaTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_alignParentStart="true"
+            android:text="Withdraw to visa"
+            android:layout_marginStart="20dp"
+            android:textColor="#0ABAB5"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/transferToHourTXT"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/withdrawToVisaTxt"
+            android:fontFamily="@font/poppins_regular"
+            android:text="Transfer to account in 2 hour"
+            android:textColor="#636363"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="45dp"
+            android:textSize="16sp"
+            android:layout_marginTop="30dp"
+            android:textStyle="bold" />
+
+
+
+        <ImageView
+            android:id="@+id/withdrawRightArrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_right"
+            android:layout_marginEnd="20dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="center_horizontal"
+            app:tint="#0ABAB5" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#0ABAB5"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="20dp"/>
+
+    <TextView
+        android:id="@+id/withdrawAmountTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_regular"
+        android:padding="12dp"
+        android:text="Withdraw amount"
+        android:textColor="#0ABAB5"
+        android:layout_marginStart="40dp"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <TextView
+            android:id="@+id/currencyTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="45dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/poppins_regular"
+            android:text="A$"
+            android:textColor="#0ABAB5"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:hint="Enter amount in USD"
+            android:layout_below="@+id/currencyTxt"
+            android:fontFamily="@font/poppins_regular"
+            android:text="735"
+
+            android:paddingLeft="50dp"
+            android:layout_marginHorizontal="40dp"
+            android:textColor="#0ABAB5"
+            android:textSize="50sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="-45dp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvBalance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/poppins_regular"
+            android:text="Balance:AUD 735"
+            android:textColor="#636363"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="40dp"
+            android:layout_below="@id/etAmount" />
+
+    </RelativeLayout>
+
+</LinearLayout>
