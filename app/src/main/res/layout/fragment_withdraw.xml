@@ -9,9 +9,7 @@
     android:background="#000000"
     tools:context=".WithdrawFragment">
 
-
     <RelativeLayout
-
         android:id="@+id/withdrawHeaderLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,7 +31,7 @@
             app:tint="#0ABAB5" />
 
         <TextView
-            android:id="@+id/withdrawTxt"
+            android:id="@+id/withdrawBalanceTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -75,23 +73,44 @@
 
 
         <TextView
-            android:id="@+id/withdrawToVisaTxt"
+            android:id="@+id/withdrawTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:fontFamily="@font/poppins_regular"
             android:layout_alignParentStart="true"
-            android:text="Withdraw to visa"
+            android:text="Withdraw to"
             android:layout_marginStart="20dp"
             android:textColor="#0ABAB5"
             android:textSize="16sp"
             android:textStyle="bold" />
 
+        <ImageView
+            android:id="@+id/withdrawVisaCardIcon"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/visacard"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/withdrawTxt"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/withdrawVisaTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/poppins_regular"
+            android:text="visa"
+            android:textColor="#0ABAB5"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_toEndOf="@+id/withdrawVisaCardIcon"/>
+
         <TextView
             android:id="@+id/transferToHourTXT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/withdrawToVisaTxt"
+            android:layout_below="@+id/withdrawTxt"
             android:fontFamily="@font/poppins_regular"
             android:text="Transfer to account in 2 hour"
             android:textColor="#636363"
@@ -100,8 +119,6 @@
             android:textSize="16sp"
             android:layout_marginTop="30dp"
             android:textStyle="bold" />
-
-
 
         <ImageView
             android:id="@+id/withdrawRightArrow"
