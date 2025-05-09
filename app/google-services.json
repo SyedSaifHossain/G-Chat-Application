@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "2220485973",
+    "firebase_url": "https://g-chat-d1bcb-default-rtdb.firebaseio.com",
     "project_id": "g-chat-d1bcb",
     "storage_bucket": "g-chat-d1bcb.firebasestorage.app"
   },
