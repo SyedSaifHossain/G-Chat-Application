@@ -1,159 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-tools:context=".LoginViaEmailFragment"
-android:background="#000000">
-
-<ImageView
-    android:id="@+id/loginViaEmailImage"
-    android:layout_width="180dp"
-    android:layout_height="180dp"
-    android:layout_centerHorizontal="true"
-    android:layout_alignParentTop="true"
-    android:layout_marginTop="10dp"
-    android:src="@drawable/gchatsplashscreen"/>
-
-<TextView
-    android:id="@+id/loginViaEmailTxt"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/loginViaEmailImage"
-    android:layout_centerHorizontal="true"
-    android:text="Create Account"
-    android:textColor="#555C5C"
-    android:textSize="28sp"
-    android:textStyle="bold"
-    android:fontFamily="@font/poppins_regular" />
-
-<AutoCompleteTextView
-    android:id="@+id/loginViaEmailCountryEdt"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/loginViaEmailTxt"
-    android:layout_marginHorizontal="40dp"
-    android:layout_alignParentStart="true"
-    android:layout_alignParentEnd="true"
-    android:layout_marginTop="30dp"
-    android:hint="Country/Region"
-    android:padding="15dp"
-    android:textColor="#FFFFFF"
-    android:textColorHint="#555C5C"
-    android:fontFamily="@font/poppins_regular"
-    android:textSize="22sp"
-    android:alpha="0.7"
-    android:drawableTint="#555C5C"
-    android:drawableEnd="@drawable/arrowforward"/>
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".LoginViaEmailFragment"
+    android:background="#000000">
 
-<EditText
-    android:id="@+id/loginViaEmailEdtEmail"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:inputType="textEmailAddress"
-    android:layout_below="@+id/loginViaEmailCountryEdt"
-    android:layout_alignParentStart="true"
-    android:layout_alignParentEnd="true"
-    android:layout_marginHorizontal="40dp"
-    android:layout_marginTop="8dp"
-    android:hint="Email"
-    android:padding="15dp"
-    android:textColor="#FFFFFF"
-    android:textColorHint="#555C5C"
-    android:fontFamily="@font/poppins_regular"
-    android:textSize="22sp"
-    android:alpha="0.7"
-    android:drawableTint="#555C5C"
-    android:drawableEnd="@drawable/arrowforward"/>
+    <ImageView
+        android:id="@+id/loginViaEmailImage"
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/gchatsplashscreen"/>
 
-<EditText
-    android:id="@+id/loginViaEmailVerificationEdt"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:inputType="number"
-    android:layout_below="@+id/loginViaEmailEdtEmail"
-    android:layout_alignParentStart="true"
-    android:layout_alignParentEnd="true"
-    android:layout_marginHorizontal="40dp"
-    android:layout_marginTop="8dp"
-    android:padding="15dp"
-    android:hint="Verification Code"
-    android:textColor="#FFFFFF"
-    android:fontFamily="@font/poppins_regular"
-    android:textColorHint="#555C5C"
-    android:textSize="22sp"
-    android:alpha="0.7"/>
+    <TextView
+        android:id="@+id/loginViaEmailTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/loginViaEmailImage"
+        android:layout_centerHorizontal="true"
+        android:text="Create Account"
+        android:textColor="#555C5C"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/poppins_regular" />
 
-<Button
-    android:id="@+id/loginViaEmailSendCodeVerify"
-    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-    android:layout_width="wrap_content"
-    android:layout_height="40dp"
-    android:layout_below="@+id/loginViaEmailEdtEmail"
-    android:layout_alignEnd="@+id/loginViaEmailEdtEmail"
-    android:layout_marginTop="15dp"
-    android:layout_marginEnd="1dp"
-    android:layout_marginRight="7dp"
-    android:fontFamily="@font/poppins_regular"
-    android:text="Send"
-    android:textAllCaps="false"
-    android:textColor="#555C5C"
-    android:textSize="16sp"
-    android:textStyle="bold"
-    app:cornerRadius="5dp"
-    app:strokeColor="#555C5C"
-    app:strokeWidth="2dp" />
+    <!-- Country/Region EditText - Hidden -->
+    <AutoCompleteTextView
+        android:id="@+id/loginViaEmailCountryEdt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/loginViaEmailTxt"
+        android:layout_marginHorizontal="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="30dp"
+        android:hint="Country/Region"
+        android:padding="15dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#555C5C"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="22sp"
+        android:alpha="0.7"
+        android:drawableTint="#555C5C"
+        android:drawableEnd="@drawable/arrowforward"
+        android:visibility="gone" />
 
 
-<Button
-    android:id="@+id/loginViaEmailResendCodeVerify"
-    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-    android:layout_width="wrap_content"
-    android:layout_height="40dp"
-    android:layout_below="@+id/loginViaEmailVerificationEdt"
-    android:layout_alignStart="@+id/loginViaEmailVerificationEdt"
-    android:layout_marginTop="8dp"
-    android:fontFamily="@font/poppins_regular"
-    android:text="Resend Code?"
-    android:textAllCaps="false"
-    android:textColor="#555C5C"
-    android:textSize="16sp"
-    android:textStyle="bold"/>
+    <!-- Email EditText -->
+    <EditText
+        android:id="@+id/loginViaEmailEdtEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:layout_below="@+id/loginViaEmailTxt"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="30dp"
+        android:hint="Email"
+        android:padding="15dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#555C5C"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="22sp"
+        android:alpha="0.7"
+        android:drawableTint="#555C5C"
+        android:drawableEnd="@drawable/arrowforward"/>
 
-<TextView
-    android:id="@+id/loginViaEmailTimeCount"
-    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-    android:layout_width="wrap_content"
-    android:layout_height="40dp"
-    android:layout_below="@+id/loginViaEmailVerificationEdt"
-    android:layout_alignEnd="@+id/loginViaEmailVerificationEdt"
-    android:layout_marginTop="8dp"
-    android:fontFamily="@font/poppins_regular"
-    android:text="0"
-    android:textAllCaps="false"
-    android:textColor="#0ABAB5"
-    android:textSize="20sp"
-    android:textStyle="bold"/>
+    <!-- New Password Field -->
+    <EditText
+        android:id="@+id/loginViaEmailEdtPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:layout_below="@+id/loginViaEmailEdtEmail"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="8dp"
+        android:hint="Password"
+        android:padding="15dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#555C5C"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="22sp"
+        android:alpha="0.7"/>
 
-<Button
-    android:id="@+id/loginViaEmailVerificationNextButton"
-    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_alignParentStart="true"
-    android:layout_alignParentEnd="true"
-    android:layout_alignParentBottom="true"
-    android:layout_marginHorizontal="40dp"
-    android:backgroundTint="#0ABAB5"
-    android:padding="15dp"
-    android:text="Next"
-    android:textAllCaps="false"
-    android:textColor="#000000"
-    android:fontFamily="@font/poppins_regular"
-    android:textSize="24sp"
-    android:layout_marginBottom="50dp"
-    android:textStyle="bold"/>
+    <!-- Verification Code EditText - Hidden -->
+    <EditText
+        android:id="@+id/loginViaEmailVerificationEdt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:layout_below="@+id/loginViaEmailEdtPassword"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginTop="8dp"
+        android:padding="15dp"
+        android:hint="Verification Code"
+        android:textColor="#FFFFFF"
+        android:fontFamily="@font/poppins_regular"
+        android:textColorHint="#555C5C"
+        android:textSize="22sp"
+        android:alpha="0.7"
+        android:visibility="gone" />
+
+    <!-- Send Button - Hidden -->
+    <Button
+        android:id="@+id/loginViaEmailSendCodeVerify"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_below="@+id/loginViaEmailEdtPassword"
+        android:layout_alignEnd="@+id/loginViaEmailEdtPassword"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginRight="7dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Send"
+        android:textAllCaps="false"
+        android:textColor="#555C5C"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="5dp"
+        app:strokeColor="#555C5C"
+        app:strokeWidth="2dp"
+        android:visibility="gone" />
+
+    <!-- Resend Code Button - Hidden -->
+    <Button
+        android:id="@+id/loginViaEmailResendCodeVerify"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_below="@+id/loginViaEmailVerificationEdt"
+        android:layout_alignStart="@+id/loginViaEmailVerificationEdt"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Resend Code?"
+        android:textAllCaps="false"
+        android:textColor="#555C5C"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <!-- Timer TextView - Hidden -->
+    <TextView
+        android:id="@+id/loginViaEmailTimeCount"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_below="@+id/loginViaEmailVerificationEdt"
+        android:layout_alignEnd="@+id/loginViaEmailVerificationEdt"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins_regular"
+        android:text="0"
+        android:textAllCaps="false"
+        android:textColor="#0ABAB5"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <!-- Next/Register Button -->
+    <Button
+        android:id="@+id/loginViaEmailVerificationNextButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginHorizontal="40dp"
+        android:backgroundTint="#0ABAB5"
+        android:padding="15dp"
+        android:text="Register"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="24sp"
+        android:layout_marginBottom="50dp"
+        android:textStyle="bold"/>
 
 </RelativeLayout>

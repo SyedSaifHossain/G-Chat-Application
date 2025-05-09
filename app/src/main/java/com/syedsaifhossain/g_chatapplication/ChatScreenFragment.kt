@@ -31,6 +31,8 @@ import com.syedsaifhossain.g_chatapplication.models.ChatModel
 import com.vanniktech.emoji.EmojiPopup
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
+import com.vanniktech.emoji.EmojiImageView
+import com.vanniktech.emoji.emoji.Emoji
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -39,8 +41,7 @@ import java.util.UUID
 import android.os.Environment
 // Added Imports
 import android.util.Log
-import android.view.ContextThemeWrapper
-import android.widget.PopupMenu
+import com.bumptech.glide.Glide // Keep Glide import for later use in RecyclerView
 
 // Ensure the class declaration includes the interface implementation from your original
 class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListener {
@@ -119,8 +120,7 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.chatMessageInput.imeOptions = EditorInfo.IME_ACTION_SEND
-        binding.chatMessageInput.setRawInputType(android.text.InputType.TYPE_CLASS_TEXT)
+
         // --- Receive Arguments (Revised) ---
         arguments?.let { bundle ->
             otherUserId = bundle.getString("otherUserId")
@@ -183,61 +183,11 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
             findNavController().popBackStack()
         }
 
-
-        binding.videoIcon.setOnClickListener {
-            findNavController().navigate(R.id.action_chatScreenFragment_to_videoCallFragment)
+        // Setup add button listener (Original)
+        binding.chatAddButton.setOnClickListener {
+            AddOptionsBottomSheet(this@ChatScreenFragment)
+                .show(parentFragmentManager, "AddOptionsBottomSheet")
         }
-
-        binding.callIcon.setOnClickListener {
-            findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment)
-        }
-
-
-        binding.chatAddButton.setOnClickListener { view ->
-            val wrapper = ContextThemeWrapper(requireContext(), R.style.CustomPopupMenuStyle)
-            val popupMenu = PopupMenu(wrapper, view)
-            popupMenu.menuInflater.inflate(R.menu.add_options_menu, popupMenu.menu)
-
-            // Force icons to show
-            try {
-                val fields = popupMenu.javaClass.declaredFields
-                for (field in fields) {
-                    if ("mPopup" == field.name) {
-                        field.isAccessible = true
-                        val menuPopupHelper = field.get(popupMenu)
-                        val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
-                        val setForceIcons = classPopupHelper.getMethod("setForceShowIcon", Boolean::class.javaPrimitiveType)
-                        setForceIcons.invoke(menuPopupHelper, true)
-                        break
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-            popupMenu.setOnMenuItemClickListener { menuItem ->
-                when (menuItem.itemId) {
-                    R.id.galleryId -> {
-                        // Handle Gallery
-                        true
-                    }
-                    R.id.documentId -> {
-                        // Handle Document
-                        true
-                    }
-                    R.id.contactId -> {
-                        // Handle Contact
-                        true
-                    }
-                    else -> false
-                }
-            }
-
-            popupMenu.show()
-        }
-
-
-
 
         // Setup mic button listener (Original)
         binding.chatMicButton.setOnClickListener {
@@ -248,31 +198,48 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
             }
         }
 
-        // Setup input action listener (Original - related to audio?)
-        binding.chatMessageInput.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                stopRecording()
-                sendAudioMessage()
-                true
-            } else {
-                false
+        // 添加发送按钮点击监听器
+        binding.chatSendButton.setOnClickListener {
+            val message = binding.chatMessageInput.text.toString().trim()
+            if (message.isNotEmpty()) {
+                sendMessageToFirebase(message)
+                binding.chatMessageInput.setText("")
             }
         }
 
         // --- Display Data in Toolbar (Name only) ---
         binding.tvToolbarUserName.text = otherUserName
 
+        // --- Toolbar Avatar Loading Code Removed/Commented Out ---
+        /* ... */
+        // --- END Toolbar Avatar Loading ---
+
     } // End of onViewCreated
 
+    // --- NEW METHOD: Create a unique chat node ID ---
+    private fun getChatNodeId(userId1: String, userId2: String): String {
+        // Sort the user IDs alphabetically to ensure the same chat ID
+        // regardless of who started the chat
+        val userIds = sortedSetOf(userId1, userId2)
+        return userIds.joinToString("_")
+    }
+    // --- END NEW METHOD ---
+
+    // --- MODIFIED: Handle message sending with integrated audio handling ---
     private fun handleMessageSendOnEnter() {
         binding.chatMessageInput.setOnEditorActionListener { _, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_SEND ||
-                (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
             ) {
+                // Check if we're recording audio first
                 if (mediaRecorder != null) {
                     stopRecording()
                     sendAudioMessage()
-                } else if (selectedCameraPhotoUri != null) {
+                    return@setOnEditorActionListener true
+                }
+
+                // Handle photo/image sending
+                if (selectedCameraPhotoUri != null) {
                     uploadImageToFirebase(selectedCameraPhotoUri!!)
                     selectedCameraPhotoUri = null
                     binding.chatMessageInput.setText("")
@@ -281,6 +248,7 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
                     selectedImageUri = null
                     binding.chatMessageInput.setText("")
                 } else {
+                    // Handle text message sending
                     val message = binding.chatMessageInput.text.toString().trim()
                     if (message.isNotEmpty()) {
                         sendMessageToFirebase(message)
@@ -292,66 +260,62 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
                 false
             }
         }
-
     }
+    // --- END MODIFICATION ---
 
-
+    // --- MODIFIED: Send message to specific chat node ---
     private fun sendMessageToFirebase(messageText: String) {
-        Log.d("sendMessageToFirebase", "sendMessageToFirebase() called with message: $messageText")
         if (otherUserId == null) {
-            Log.e("ChatScreenFragment", "otherUserId is null in sendMessageToFirebase!")
-            Toast.makeText(requireContext(), "Cannot send message.  Chat partner is unknown.", Toast.LENGTH_SHORT).show()
+            Log.e("ChatScreenFragment", "Cannot send message, otherUserId is null.")
+            Toast.makeText(requireContext(), "Error: Chat partner info missing.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val chatRef = FirebaseDatabase.getInstance().getReference("chats")
-        val messageId = chatRef.push().key ?: run {
-            Log.e("ChatScreenFragment", "Failed to get a new message key from Firebase.")
-            Toast.makeText(requireContext(), "Failed to send message.  Try again.", Toast.LENGTH_SHORT).show()
-            return
-        }
+        // Create a specific chat node ID based on the two users involved
+        val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+
+        // Reference to the specific chat node
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+
+        val messageId = chatRef.push().key ?: return
 
         val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
         val message = ChatModel(
             senderId = senderId,
             message = messageText,
-            timestamp = System.currentTimeMillis() // Use String for timestamp for consistency
+            timestamp = System.currentTimeMillis()
+            // You could add avatar URLs here if needed
         )
 
         chatRef.child(messageId).setValue(message)
-            .addOnSuccessListener {
-                Log.d("ChatScreenFragment", "Message sent successfully to Firebase.")
-                binding.chatMessageInput.setText("") // Clear the input field on success.
-            }
-            .addOnFailureListener { error ->
-                Log.e("ChatScreenFragment", "Failed to send message to Firebase: ${error.message}", error)
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to send message: ${error.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+            .addOnSuccessListener { Log.d("ChatScreenFragment", "Message sent.") }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Failed to send message: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("ChatScreenFragment", "Failed to send message", e)
             }
     }
+    // --- END MODIFICATION ---
 
-
+    // --- MODIFIED: Listen for messages from specific chat node ---
     private fun listenForMessages() {
         if (otherUserId == null) {
             Log.e("ChatScreenFragment", "Cannot listen for messages, otherUserId is null.")
+            Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT).show()
             return
         }
-        // TODO: Listen to a specific chat node based on involved user IDs
-        // Example: val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
-        val chatRef = FirebaseDatabase.getInstance().getReference("chats") //.child(chatNodeId)
+
+        // Create a specific chat node ID based on the two users involved
+        val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+
+        // Reference to the specific chat node
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+
         chatRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 chatList.clear()
                 for (child in snapshot.children) {
                     val message = child.getValue(ChatModel::class.java)
-                    // TODO: Filter messages to ensure they belong to this specific chat
-                    // if (message != null && isMessageForThisChat(message, currentUserId, otherUserId!!)) {
-                    //     message?.let { chatList.add(it) }
-                    // }
-                    message?.let { chatList.add(it) } // Current: Adds all messages
+                    message?.let { chatList.add(it) }
                 }
                 chatList.sortBy { it.timestamp }
                 chatMessageAdapter.notifyDataSetChanged()
@@ -359,12 +323,14 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
                     binding.chatScreenRecyclerView.scrollToPosition(chatList.size - 1)
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {
                 Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT).show()
                 Log.e("ChatScreenFragment", "Failed to load messages", error.toException())
             }
         })
     }
+    // --- END MODIFICATION ---
 
     override fun onAlbumClicked() {
         when {
@@ -385,6 +351,7 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
         galleryLauncher.launch(intent)
     }
 
+    // --- MODIFIED: Upload image to Firebase with specific chat node ---
     private fun uploadImageToFirebase(imageUri: Uri) {
         try {
             if (imageUri == Uri.EMPTY) { Toast.makeText(requireContext(), "Invalid image selected", Toast.LENGTH_SHORT).show(); return }
@@ -410,12 +377,15 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
                 .addOnSuccessListener {
                     finalImageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
                         if (otherUserId == null) { Log.e("ChatScreenFragment", "Cannot send image message, otherUserId is null."); _binding?.progressBar?.visibility = View.GONE; return@addOnSuccessListener }
-                        val chatRef = FirebaseDatabase.getInstance().getReference("chats") // TODO: Use specific node
+
+                        // Create a specific chat node ID based on the two users involved
+                        val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+
+                        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
                         val messageId = chatRef.push().key ?: return@addOnSuccessListener
                         val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
                         val message = ChatModel(
                             senderId = senderId, message = "📷 Image", imageUrl = downloadUrl.toString(), timestamp = System.currentTimeMillis()
-                            // TODO: Add avatar URLs?
                         )
                         chatRef.child(messageId).setValue(message)
                             .addOnSuccessListener { Toast.makeText(requireContext(), "Image sent", Toast.LENGTH_SHORT).show(); Log.d("ChatScreenFragment", "Image message sent") }
@@ -435,6 +405,7 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
             Log.e("ChatScreenFragment", "Exception during image upload", e)
         }
     }
+    // --- END MODIFICATION ---
 
     private fun compressImage(imageUri: Uri): Uri? {
         try {
@@ -507,6 +478,7 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
         finally { mediaRecorder = null; Toast.makeText(context, if (audioFile?.exists() == true) "Recording stopped" else "Recording failed", Toast.LENGTH_SHORT).show() }
     }
 
+    // --- MODIFIED: Send audio message with specific chat node ---
     private fun sendAudioMessage() {
         val fileToSend = audioFile
         if (fileToSend?.exists() == true && fileToSend.length() > 0) {
@@ -517,7 +489,11 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
                 .addOnSuccessListener {
                     audioRef.downloadUrl.addOnSuccessListener { downloadUrl ->
                         if (otherUserId == null) { Log.e("ChatScreenFragment", "Cannot send audio message, otherUserId is null."); _binding?.progressBar?.visibility = View.GONE; return@addOnSuccessListener }
-                        val chatRef = FirebaseDatabase.getInstance().getReference("chats") // TODO: Use specific node
+
+                        // Create a specific chat node ID based on the two users involved
+                        val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+
+                        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
                         val messageId = chatRef.push().key ?: return@addOnSuccessListener
                         val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
                         val message = ChatModel(senderId = senderId, message = "🎤 Voice Message", imageUrl = downloadUrl.toString(), timestamp = System.currentTimeMillis()) // Reusing imageUrl for audio URL? Consider dedicated field.
@@ -531,6 +507,7 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
         } else { Toast.makeText(context, "No valid recording found", Toast.LENGTH_SHORT).show(); Log.w("ChatScreenFragment", "sendAudioMessage called but audioFile invalid.") }
         audioFile = null // Reset after attempt
     }
+    // --- END MODIFICATION ---
 
     override fun onVideoCallClicked() {
         Toast.makeText(requireContext(), "Video call feature not implemented yet", Toast.LENGTH_SHORT).show()
@@ -544,5 +521,4 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
         audioFile = null
         _binding = null
     }
-    // --- End Original Methods ---
 }

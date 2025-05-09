@@ -1,18 +1,19 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
-import android.os.CountDownTimer
+import android.util.Log
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.FirebaseException
-import com.google.firebase.FirebaseTooManyRequestsException
-import com.google.firebase.auth.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentLoginViaEmailBinding
-import java.util.concurrent.TimeUnit
 
 class LoginViaEmailFragment : Fragment() {
 
@@ -20,9 +21,6 @@ class LoginViaEmailFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var auth: FirebaseAuth
-    private var storedVerificationId: String? = null
-    private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
-    private var countDownTimer: CountDownTimer? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,188 +31,134 @@ class LoginViaEmailFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
 
-        binding.loginViaEmailResendCodeVerify.visibility = View.INVISIBLE
-
-        var isLoginFlow = false
-
-        arguments?.let {
-            val phoneNumber = it.getString("phoneNumberWithCode")
-            val countryName = it.getString("countryName")
-            isLoginFlow = it.getBoolean("isLogin", false)
-
-            binding.loginViaEmailCountryEdt.setText(countryName)
-            binding.loginViaEmailEdtEmail.setText(phoneNumber)
-        }
-
-
-        binding.loginViaEmailCountryEdt.setOnClickListener {
-            findNavController().navigate(R.id.action_loginViaEmailFragment_to_selectRegionFragment)
-        }
-
-        binding.loginViaEmailSendCodeVerify.setOnClickListener {
-            val phone = binding.loginViaEmailEdtEmail.text.toString().trim()
-            val country = binding.loginViaEmailCountryEdt.text.toString().trim()
-
-            if (phone.isEmpty()) {
-                Toast.makeText(requireContext(), "Phone number is required", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (!phone.startsWith("+") || phone.length < 11) {
-                Toast.makeText(requireContext(), "Enter a valid phone number with country code", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (country.isEmpty()) {
-                Toast.makeText(requireContext(), "Please select a country", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            Toast.makeText(requireContext(), "Sending OTP to $country $phone", Toast.LENGTH_SHORT).show()
-            binding.loginViaEmailResendCodeVerify.visibility = View.VISIBLE
-            binding.loginViaEmailResendCodeVerify.isEnabled = false
-            startPhoneNumberVerification(phone)
-        }
-
-        binding.loginViaEmailResendCodeVerify.setOnClickListener {
-            val phone = binding.loginViaEmailEdtEmail.text.toString().trim()
-
-            if (resendToken != null) {
-                startTimer()
-                resendVerificationCode(phone, resendToken!!)
-            } else {
-                Toast.makeText(requireContext(), "Resend token not available yet", Toast.LENGTH_SHORT).show()
-            }
-        }
-
+        // Listener for the "Register" button
         binding.loginViaEmailVerificationNextButton.setOnClickListener {
+            val email = binding.loginViaEmailEdtEmail.text.toString().trim()
+            val password = binding.loginViaEmailEdtPassword.text.toString().trim()
 
-            val code = binding.loginViaEmailVerificationEdt.text.toString().trim()
-
-            if (code.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter the OTP", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (code.length < 6) {
-                Toast.makeText(requireContext(), "OTP must be 6 digits", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (storedVerificationId != null) {
-                verifyPhoneNumberWithCode(storedVerificationId!!, code)
-            } else {
-                Toast.makeText(requireContext(), "Verification ID not found", Toast.LENGTH_SHORT).show()
+            if (validateInput(email, password)) {
+                // Consider showing a progress bar here
+                registerUser(email, password)
             }
         }
     }
 
-    private fun startPhoneNumberVerification(phoneNumber: String) {
-        startTimer()
-
-        val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(phoneNumber)
-            .setTimeout(60L, TimeUnit.SECONDS)
-            .setActivity(requireActivity())
-            .setCallbacks(callbacks)
-            .build()
-        PhoneAuthProvider.verifyPhoneNumber(options)
-    }
-
-    private fun resendVerificationCode(phoneNumber: String, token: PhoneAuthProvider.ForceResendingToken) {
-        startTimer()
-
-        val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(phoneNumber)
-            .setTimeout(60L, TimeUnit.SECONDS)
-            .setActivity(requireActivity())
-            .setCallbacks(callbacks)
-            .setForceResendingToken(token)
-            .build()
-        PhoneAuthProvider.verifyPhoneNumber(options)
-    }
-
-    private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            if (!isAdded) return
-            val code = credential.smsCode
-            if (code != null) {
-                binding.loginViaEmailVerificationEdt.setText(code)
-                verifyPhoneNumberWithCode(storedVerificationId!!, code)
-            }
+    private fun validateInput(email: String, password: String): Boolean {
+        if (email.isEmpty()) {
+            binding.loginViaEmailEdtEmail.error = "Email is required"
+            binding.loginViaEmailEdtEmail.requestFocus()
+            return false
         }
 
-        override fun onVerificationFailed(e: FirebaseException) {
-            if (!isAdded) return
-            binding.loginViaEmailResendCodeVerify.isEnabled = true
-            binding.loginViaEmailTimeCount.text = ""
-
-            when (e) {
-                is FirebaseAuthInvalidCredentialsException -> {
-                    Toast.makeText(requireContext(), "Invalid request: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-                is FirebaseTooManyRequestsException -> {
-                    Toast.makeText(requireContext(), "SMS quota exceeded.", Toast.LENGTH_LONG).show()
-                }
-                else -> {
-                    Toast.makeText(requireContext(), "Verification failed: ${e.message}", Toast.LENGTH_LONG).show()
-                }
-            }
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            binding.loginViaEmailEdtEmail.error = "Enter a valid email address"
+            binding.loginViaEmailEdtEmail.requestFocus()
+            return false
         }
 
-        override fun onCodeSent(
-            verificationId: String,
-            token: PhoneAuthProvider.ForceResendingToken
-        ) {
-            storedVerificationId = verificationId
-            resendToken = token
-            Toast.makeText(requireContext(), "OTP Sent", Toast.LENGTH_SHORT).show()
+        if (password.isEmpty()) {
+            binding.loginViaEmailEdtPassword.error = "Password is required"
+            binding.loginViaEmailEdtPassword.requestFocus()
+            return false
         }
+
+        if (password.length < 6) {
+            binding.loginViaEmailEdtPassword.error = "Password must be at least 6 characters"
+            binding.loginViaEmailEdtPassword.requestFocus()
+            return false
+        }
+        // You can add more complex password validation if needed
+        return true
     }
 
-    private fun verifyPhoneNumberWithCode(verificationId: String, code: String) {
-        val credential = PhoneAuthProvider.getCredential(verificationId, code)
-        signInWithPhoneAuthCredential(credential)
-    }
+    private fun registerUser(email: String, password: String) {
+        // binding.yourProgressBar.visibility = View.VISIBLE // Show progress
 
-    private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
-        auth.signInWithCredential(credential)
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
+                // binding.yourProgressBar.visibility = View.GONE // Hide progress
+
                 if (task.isSuccessful) {
-                    Toast.makeText(requireContext(), "Verification successful", Toast.LENGTH_SHORT).show()
-                    navigateToHomePage()
+                    val firebaseUser = auth.currentUser
+                    firebaseUser?.sendEmailVerification()
+                        ?.addOnCompleteListener { verificationTask ->
+                            if (verificationTask.isSuccessful) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Registration successful. Please check your email for verification.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                // Navigate to a login page or a page indicating to check email
+                                // Example: Navigate to login page (ensure this action exists in your nav_graph)
+                                // findNavController().navigate(R.id.action_loginViaEmailFragment_to_loginFragment)
+                                // Or, for now, navigate to home page as per previous logic
+                                navigateToHomePage()
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Failed to send verification email: ${verificationTask.exception?.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                Log.e(
+                                    "EmailVerification",
+                                    "sendEmailVerification failed",
+                                    verificationTask.exception
+                                )
+                            }
+                        }
                 } else {
-                    Toast.makeText(requireContext(), "Invalid OTP", Toast.LENGTH_SHORT).show()
+                    // Handle errors
+                    try {
+                        throw task.exception!!
+                    } catch (e: FirebaseAuthWeakPasswordException) {
+                        binding.loginViaEmailEdtPassword.error = "Password is too weak. Please use a stronger password."
+                        binding.loginViaEmailEdtPassword.requestFocus()
+                        Log.w("RegisterUser", "Weak password", e)
+                    } catch (e: FirebaseAuthInvalidCredentialsException) {
+                        // This can be for malformed email or if Firebase rejects the email format
+                        binding.loginViaEmailEdtEmail.error = "Invalid email format or other credential issue."
+                        binding.loginViaEmailEdtEmail.requestFocus()
+                        Log.w("RegisterUser", "Invalid credentials", e)
+                    } catch (e: FirebaseAuthUserCollisionException) {
+                        binding.loginViaEmailEdtEmail.error = "This email address is already in use."
+                        binding.loginViaEmailEdtEmail.requestFocus()
+                        Log.w("RegisterUser", "User collision", e)
+                    } catch (e: Exception) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Registration failed: ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        Log.e("RegisterUser", "Registration failed", e)
+                    }
                 }
             }
-    }
-
-    private fun startTimer() {
-        countDownTimer?.cancel()
-        binding.loginViaEmailResendCodeVerify.isEnabled = false
-        binding.loginViaEmailResendCodeVerify.visibility = View.VISIBLE
-
-        countDownTimer = object : CountDownTimer(60000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                binding.loginViaEmailTimeCount.text = "${millisUntilFinished / 1000}s"
-            }
-
-            override fun onFinish() {
-                binding.loginViaEmailTimeCount.text = ""
-                binding.loginViaEmailTimeCount.isEnabled = true
-            }
-        }.start()
     }
 
     private fun navigateToHomePage() {
-        findNavController().navigate(R.id.action_loginViaEmailFragment_to_homeFragment)
+        // Check if fragment is still added and if current destination is correct before navigating
+        if (isAdded && findNavController().currentDestination?.id == R.id.loginViaEmailFragment) {
+            // Ensure this navigation action is defined in your navigation graph
+            // It might be better to navigate to a login screen after registration
+            // or a dedicated "please verify your email" screen.
+            try {
+                findNavController().navigate(R.id.action_loginViaEmailFragment_to_homeFragment)
+            } catch (e: Exception) {
+                Log.e("NavigationError", "Failed to navigate from LoginViaEmailFragment", e)
+                Toast.makeText(requireContext(), "Navigation error. Please try logging in.", Toast.LENGTH_SHORT).show()
+                // Fallback or alternative navigation if the primary one fails or is not set up.
+                // For example, navigate to the initial signup page or login page.
+                // findNavController().popBackStack(R.id.signupPageFragment, false) // Example
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        countDownTimer?.cancel()
     }
-
 }
