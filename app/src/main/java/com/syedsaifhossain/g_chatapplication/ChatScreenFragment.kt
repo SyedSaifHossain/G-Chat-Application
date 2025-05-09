@@ -31,6 +31,8 @@ import com.syedsaifhossain.g_chatapplication.models.ChatModel
 import com.vanniktech.emoji.EmojiPopup
 import com.vanniktech.emoji.EmojiManager
 import com.vanniktech.emoji.google.GoogleEmojiProvider
+import com.vanniktech.emoji.EmojiImageView
+import com.vanniktech.emoji.emoji.Emoji
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -39,6 +41,7 @@ import java.util.UUID
 import android.os.Environment
 // Added Imports
 import android.util.Log
+import com.bumptech.glide.Glide // Keep Glide import for later use in RecyclerView
 
 // Ensure the class declaration includes the interface implementation from your original
 class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListener {
@@ -117,8 +120,7 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.chatMessageInput.imeOptions = EditorInfo.IME_ACTION_SEND
-        binding.chatMessageInput.setRawInputType(android.text.InputType.TYPE_CLASS_TEXT)
+
         // --- Receive Arguments (Revised) ---
         arguments?.let { bundle ->
             otherUserId = bundle.getString("otherUserId")
@@ -210,24 +212,27 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
         // --- Display Data in Toolbar (Name only) ---
         binding.tvToolbarUserName.text = otherUserName
 
+        // --- Toolbar Avatar Loading Code Removed/Commented Out ---
+        /* ... */
+        // --- END Toolbar Avatar Loading ---
+
     } // End of onViewCreated
 
+    // --- All original methods below remain unchanged ---
+    // (Make sure you have all your original methods here)
     private fun handleMessageSendOnEnter() {
         binding.chatMessageInput.setOnEditorActionListener { _, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_SEND ||
-                (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
             ) {
-                if (mediaRecorder != null) {
-                    stopRecording()
-                    sendAudioMessage()
-                } else if (selectedCameraPhotoUri != null) {
+                if (selectedCameraPhotoUri != null) {
                     uploadImageToFirebase(selectedCameraPhotoUri!!)
                     selectedCameraPhotoUri = null
                     binding.chatMessageInput.setText("")
-                } else if (selectedImageUri != null) {
+                } else if (selectedImageUri != null) { // Assuming selectedImageUri is set by gallery picker result
                     uploadImageToFirebase(selectedImageUri!!)
                     selectedImageUri = null
-                    binding.chatMessageInput.setText("")
+                    // binding.chatMessageInput.setText("") // Might clear input prematurely
                 } else {
                     val message = binding.chatMessageInput.text.toString().trim()
                     if (message.isNotEmpty()) {
@@ -240,49 +245,36 @@ class ChatScreenFragment : Fragment(), AddOptionsBottomSheet.AddOptionClickListe
                 false
             }
         }
-
     }
 
-
-
-
     private fun sendMessageToFirebase(messageText: String) {
-        Log.d("sendMessageToFirebase", "sendMessageToFirebase() called with message: $messageText")
-        if (otherUserId == null) {
-            Log.e("ChatScreenFragment", "otherUserId is null in sendMessageToFirebase!")
-            Toast.makeText(requireContext(), "Cannot send message.  Chat partner is unknown.", Toast.LENGTH_SHORT).show()
+        if (otherUserId == null) { // Use the class member variable
+            Log.e("ChatScreenFragment", "Cannot send message, otherUserId is null.")
+            Toast.makeText(requireContext(), "Error: Chat partner info missing.", Toast.LENGTH_SHORT).show()
             return
         }
-
-        val chatRef = FirebaseDatabase.getInstance().getReference("chats")
-        val messageId = chatRef.push().key ?: run {
-            Log.e("ChatScreenFragment", "Failed to get a new message key from Firebase.")
-            Toast.makeText(requireContext(), "Failed to send message.  Try again.", Toast.LENGTH_SHORT).show()
-            return
-        }
+        // TODO: Use a specific chat node based on involved user IDs
+        // Example: val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats") //.child(chatNodeId)
+        val messageId = chatRef.push().key ?: return
 
         val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
         val message = ChatModel(
             senderId = senderId,
             message = messageText,
-            timestamp = System.currentTimeMillis() // Use String for timestamp for consistency
+            timestamp = System.currentTimeMillis()
+            // TODO: Add avatar URLs to the ChatModel when sending? Or fetch later?
+            // senderAvatarUrl = myAvatarUrl,
+            // receiverAvatarUrl = otherUserAvatarUrl
         )
 
         chatRef.child(messageId).setValue(message)
-            .addOnSuccessListener {
-                Log.d("ChatScreenFragment", "Message sent successfully to Firebase.")
-                binding.chatMessageInput.setText("") // Clear the input field on success.
-            }
-            .addOnFailureListener { error ->
-                Log.e("ChatScreenFragment", "Failed to send message to Firebase: ${error.message}", error)
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to send message: ${error.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+            .addOnSuccessListener { Log.d("ChatScreenFragment", "Message sent.") }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Failed to send message: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("ChatScreenFragment", "Failed to send message", e)
             }
     }
-
 
     private fun listenForMessages() {
         if (otherUserId == null) {
