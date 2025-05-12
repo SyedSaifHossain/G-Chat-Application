@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="#007AFF"/> <!-- Example blue background -->
-    <corners android:radius="12dp"/>
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+<item>
+    <rotate
+        android:fromDegrees="45"
+        android:pivotX="100%"
+        android:pivotY="0%"
+        android:toDegrees="0" >
+        <shape android:shape="rectangle" >
+            <solid android:color="#007AFF" />
+        </shape>
+    </rotate>
+</item>
+<item android:right="16dp">
+    <shape android:shape="rectangle" >
+        <solid android:color="#007AFF" />
+        <corners android:radius="8dp" />
+    </shape>
+</item>
+</layer-list>
