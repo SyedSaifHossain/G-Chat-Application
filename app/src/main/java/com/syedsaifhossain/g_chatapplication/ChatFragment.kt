@@ -32,6 +32,7 @@ class ChatFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -47,7 +48,6 @@ class ChatFragment : Fragment() {
             }
             findNavController().navigate(R.id.action_homeFragment_to_chatScreenFragment, bundle)
         }
-
 
         binding.userRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
         binding.userRecyclerView.adapter = adapter

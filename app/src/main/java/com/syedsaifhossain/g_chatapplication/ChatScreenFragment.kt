@@ -13,6 +13,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.syedsaifhossain.g_chatapplication.adapter.ChatMessageAdapter
+import com.syedsaifhossain.g_chatapplication.adapter.MessageChatAdapter
 import com.syedsaifhossain.g_chatapplication.adapter.UserAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatScreenBinding
 import com.syedsaifhossain.g_chatapplication.models.MessageChat
@@ -22,8 +23,7 @@ class ChatScreenFragment : Fragment() {
 
     private lateinit var mAuth: FirebaseAuth
     private lateinit var database: DatabaseReference
-
-    private lateinit var chatMessageAdapter: ChatMessageAdapter
+    private lateinit var messageChatAdapter: MessageChatAdapter
     private lateinit var messagelist: ArrayList<MessageChat>
 
     var receiverRoom : String?=null
@@ -48,13 +48,13 @@ class ChatScreenFragment : Fragment() {
         val receiverUid = arguments?.getString("uid")
         val senderUid = FirebaseAuth.getInstance().currentUser?.uid
 
-        val database = FirebaseDatabase.getInstance().getReference()
+        database = FirebaseDatabase.getInstance().getReference()
         senderRoom = receiverUid + senderUid
         receiverRoom = senderUid + receiverUid
         messagelist = ArrayList()
-        chatMessageAdapter = ChatMessageAdapter(messagelist)
-        binding.userRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        binding.userRecyclerView.adapter = chatMessageAdapter
+        messageChatAdapter = MessageChatAdapter(messagelist)
+        binding.chatMessageRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
+        binding.chatMessageRecyclerView.adapter = messageChatAdapter
         database.child("chats").child(senderRoom!!).child("message")
             .addValueEventListener(object : ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -64,7 +64,7 @@ class ChatScreenFragment : Fragment() {
                         val message = postSnapshot.getValue(MessageChat::class.java)
                         messagelist.add(message!!)
                     }
-                    chatMessageAdapter.notifyDataSetChanged()
+                    messageChatAdapter.notifyDataSetChanged()
                 }
 
                 override fun onCancelled(error: DatabaseError) {

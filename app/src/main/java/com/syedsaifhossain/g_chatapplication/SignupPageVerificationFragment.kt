@@ -192,9 +192,9 @@ class SignupPageVerificationFragment : Fragment() {
         )
 
         val database = FirebaseDatabase.getInstance()
-        val usersRef = database.getReference("users")
+        val usersRef = database.getReference("Users") // ✅ MATCHES ChatFragment
 
-        usersRef.child("user").child(uid).setValue(user)
+        usersRef.child(uid).setValue(user)
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "User saved to Realtime Database", Toast.LENGTH_SHORT).show()
             }
