@@ -7,13 +7,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.database.*
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentLoginPageBinding
-
 
 class LoginPage : Fragment() {
 
     private var _binding: FragmentLoginPageBinding? = null
     private val binding get() = _binding!!
+    private lateinit var database: DatabaseReference
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,52 +27,51 @@ class LoginPage : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        database = FirebaseDatabase.getInstance().getReference("Users")
+
         binding.loginButton.setOnClickListener {
-            val phoneOrEmail = binding.phoneLoginEdt.text.toString().trim()
+            val phone = binding.phoneLoginEdt.text.toString().trim()
             val password = binding.passwordLoginEdt.text.toString().trim()
 
-            if (validateInput(phoneOrEmail, password)) {
-                Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
-                findNavController().navigate(R.id.action_loginPage_to_homeFragment)
+            if (phone.isEmpty() || password.isEmpty()) {
+                Toast.makeText(requireContext(), "Please enter phone and password", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            loginUser(phone, password)
         }
 
         binding.backToSignup.setOnClickListener {
-           findNavController().navigate(R.id.action_loginPage_to_signupPageFragment)
+            findNavController().navigate(R.id.action_loginPage_to_signupPageFragment)
         }
     }
 
+    private fun loginUser(phone: String, password: String) {
+        database.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                var found = false
+                for (userSnapshot in snapshot.children) {
+                    val dbPhone = userSnapshot.child("phone").getValue(String::class.java)
+                    val dbPassword = userSnapshot.child("password").getValue(String::class.java)
 
-    private fun validateInput(phoneOrEmail: String, password: String): Boolean {
-        if (phoneOrEmail.isEmpty()) {
-            binding.phoneLoginEdt.error = "Phone or Email is required"
-            return false
-        }
+                    if (dbPhone == phone && dbPassword == password) {
+                        found = true
+                        Toast.makeText(requireContext(), "Login successful", Toast.LENGTH_SHORT).show()
+                        findNavController().navigate(R.id.action_loginPage_to_homeFragment)
+                        break
+                    }
+                }
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(phoneOrEmail).matches() &&
-            !phoneOrEmail.matches(Regex("^[+]?[0-9]{10,13}\$"))) {
-            binding.phoneLoginEdt.error = "Enter a valid email or phone number"
-            return false
-        }
+                if (!found) {
+                    Toast.makeText(requireContext(), "Invalid phone or password", Toast.LENGTH_SHORT).show()
+                }
+            }
 
-        if (password.isEmpty()) {
-            binding.passwordLoginEdt.error = "Password is required"
-            return false
-        }
-
-        if (password.length < 6) {
-            binding.passwordLoginEdt.error = "Password must be at least 6 characters"
-            return false
-        }
-
-        val passwordPattern = Regex("^(?=.*[A-Za-z])(?=.*\\d).{6,}$")
-        if (!password.matches(passwordPattern)) {
-            binding.passwordLoginEdt.error = "Password must include at least one letter and one digit"
-            return false
-        }
-        return true
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(requireContext(), "Database error: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

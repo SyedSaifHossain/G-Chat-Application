@@ -100,7 +100,7 @@
     <!--^^^ MODIFIED TOOLBAR LAYOUT ^^^-->
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chatScreenRecyclerView"
+        android:id="@+id/userRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_above="@+id/chatScreen_bottom_layout"
