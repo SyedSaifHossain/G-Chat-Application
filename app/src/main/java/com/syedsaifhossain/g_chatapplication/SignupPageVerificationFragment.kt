@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.*
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentSignupPageVerificationBinding
 import com.syedsaifhossain.g_chatapplication.models.User
@@ -22,6 +23,8 @@ class SignupPageVerificationFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var auth: FirebaseAuth
+
+    private lateinit var mDbRef : DatabaseReference
     private var storedVerificationId: String? = null
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
     private var countDownTimer: CountDownTimer? = null
@@ -85,6 +88,7 @@ class SignupPageVerificationFragment : Fragment() {
 
         binding.verificationNextButton.setOnClickListener {
             val code = binding.verificationEdt.text.toString().trim()
+            val phoneId = binding.singupVerificationEdtPhoneEmail.text.toString()
             if (code.isEmpty()) {
                 Toast.makeText(requireContext(), "Please enter the OTP", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -97,7 +101,7 @@ class SignupPageVerificationFragment : Fragment() {
 
             if (storedVerificationId != null) {
                 val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, code)
-                signInWithPhoneAuthCredential(credential)
+                signInWithPhoneAuthCredential(credential,phoneId)
             } else {
                 Toast.makeText(requireContext(), "Verification ID not found", Toast.LENGTH_SHORT).show()
             }
@@ -161,17 +165,14 @@ class SignupPageVerificationFragment : Fragment() {
 
     private fun verifyPhoneNumberWithCode(verificationId: String, code: String) {
         val credential = PhoneAuthProvider.getCredential(verificationId, code)
-        signInWithPhoneAuthCredential(credential)
+        signInWithPhoneAuthCredential(credential, phoneId = null)
     }
 
-    private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
+    private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential,phoneId: String?=null) {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    val phoneNumber = user?.phoneNumber
-                    val uid = user?.uid
-                    addUserToDatabase(phoneNumber, uid)
+                    addUserToDatabase(phoneId, auth.currentUser?.uid!!)
                     navigateToHomePage()
                 } else {
                     Toast.makeText(requireContext(), "Invalid OTP", Toast.LENGTH_SHORT).show()
@@ -179,24 +180,12 @@ class SignupPageVerificationFragment : Fragment() {
             }
     }
 
-    private fun addUserToDatabase(phoneNumber: String?, uid: String?) {
-        if (uid == null || phoneNumber == null) {
-            Toast.makeText(requireContext(), "User info missing", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val user = User(
-            name = "New User",
-            phone = phoneNumber.filter { it.isDigit() }.toLongOrNull(),
-            uid = uid,
-            profilePicUrl = "https://firebasestorage.googleapis.com/v0/b/YOUR_APP_ID.appspot.com/o/default_avatar.png?alt=media"
-        )
+    private fun addUserToDatabase(phoneId: String?=null, uid: String) {
+       mDbRef = FirebaseDatabase.getInstance().getReference()
 
 
-        val database = FirebaseDatabase.getInstance()
-        val usersRef = database.getReference("Users")
 
-        usersRef.child(uid).setValue(user)
+        mDbRef.child("user").child(uid).setValue(User(phoneId,uid))
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "User saved to Realtime Database", Toast.LENGTH_SHORT).show()
             }

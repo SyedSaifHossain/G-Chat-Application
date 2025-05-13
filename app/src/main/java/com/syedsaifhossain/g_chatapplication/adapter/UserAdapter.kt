@@ -19,8 +19,6 @@ class UserAdapter(
 
     inner class UserViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textName: TextView = itemView.findViewById(R.id.userName)
-        val textLastMessage: TextView = itemView.findViewById(R.id.tvLastMessage)
-        val userImage: ImageView = itemView.findViewById(R.id.profileImage)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
@@ -32,39 +30,11 @@ class UserAdapter(
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val user = userList[position]
         holder.textName.text = user.name ?: "No Name"
-        holder.textLastMessage.text = user.lastMessage?: "No Message"
-
-        // Load profile image with Glide or placeholder
-        if (!user.profilePicUrl.isNullOrEmpty()) {
-            Glide.with(holder.itemView.context)
-                .load(user.profilePicUrl)
-                .placeholder(R.drawable.default_avatar)
-                .into(holder.userImage)
-        } else {
-            holder.userImage.setImageResource(R.drawable.default_avatar)
-        }
 
         // Handle item click
         holder.itemView.setOnClickListener {
             onUserClicked(user)
         }
-
-        // Load last message from Firebase
-        val currentUid = FirebaseAuth.getInstance().currentUser?.uid
-        val senderRoom = "$currentUid-${user.uid}"
-
-        val databaseRef = FirebaseDatabase.getInstance().reference
-        databaseRef.child("Chats").child(senderRoom).child("lastMessage")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val lastMsg = snapshot.getValue(String::class.java)
-                    holder.textLastMessage.text = lastMsg ?: "Tap to chat"
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    holder.textLastMessage.text = "Tap to chat"
-                }
-            })
     }
 
     override fun getItemCount(): Int = userList.size

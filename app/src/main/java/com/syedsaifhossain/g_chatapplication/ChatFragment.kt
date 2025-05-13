@@ -20,7 +20,7 @@ class ChatFragment : Fragment() {
     private lateinit var mAuth: FirebaseAuth
     private lateinit var userList: ArrayList<User>
     private lateinit var adapter: UserAdapter
-    private lateinit var database: DatabaseReference
+    private lateinit var mDbRef: DatabaseReference
     private var _binding: FragmentChatBinding? = null
     private val binding get() = _binding!!
 
@@ -37,12 +37,11 @@ class ChatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mAuth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance().reference
+        mDbRef = FirebaseDatabase.getInstance().reference
         userList = ArrayList()
 
         adapter = UserAdapter(userList) { user ->
             val bundle = Bundle().apply {
-                putString("userName", user.name)
                 putString("userUid", user.uid)
                 putString("userPhone", user.phone?.toString())
             }
@@ -52,15 +51,14 @@ class ChatFragment : Fragment() {
         binding.userRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
         binding.userRecyclerView.adapter = adapter
 
-        // ✅ Reads from "Users", not "user"
-        database.child("Users").addValueEventListener(object : ValueEventListener {
+        mDbRef.child("Users").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 userList.clear()
                 for (postSnapshot in snapshot.children) {
                     val currentUser = postSnapshot.getValue(User::class.java)
 
-                    if (currentUser != null && mAuth.currentUser?.uid != currentUser.uid) {
-                        userList.add(currentUser)
+                    if (mAuth.currentUser?.uid != currentUser?.uid) {
+                        userList.add(currentUser!!)
                     }
                 }
                 adapter.notifyDataSetChanged()

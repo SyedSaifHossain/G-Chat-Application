@@ -22,7 +22,7 @@ import com.syedsaifhossain.g_chatapplication.models.User
 class ChatScreenFragment : Fragment() {
 
     private lateinit var mAuth: FirebaseAuth
-    private lateinit var database: DatabaseReference
+    private lateinit var mDbRef: DatabaseReference
     private lateinit var messageChatAdapter: MessageChatAdapter
     private lateinit var messagelist: ArrayList<MessageChat>
 
@@ -44,18 +44,18 @@ class ChatScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mAuth = FirebaseAuth.getInstance()
-        val name = arguments?.getString("name")
-        val receiverUid = arguments?.getString("uid")
+        val phone = arguments?.getString("userPhone")
+        val receiverUid = arguments?.getString("userUid")
         val senderUid = FirebaseAuth.getInstance().currentUser?.uid
-
-        database = FirebaseDatabase.getInstance().getReference()
+        binding.tvToolbarUserName.text = phone
+        mDbRef = FirebaseDatabase.getInstance().getReference()
         senderRoom = receiverUid + senderUid
         receiverRoom = senderUid + receiverUid
         messagelist = ArrayList()
         messageChatAdapter = MessageChatAdapter(messagelist)
         binding.chatMessageRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
         binding.chatMessageRecyclerView.adapter = messageChatAdapter
-        database.child("chats").child(senderRoom!!).child("message")
+        mDbRef.child("chats").child(senderRoom!!).child("message")
             .addValueEventListener(object : ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -74,15 +74,14 @@ class ChatScreenFragment : Fragment() {
             })
 
 
-
 binding.chatSendButton.setOnClickListener {
 
     val message = binding.chatMessageInput.text.toString()
 
     val messageObj = MessageChat(message,senderUid)
-    database.child("chats").child(senderRoom!!).child("message").push().setValue(messageObj)
+    mDbRef.child("chats").child(senderRoom!!).child("message").push().setValue(messageObj)
         .addOnSuccessListener {
-            database.child("chats").child(receiverRoom!!).child("message").push().setValue(messageObj)
+            mDbRef.child("chats").child(receiverRoom!!).child("message").push().setValue(messageObj)
         }
     binding.chatMessageInput.setText(" ")
 
