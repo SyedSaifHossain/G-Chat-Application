@@ -47,7 +47,7 @@ class SignupPageVerificationFragment : Fragment() {
         }
 
         binding.singupPageCountryEdit.setOnClickListener {
-            findNavController().navigate(R.id.action_signupPageFragment_to_selectRegionFragment)
+            findNavController().navigate(R.id.action_signupPageVerificationFragment_to_selectRegionFragment)
         }
 
         binding.sendCodeVerify.setOnClickListener {
@@ -186,13 +186,15 @@ class SignupPageVerificationFragment : Fragment() {
         }
 
         val user = User(
-            name = null,
+            name = "New User",
             phone = phoneNumber.filter { it.isDigit() }.toLongOrNull(),
-            uid = uid
+            uid = uid,
+            profilePicUrl = "https://firebasestorage.googleapis.com/v0/b/YOUR_APP_ID.appspot.com/o/default_avatar.png?alt=media"
         )
 
+
         val database = FirebaseDatabase.getInstance()
-        val usersRef = database.getReference("Users") // ✅ MATCHES ChatFragment
+        val usersRef = database.getReference("Users")
 
         usersRef.child(uid).setValue(user)
             .addOnSuccessListener {
@@ -219,6 +221,7 @@ class SignupPageVerificationFragment : Fragment() {
             }
         }.start()
     }
+
 
     private fun navigateToHomePage() {
         findNavController().navigate(R.id.action_signupPageVerificationFragment_to_homeFragment)

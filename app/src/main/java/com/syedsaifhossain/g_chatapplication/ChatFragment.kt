@@ -37,7 +37,7 @@ class ChatFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         mAuth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance().reference  // ✅ FIXED
+        database = FirebaseDatabase.getInstance().reference
         userList = ArrayList()
 
         adapter = UserAdapter(userList) { user ->

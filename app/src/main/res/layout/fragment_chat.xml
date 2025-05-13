@@ -62,9 +62,9 @@
         android:id="@+id/userRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/chatHeader"
+        android:layout_below="@id/headerUnderline"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        tools:listitem="@layout/chat_item_list" />
+        tools:listitem="@layout/user_layout" />
 
 </RelativeLayout>
