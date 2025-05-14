@@ -251,12 +251,9 @@ class ChatScreenFragment : Fragment(){
             }
         }
 
-        // --- Display Data in Toolbar (Name only) ---
+
         binding.tvToolbarUserName.text = otherUserName
 
-        // --- Toolbar Avatar Loading Code Removed/Commented Out ---
-        /* ... */
-        // --- END Toolbar Avatar Loading ---
 
     } // End of onViewCreated
 

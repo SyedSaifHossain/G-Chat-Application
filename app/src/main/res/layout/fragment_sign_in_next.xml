@@ -15,7 +15,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:src="@drawable/gchatsplashscreen"/>
+        android:src="@drawable/gchatlogo"/>
 
     <TextView
         android:id="@+id/welcomeTxt"

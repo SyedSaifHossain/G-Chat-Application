@@ -40,6 +40,10 @@ class SignupPageFragment : Fragment() {
             findNavController().navigate(R.id.action_signupPageFragment_to_loginViaEmailFragment)
         }
 
+        binding.signupBackArrow.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
     }
 
     private fun initializeViews() {
