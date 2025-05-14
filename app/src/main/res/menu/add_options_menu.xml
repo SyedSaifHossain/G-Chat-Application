@@ -2,16 +2,15 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-
-        android:icon="@drawable/ic_contacts"
+        android:icon="@drawable/galleryicon"
         android:id="@+id/galleryId"
         android:title="Gallery" />
     <item
-        android:icon="@drawable/ic_contacts"
+        android:icon="@drawable/document"
         android:id="@+id/documentId"
         android:title="Documents" />
     <item
-        android:icon="@drawable/ic_contacts"
+        android:icon="@drawable/addcontact"
         android:id="@+id/contactId"
         android:title="Contact" />
 </menu>

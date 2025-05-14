@@ -3,72 +3,60 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".LoginViaEmailFragment"
-    android:background="#000000">
+    android:background="@drawable/bg_gradient">
+
+    <ImageView
+        android:id="@+id/loginViaEmailBackArrow"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/leftarrow"/>
 
     <ImageView
         android:id="@+id/loginViaEmailImage"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp"
-        android:src="@drawable/gchatsplashscreen"/>
+        android:layout_marginTop="110dp"
+        android:src="@drawable/gchatlogo"/>
 
     <TextView
-        android:id="@+id/loginViaEmailTxt"
+        android:id="@+id/loginViaEmailCreateAccountTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/loginViaEmailImage"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
         android:text="Create Account"
-        android:textColor="#555C5C"
-        android:textSize="28sp"
+        android:textColor="#6b6b6b"
+        android:textSize="26sp"
         android:textStyle="bold"
         android:fontFamily="@font/poppins_regular" />
 
-    <!-- Country/Region EditText - Hidden -->
-    <AutoCompleteTextView
-        android:id="@+id/loginViaEmailCountryEdt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/loginViaEmailTxt"
-        android:layout_marginHorizontal="40dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="30dp"
-        android:hint="Country/Region"
-        android:padding="15dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#555C5C"
-        android:fontFamily="@font/poppins_regular"
-        android:textSize="22sp"
-        android:alpha="0.7"
-        android:drawableTint="#555C5C"
-        android:drawableEnd="@drawable/arrowforward"
-        android:visibility="gone" />
 
-
-    <!-- Email EditText -->
     <EditText
         android:id="@+id/loginViaEmailEdtEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
-        android:layout_below="@+id/loginViaEmailTxt"
+        android:layout_below="@+id/loginViaEmailCreateAccountTxt"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginHorizontal="40dp"
+        android:layout_marginHorizontal="50dp"
         android:layout_marginTop="30dp"
         android:hint="Email"
-        android:padding="15dp"
+        android:padding="10dp"
         android:textColor="#FFFFFF"
-        android:textColorHint="#555C5C"
+        android:textColorHint="#6b6b6b"
         android:fontFamily="@font/poppins_regular"
-        android:textSize="22sp"
+        android:textSize="20sp"
         android:alpha="0.7"
-        android:drawableTint="#555C5C"
+        android:drawableTint="#6b6b6b"
         android:drawableEnd="@drawable/arrowforward"/>
 
     <!-- New Password Field -->
@@ -80,93 +68,33 @@
         android:layout_below="@+id/loginViaEmailEdtEmail"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginHorizontal="40dp"
+        android:layout_marginHorizontal="50dp"
         android:layout_marginTop="8dp"
         android:hint="Password"
-        android:padding="15dp"
+        android:padding="10dp"
         android:textColor="#FFFFFF"
-        android:textColorHint="#555C5C"
+        android:textColorHint="#6b6b6b"
         android:fontFamily="@font/poppins_regular"
-        android:textSize="22sp"
-        android:alpha="0.7"/>
-
-    <!-- Verification Code EditText - Hidden -->
-    <EditText
-        android:id="@+id/loginViaEmailVerificationEdt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:layout_below="@+id/loginViaEmailEdtPassword"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginHorizontal="40dp"
-        android:layout_marginTop="8dp"
-        android:padding="15dp"
-        android:hint="Verification Code"
-        android:textColor="#FFFFFF"
-        android:fontFamily="@font/poppins_regular"
-        android:textColorHint="#555C5C"
-        android:textSize="22sp"
-        android:alpha="0.7"
-        android:visibility="gone" />
-
-    <!-- Send Button - Hidden -->
-    <Button
-        android:id="@+id/loginViaEmailSendCodeVerify"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_below="@+id/loginViaEmailEdtPassword"
-        android:layout_alignEnd="@+id/loginViaEmailEdtPassword"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="1dp"
-        android:layout_marginRight="7dp"
-        android:fontFamily="@font/poppins_regular"
-        android:text="Send"
-        android:textAllCaps="false"
-        android:textColor="#555C5C"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:cornerRadius="5dp"
-        app:strokeColor="#555C5C"
-        app:strokeWidth="2dp"
-        android:visibility="gone" />
-
-    <!-- Resend Code Button - Hidden -->
-    <Button
-        android:id="@+id/loginViaEmailResendCodeVerify"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_below="@+id/loginViaEmailVerificationEdt"
-        android:layout_alignStart="@+id/loginViaEmailVerificationEdt"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/poppins_regular"
-        android:text="Resend Code?"
-        android:textAllCaps="false"
-        android:textColor="#555C5C"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:visibility="gone" />
-
-    <!-- Timer TextView - Hidden -->
-    <TextView
-        android:id="@+id/loginViaEmailTimeCount"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_below="@+id/loginViaEmailVerificationEdt"
-        android:layout_alignEnd="@+id/loginViaEmailVerificationEdt"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/poppins_regular"
-        android:text="0"
-        android:textAllCaps="false"
-        android:textColor="#0ABAB5"
         android:textSize="20sp"
-        android:textStyle="bold"
-        android:visibility="gone" />
+        android:alpha="0.7"
+        android:drawableTint="#6b6b6b"
+        android:drawableEnd="@drawable/arrowforward"/>
 
-    <!-- Next/Register Button -->
+    <TextView
+        android:id="@+id/loginViaPhoneTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/loginViaEmailEdtPassword"
+        android:layout_alignStart="@+id/loginViaEmailEdtPassword"
+        android:layout_marginTop="8dp"
+        android:alpha="0.7"
+        android:fontFamily="@font/poppins_regular"
+        android:textColor="#6b6b6b"
+        android:text="Login via phone"
+        android:textSize="20sp"
+        android:layout_marginStart="10dp"
+        android:textStyle="bold"/>
+
     <Button
         android:id="@+id/loginViaEmailVerificationNextButton"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -174,16 +102,15 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginHorizontal="40dp"
-        android:backgroundTint="#0ABAB5"
+        android:layout_below="@+id/loginViaPhoneTxt"
+        android:layout_marginHorizontal="50dp"
+        android:backgroundTint="#81d8d0"
+        android:layout_marginTop="10dp"
         android:padding="15dp"
-        android:text="Register"
+        android:text="Login"
         android:textAllCaps="false"
         android:textColor="#000000"
-        android:fontFamily="@font/poppins_regular"
         android:textSize="24sp"
-        android:layout_marginBottom="50dp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
 </RelativeLayout>

@@ -39,6 +39,10 @@ class LoginPage : Fragment() {
         binding.backToSignup.setOnClickListener {
            findNavController().navigate(R.id.action_loginPage_to_signupPageFragment)
         }
+
+        binding.loginBackArrow.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
 

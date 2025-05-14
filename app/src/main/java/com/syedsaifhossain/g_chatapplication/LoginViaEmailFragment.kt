@@ -35,6 +35,10 @@ class LoginViaEmailFragment : Fragment() {
 
         auth = FirebaseAuth.getInstance()
 
+        binding.loginViaEmailBackArrow.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         // Listener for the "Register" button
         binding.loginViaEmailVerificationNextButton.setOnClickListener {
             val email = binding.loginViaEmailEdtEmail.text.toString().trim()
@@ -92,10 +96,6 @@ class LoginViaEmailFragment : Fragment() {
                                     "Registration successful. Please check your email for verification.",
                                     Toast.LENGTH_LONG
                                 ).show()
-                                // Navigate to a login page or a page indicating to check email
-                                // Example: Navigate to login page (ensure this action exists in your nav_graph)
-                                // findNavController().navigate(R.id.action_loginViaEmailFragment_to_loginFragment)
-                                // Or, for now, navigate to home page as per previous logic
                                 navigateToHomePage()
                             } else {
                                 Toast.makeText(
@@ -142,17 +142,11 @@ class LoginViaEmailFragment : Fragment() {
     private fun navigateToHomePage() {
         // Check if fragment is still added and if current destination is correct before navigating
         if (isAdded && findNavController().currentDestination?.id == R.id.loginViaEmailFragment) {
-            // Ensure this navigation action is defined in your navigation graph
-            // It might be better to navigate to a login screen after registration
-            // or a dedicated "please verify your email" screen.
             try {
                 findNavController().navigate(R.id.action_loginViaEmailFragment_to_homeFragment)
             } catch (e: Exception) {
                 Log.e("NavigationError", "Failed to navigate from LoginViaEmailFragment", e)
                 Toast.makeText(requireContext(), "Navigation error. Please try logging in.", Toast.LENGTH_SHORT).show()
-                // Fallback or alternative navigation if the primary one fails or is not set up.
-                // For example, navigate to the initial signup page or login page.
-                // findNavController().popBackStack(R.id.signupPageFragment, false) // Example
             }
         }
     }
