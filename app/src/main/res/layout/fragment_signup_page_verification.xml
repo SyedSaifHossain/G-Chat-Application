@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".SignupPageVerificationFragment"
-    android:background="#000000">
+    android:background="@drawable/bg_gradient"
+    tools:context=".SignupPageVerificationFragment">
+
+    <ImageView
+        android:id="@+id/signupVerificationBackArrow"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/leftarrow" />
 
     <ImageView
         android:id="@+id/signupVerificationImg"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        android:layout_centerHorizontal="true"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp"
-        android:src="@drawable/gchatlogo"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="110dp"
+        android:src="@drawable/gchatlogo" />
 
     <TextView
         android:id="@+id/signupVerificationCreateAccountText"
@@ -23,68 +33,69 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/signupVerificationImg"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:fontFamily="@font/poppins_regular"
         android:text="Create Account"
-        android:textColor="#555C5C"
+        android:textColor="#6b6b6b"
         android:textSize="28sp"
-        android:textStyle="bold"
-        android:fontFamily="@font/poppins_regular" />
+        android:textStyle="bold" />
 
     <AutoCompleteTextView
         android:id="@+id/singupPageCountryEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/signupVerificationCreateAccountText"
-        android:layout_marginHorizontal="40dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="50dp"
         android:layout_marginTop="30dp"
-        android:hint="Country/Region"
-        android:padding="15dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#555C5C"
-        android:fontFamily="@font/poppins_regular"
-        android:textSize="22sp"
         android:alpha="0.7"
-        android:drawableTint="#555C5C"
-        android:drawableEnd="@drawable/arrowforward"/>
+        android:drawableEnd="@drawable/arrowforward"
+        android:drawableTint="#6b6b6b"
+        android:fontFamily="@font/poppins_regular"
+        android:hint="Country/Region"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6b6b6b"
+        android:textSize="20sp" />
 
     <EditText
         android:id="@+id/singupVerificationEdtPhoneEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="phone"
         android:layout_below="@+id/singupPageCountryEdit"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginHorizontal="40dp"
+        android:layout_marginHorizontal="50dp"
         android:layout_marginTop="8dp"
-        android:hint="Phone/Email"
-        android:padding="15dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#555C5C"
-        android:fontFamily="@font/poppins_regular"
-        android:textSize="22sp"
         android:alpha="0.7"
+        android:drawableEnd="@drawable/arrowforward"
         android:drawableTint="#555C5C"
-        android:drawableEnd="@drawable/arrowforward"/>
+        android:fontFamily="@font/poppins_regular"
+        android:hint="Phone/Email"
+        android:inputType="phone"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6b6b6b"
+        android:textSize="20sp" />
 
     <EditText
         android:id="@+id/verificationEdt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"
         android:layout_below="@+id/singupVerificationEdtPhoneEmail"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginHorizontal="40dp"
+        android:layout_marginHorizontal="50dp"
         android:layout_marginTop="8dp"
-        android:padding="15dp"
-        android:hint="Verification Code"
-        android:textColor="#FFFFFF"
+        android:alpha="0.7"
         android:fontFamily="@font/poppins_regular"
-        android:textColorHint="#555C5C"
-        android:textSize="22sp"
-        android:alpha="0.7"/>
+        android:hint="Verification Code"
+        android:inputType="number"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6b6b6b"
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/sendCodeVerify"
@@ -93,7 +104,7 @@
         android:layout_height="40dp"
         android:layout_below="@+id/singupVerificationEdtPhoneEmail"
         android:layout_alignEnd="@+id/singupVerificationEdtPhoneEmail"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="1dp"
         android:layout_marginRight="7dp"
         android:fontFamily="@font/poppins_regular"
@@ -118,9 +129,9 @@
         android:fontFamily="@font/poppins_regular"
         android:text="Resend Code?"
         android:textAllCaps="false"
-        android:textColor="#555C5C"
+        android:textColor="#6b6b6b"
         android:textSize="16sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/timeCount"
@@ -135,7 +146,7 @@
         android:textAllCaps="false"
         android:textColor="#0ABAB5"
         android:textSize="20sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/verificationNextButton"
@@ -145,15 +156,14 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginHorizontal="40dp"
-        android:backgroundTint="#0ABAB5"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginBottom="50dp"
+        android:backgroundTint="#81d8d0"
         android:padding="15dp"
         android:text="Next"
         android:textAllCaps="false"
         android:textColor="#000000"
-        android:fontFamily="@font/poppins_regular"
         android:textSize="24sp"
-        android:layout_marginBottom="50dp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
 </RelativeLayout>
