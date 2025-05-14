@@ -29,9 +29,9 @@ class GroupMessageAdapter(
 
             // Optional: Different background per sender
             if (message.senderId == currentUserId) {
-                binding.messageText.setBackgroundResource(R.drawable.bubble_bg_me)
+                binding.messageText.setBackgroundResource(R.drawable.bg_chat_sent)
             } else {
-                binding.messageText.setBackgroundResource(R.drawable.bubble_bg_other)
+                binding.messageText.setBackgroundResource(R.drawable.bg_chat_received)
             }
         }
 
