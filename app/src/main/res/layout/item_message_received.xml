@@ -12,7 +12,7 @@
         android:id="@+id/receivedMessageText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/message_bg_received"
+        android:background="@drawable/bg_chat_received"
         android:padding="10dp"
         android:textColor="#000" />
 
