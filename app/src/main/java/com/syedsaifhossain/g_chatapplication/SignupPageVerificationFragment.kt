@@ -23,7 +23,6 @@ class SignupPageVerificationFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var auth: FirebaseAuth
-
     private lateinit var mDbRef : DatabaseReference
     private var storedVerificationId: String? = null
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
@@ -88,7 +87,6 @@ class SignupPageVerificationFragment : Fragment() {
 
         binding.verificationNextButton.setOnClickListener {
             val code = binding.verificationEdt.text.toString().trim()
-            val phoneId = binding.singupVerificationEdtPhoneEmail.text.toString()
             if (code.isEmpty()) {
                 Toast.makeText(requireContext(), "Please enter the OTP", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -101,7 +99,7 @@ class SignupPageVerificationFragment : Fragment() {
 
             if (storedVerificationId != null) {
                 val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, code)
-                signInWithPhoneAuthCredential(credential,phoneId)
+                signInWithPhoneAuthCredential(credential)
             } else {
                 Toast.makeText(requireContext(), "Verification ID not found", Toast.LENGTH_SHORT).show()
             }
@@ -165,14 +163,14 @@ class SignupPageVerificationFragment : Fragment() {
 
     private fun verifyPhoneNumberWithCode(verificationId: String, code: String) {
         val credential = PhoneAuthProvider.getCredential(verificationId, code)
-        signInWithPhoneAuthCredential(credential, phoneId = null)
+        signInWithPhoneAuthCredential(credential)
     }
 
-    private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential,phoneId: String?=null) {
+    private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
-                    addUserToDatabase(phoneId, auth.currentUser?.uid!!)
+                    addUserToDatabase(auth.currentUser?.uid!!)
                     navigateToHomePage()
                 } else {
                     Toast.makeText(requireContext(), "Invalid OTP", Toast.LENGTH_SHORT).show()
@@ -180,12 +178,11 @@ class SignupPageVerificationFragment : Fragment() {
             }
     }
 
-    private fun addUserToDatabase(phoneId: String?=null, uid: String) {
+    private fun addUserToDatabase(uid: String) {
        mDbRef = FirebaseDatabase.getInstance().getReference()
-
-
-
-        mDbRef.child("user").child(uid).setValue(User(phoneId,uid))
+        val phoneId = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
+        val user = User(phone = phoneId, uid = uid)
+        mDbRef.child("Users").child(uid).setValue(user)
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "User saved to Realtime Database", Toast.LENGTH_SHORT).show()
             }

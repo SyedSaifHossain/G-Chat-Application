@@ -50,7 +50,6 @@ class ChatFragment : Fragment() {
 
         binding.userRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
         binding.userRecyclerView.adapter = adapter
-
         mDbRef.child("Users").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 userList.clear()
