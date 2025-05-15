@@ -8,18 +8,6 @@
     android:paddingEnd="60dp">
     <!-- Add paddingEnd to prevent bubble touching edge -->
 
-    <ImageView
-        android:id="@+id/iv_avatar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="8dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/profile" />
-    <!-- Placeholder, ensure R.drawable.profile exists -->
-
-    <!-- Bubble background drawable -->
     <LinearLayout
         android:id="@+id/layout_message_bubble"
         android:layout_width="wrap_content"
@@ -36,6 +24,7 @@
             android:layout_height="wrap_content"
             android:textColor="@android:color/black"
             android:textSize="16sp"
+            android:layout_marginLeft="15dp"
             android:text="Received message text" />
 
         <!-- Optional: TextView for timestamp -->
