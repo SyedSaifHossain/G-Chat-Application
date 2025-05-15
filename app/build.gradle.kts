@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.androidx.ui.text.android)
     implementation(libs.filament.android)
+    implementation(libs.full.sdk)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

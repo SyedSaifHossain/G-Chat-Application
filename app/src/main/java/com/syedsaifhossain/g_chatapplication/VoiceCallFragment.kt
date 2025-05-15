@@ -2,24 +2,24 @@ package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentVoiceCallBinding
-import io.agora.rtc.IRtcEngineEventHandler
-import io.agora.rtc.RtcEngine
+import io.agora.rtc2.*
+import io.agora.rtc2.RtcEngineConfig
 
 class VoiceCallFragment : Fragment() {
-
 
     private var _binding: FragmentVoiceCallBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var rtcEngine: RtcEngine
-    private val appId = "8cf64d493e8b460f91b10bf531f6d678" // Replace with your actual App ID
-    private val token: String? = null       // Use null if not using token
-    private val channelName = "testChannel" // Unique per conversation
+    private var rtcEngine: RtcEngine? = null
+
+    private val appId = "8cf64d493e8b460f91b10bf531f6d678" // Replace with your Agora App ID
+    private val token: String? = null // Set this if you are using token authentication
+    private val channelName = "testChannel"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,45 +32,72 @@ class VoiceCallFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initAgoraEngine()
+        initializeAgoraEngine()
         joinChannel()
 
         binding.endCallButton.setOnClickListener {
-            rtcEngine.leaveChannel()
+            leaveChannel()
             parentFragmentManager.popBackStack()
         }
     }
 
-    private fun initAgoraEngine() {
-        rtcEngine = RtcEngine.create(requireContext(), appId, object : IRtcEngineEventHandler() {
-            override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
-                Log.d("Agora", "Joined channel: $channel")
+    private fun initializeAgoraEngine() {
+        try {
+            val config = RtcEngineConfig().apply {
+                mContext = requireContext().applicationContext
+                mAppId = appId
+                mEventHandler = rtcEventHandler
             }
-
-            override fun onUserJoined(uid: Int, elapsed: Int) {
-                Log.d("Agora", "User joined: $uid")
-                activity?.runOnUiThread {
-                    binding.callStatus.text = "Connected"
-                }
-            }
-
-            override fun onUserOffline(uid: Int, reason: Int) {
-                Log.d("Agora", "User offline: $uid")
-                activity?.runOnUiThread {
-                    binding.callStatus.text = "User left"
-                }
-            }
-        })
+            rtcEngine = RtcEngine.create(config)
+        } catch (e: Exception) {
+            Log.e("VoiceCallFragment", "RtcEngine init error: ${e.message}")
+        }
     }
 
     private fun joinChannel() {
-        rtcEngine.joinChannel(token, channelName, "", 0)
+        val options = ChannelMediaOptions().apply {
+            clientRoleType = Constants.CLIENT_ROLE_BROADCASTER
+            channelProfile = Constants.CHANNEL_PROFILE_COMMUNICATION
+            publishMicrophoneTrack = true
+            publishCameraTrack = false // Voice-only call
+        }
+
+        rtcEngine?.joinChannel(token, channelName, 0, options)
+    }
+
+    private fun leaveChannel() {
+        rtcEngine?.leaveChannel()
+        binding.callStatus.text = "Disconnected"
+    }
+
+    private val rtcEventHandler = object : IRtcEngineEventHandler() {
+        override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
+            Log.d("Agora", "Joined channel: $channel")
+            requireActivity().runOnUiThread {
+                binding.callStatus.text = "Connected to $channel"
+            }
+        }
+
+        override fun onUserJoined(uid: Int, elapsed: Int) {
+            Log.d("Agora", "User joined: $uid")
+            requireActivity().runOnUiThread {
+                binding.callStatus.text = "User $uid joined"
+            }
+        }
+
+        override fun onUserOffline(uid: Int, reason: Int) {
+            Log.d("Agora", "User offline: $uid")
+            requireActivity().runOnUiThread {
+                binding.callStatus.text = "User $uid left"
+            }
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        rtcEngine.leaveChannel()
+        leaveChannel()
         RtcEngine.destroy()
+        rtcEngine = null
         _binding = null
     }
 }
