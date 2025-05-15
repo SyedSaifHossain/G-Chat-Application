@@ -218,5 +218,4 @@ class SignupPageVerificationFragment : Fragment() {
         _binding = null
         countDownTimer?.cancel()
     }
-
 }
