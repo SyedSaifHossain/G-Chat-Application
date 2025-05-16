@@ -18,9 +18,8 @@ class VideoCallFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val appId = "01764965ef8f461197b67bb61a51ed30"
-    private val token = "007eJxTYFjC9dP0y6qanq1pnbdZV9y/faK7zXrrtI9vPaYYhoRsqY1XYDAwNDczsTQzTU2zSDMxMzS0NE8yM09KMjNMNDVMTTE28GRXy2gIZGQ4s6aehZEBAkF8Pob05IzEkrLMlNT85MScHAYGAEJ4JKw="
+    private val token = "    007eJxTYAj2M9pUHG8e+9ikSy+c1eXdVv8by19Zp8snXRPW1p1421mBwcDQ3MzE0sw0Nc0izcTM0NDSPMnMPCnJzDDR1DA1xdhA+bRaRkMgI8OE7D8sjAwQCOKzMqQnZySWMDAAAKrNHWw="
     private val channelName = "gchat"
-
     private val PERMISSION_REQ_ID = 22
     private var mRtcEngine: RtcEngine? = null
 
