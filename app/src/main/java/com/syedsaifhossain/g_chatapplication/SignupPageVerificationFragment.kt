@@ -2,6 +2,7 @@ package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,8 @@ class SignupPageVerificationFragment : Fragment() {
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
     private var countDownTimer: CountDownTimer? = null
 
+    private var isLoginFlow = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,10 +38,7 @@ class SignupPageVerificationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         auth = FirebaseAuth.getInstance()
-
         binding.resendCodeVerify.visibility = View.INVISIBLE
-
-        var isLoginFlow = false
 
         arguments?.let {
             val phoneNumber = it.getString("phoneNumberWithCode")
@@ -48,7 +48,6 @@ class SignupPageVerificationFragment : Fragment() {
             binding.singupPageCountryEdit.setText(countryName)
             binding.singupVerificationEdtPhoneEmail.setText(phoneNumber)
         }
-
 
         binding.singupPageCountryEdit.setOnClickListener {
             findNavController().navigate(R.id.action_signupPageFragment_to_selectRegionFragment)
@@ -79,12 +78,12 @@ class SignupPageVerificationFragment : Fragment() {
 
         binding.resendCodeVerify.setOnClickListener {
             val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
-
             if (resendToken != null) {
-                startTimer()
+                Toast.makeText(requireContext(), "Resending OTP...", Toast.LENGTH_SHORT).show()
                 resendVerificationCode(phone, resendToken!!)
             } else {
                 Toast.makeText(requireContext(), "Resend token not available yet", Toast.LENGTH_SHORT).show()
+                Log.e("VERIFICATION", "Resend token is null")
             }
         }
 
@@ -119,6 +118,7 @@ class SignupPageVerificationFragment : Fragment() {
             .setCallbacks(callbacks)
             .build()
         PhoneAuthProvider.verifyPhoneNumber(options)
+        Log.d("VERIFICATION", "Started phone number verification for $phoneNumber")
     }
 
     private fun resendVerificationCode(phoneNumber: String, token: PhoneAuthProvider.ForceResendingToken) {
@@ -132,12 +132,14 @@ class SignupPageVerificationFragment : Fragment() {
             .setForceResendingToken(token)
             .build()
         PhoneAuthProvider.verifyPhoneNumber(options)
+        Log.d("VERIFICATION", "Resent verification code to $phoneNumber")
     }
 
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
             if (!isAdded) return
             val code = credential.smsCode
+            Log.d("VERIFICATION", "Auto OTP received: $code")
             if (code != null) {
                 binding.verificationEdt.setText(code)
                 verifyPhoneNumberWithCode(storedVerificationId!!, code)
@@ -149,6 +151,7 @@ class SignupPageVerificationFragment : Fragment() {
             binding.resendCodeVerify.isEnabled = true
             binding.timeCount.text = ""
 
+            Log.e("VERIFICATION", "Verification failed: ${e.message}", e)
             when (e) {
                 is FirebaseAuthInvalidCredentialsException -> {
                     Toast.makeText(requireContext(), "Invalid request: ${e.message}", Toast.LENGTH_LONG).show()
@@ -168,6 +171,9 @@ class SignupPageVerificationFragment : Fragment() {
         ) {
             storedVerificationId = verificationId
             resendToken = token
+            binding.resendCodeVerify.isEnabled = false
+            startTimer()
+            Log.d("VERIFICATION", "onCodeSent called. VerificationId: $verificationId")
             Toast.makeText(requireContext(), "OTP Sent", Toast.LENGTH_SHORT).show()
         }
     }
@@ -184,6 +190,7 @@ class SignupPageVerificationFragment : Fragment() {
                     Toast.makeText(requireContext(), "Verification successful", Toast.LENGTH_SHORT).show()
                     navigateToHomePage()
                 } else {
+                    Log.e("VERIFICATION", "Sign in failed: ${task.exception?.message}", task.exception)
                     Toast.makeText(requireContext(), "Invalid OTP", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -215,8 +222,8 @@ class SignupPageVerificationFragment : Fragment() {
         _binding = null
         countDownTimer?.cancel()
     }
-
 }
+
 
 
 
