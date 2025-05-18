@@ -2,12 +2,68 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/videoCallRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000"
     tools:context=".VideoCallFragment">
 
+    <RelativeLayout
+        android:id="@+id/videoCallHeader"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true">
+
+        <ImageView
+            android:id="@+id/videoCallBackArrow"
+
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="30dp"
+            android:padding="10dp"
+            android:src="@drawable/leftarrow" />
+
+        <TextView
+            android:id="@+id/videoCallUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="30dp"
+            android:text="User Name"
+            android:textColor="#8ad8d0"
+            android:padding="10dp"
+            android:layout_centerHorizontal="true"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/videoCallTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0:00"
+            android:textColor="#8ad8d0"
+            android:layout_below="@+id/videoCallUserName"
+            android:layout_centerHorizontal="true"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/videoCallAddContact"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="30dp"
+            android:src="@drawable/addcontact"
+            app:tint="#81d8d0" />
+
+    </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/local_video_view_container"
@@ -15,41 +71,46 @@
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"/>
+        android:layout_above="@+id/videoCallFooter"
+        android:layout_below="@+id/videoCallHeader"/>
 
     <FrameLayout
         android:id="@+id/remote_video_view_container"
         android:layout_width="120dp"
-        android:layout_height="160dp"
+
+        android:layout_height="130dp"
         android:layout_alignParentStart="true"
         android:layout_margin="16dp"
         android:background="#111"
-        android:layout_alignParentTop="true"/>
+        android:layout_below="@+id/videoCallHeader"/>
 
+    <RelativeLayout
+        android:id="@+id/videoCallFooter"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
 
-    <Button
-        android:id="@+id/joinCallButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="30dp"
-        android:onClick="joinChannel"
-        android:text="Join" />
+        android:layout_alignParentBottom="true">
+        <Button
+            android:id="@+id/joinCallButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="30dp"
+            android:onClick="joinChannel"
+            android:text="Join" />
 
-    <ImageView
-        android:id="@+id/endCallButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginEnd="30dp"
-        android:layout_marginBottom="24dp"
-        android:src="@drawable/callend" />
+        <ImageView
+            android:id="@+id/endCallButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/callend" />
+    </RelativeLayout>
 </RelativeLayout>
-
-
