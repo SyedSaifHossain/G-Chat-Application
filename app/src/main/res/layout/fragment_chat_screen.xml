@@ -169,8 +169,6 @@
             android:id="@+id/chatAdd_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginEnd="25dp"
-            android:padding="5dp"
             android:layout_toStartOf="@id/chat_mic_button"
             android:layout_centerVertical="true"
             android:src="@drawable/addbutton" />
