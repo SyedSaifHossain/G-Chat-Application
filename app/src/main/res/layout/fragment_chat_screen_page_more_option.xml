@@ -7,19 +7,17 @@
     android:layout_height="match_parent"
     tools:context=".ChatScreenPageMoreOptionFragment">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="@drawable/bg_gradient"
+        android:orientation="vertical"
         tools:context=".ChatScreenPageMoreOptionFragment">
-
 
         <ImageView
             android:id="@+id/moreOptionBackImg"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:layout_marginStart="20dp"
             android:layout_marginTop="30dp"
             android:src="@drawable/leftarrow" />
@@ -28,10 +26,8 @@
             android:id="@+id/moreOptionProfileImg"
             android:layout_width="130dp"
             android:layout_height="130dp"
-            android:layout_alignParentTop="true"
-
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="110dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="80dp"
             android:scaleType="centerCrop"
             android:src="@drawable/profileimage" />
 
@@ -39,27 +35,22 @@
             android:id="@+id/userNameProfile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/moreOptionProfileImg"
-            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
             android:text="Aaron Loeb"
             android:textColor="#81d8d0"
             android:textSize="24sp"
             android:textStyle="bold" />
 
-
         <LinearLayout
             android:id="@+id/contactLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/userNameProfile"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
             android:layout_marginStart="55dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="55dp"
+            android:layout_marginBottom="10dp"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
             android:weightSum="3">
 
             <LinearLayout
@@ -136,14 +127,10 @@
             </LinearLayout>
         </LinearLayout>
 
-
         <View
             android:id="@+id/moreOptionLine"
             android:layout_width="match_parent"
             android:layout_height="3dp"
-            android:layout_below="@+id/contactLayout"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="30dp"
             android:background="#8ad8d0" />
 
@@ -151,8 +138,6 @@
             android:id="@+id/customisationTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/moreOptionLine"
-            android:layout_alignParentStart="true"
             android:layout_marginStart="30dp"
             android:layout_marginTop="8dp"
             android:text="Customisation"
@@ -163,7 +148,6 @@
             android:id="@+id/themeLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/customisationTxt"
             android:layout_marginTop="15dp"
             android:orientation="horizontal">
 
@@ -171,7 +155,6 @@
                 android:id="@+id/themeImg"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_below="@+id/customisationTxt"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="40dp"
                 android:src="@drawable/themeicon" />
@@ -186,14 +169,12 @@
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/nikeNameLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/themeLayout"
             android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
@@ -201,7 +182,6 @@
                 android:id="@+id/nikeNameImg"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_below="@+id/customisationTxt"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="40dp"
                 android:src="@drawable/textimg" />
@@ -216,15 +196,12 @@
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
         <TextView
             android:id="@+id/moreActionTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/nikeNameLayout"
-            android:layout_alignParentStart="true"
             android:layout_marginStart="30dp"
             android:layout_marginTop="10dp"
             android:text="More actions"
@@ -235,7 +212,6 @@
             android:id="@+id/createGroupChatLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/moreActionTxt"
             android:layout_marginTop="15dp"
             android:orientation="horizontal">
 
@@ -243,7 +219,6 @@
                 android:id="@+id/createGroupChatImg"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_below="@+id/customisationTxt"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="40dp"
                 android:src="@drawable/addcontacticon" />
@@ -258,14 +233,12 @@
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/viewLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/createGroupChatLayout"
             android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
@@ -273,7 +246,6 @@
                 android:id="@+id/viewImg"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_below="@+id/customisationTxt"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="40dp"
                 android:src="@drawable/gallery" />
@@ -288,15 +260,12 @@
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
                 android:textStyle="bold" />
-
         </LinearLayout>
-
 
         <LinearLayout
             android:id="@+id/searchLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/viewLayout"
             android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
@@ -304,8 +273,6 @@
                 android:id="@+id/searchImg"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-
-                android:layout_below="@+id/customisationTxt"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="40dp"
                 android:src="@drawable/search" />
@@ -320,14 +287,12 @@
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/shareLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/searchLayout"
             android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
@@ -335,7 +300,6 @@
                 android:id="@+id/shareImg"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_below="@+id/customisationTxt"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="40dp"
                 android:src="@drawable/shareicon" />
@@ -350,16 +314,12 @@
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
                 android:textStyle="bold" />
-
         </LinearLayout>
-
 
         <TextView
             android:id="@+id/privacySupportTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/shareLayout"
-            android:layout_alignParentStart="true"
             android:layout_marginStart="30dp"
             android:layout_marginTop="10dp"
             android:text="Privacy and support"
@@ -370,7 +330,6 @@
             android:id="@+id/blockLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/privacySupportTxt"
             android:layout_marginTop="15dp"
             android:orientation="horizontal">
 
@@ -378,7 +337,6 @@
                 android:id="@+id/blockImg"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_below="@+id/customisationTxt"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="40dp"
                 android:src="@drawable/block" />
@@ -393,25 +351,22 @@
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/reportLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/privacySupportTxt"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/reportImg"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_below="@+id/customisationTxt"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="40dp"
-                android:src="@drawable/block" />
+                android:src="@drawable/reporticon" />
 
             <TextView
                 android:id="@+id/reportTxt"
@@ -423,22 +378,19 @@
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/deleteChatLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/privacySupportTxt"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="8dp"
             android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/deleteImg"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_below="@+id/customisationTxt"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="40dp"
                 android:src="@drawable/deleteicon" />
@@ -453,9 +405,8 @@
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
                 android:textStyle="bold" />
-
         </LinearLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </ScrollView>
