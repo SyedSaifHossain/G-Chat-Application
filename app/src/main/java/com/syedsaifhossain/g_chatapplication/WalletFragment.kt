@@ -1,5 +1,6 @@
 package com.syedsaifhossain.g_chatapplication
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,59 +40,19 @@ class WalletFragment : Fragment() {
        // binding.btnGetBalance.setOnClickListener { fetchBalance() }
 
         binding.topUpBtn.setOnClickListener {
+            binding.topUpBtn.setBackgroundColor(Color.parseColor("#81d8d0"))
+            binding.topUpBtn.setTextColor(Color.parseColor("#000000"))
             findNavController().navigate(R.id.action_walletFragment_to_topUpFragment)
         }
 
         binding.withdrawBtn.setOnClickListener {
+            binding.withdrawBtn.setBackgroundColor(Color.parseColor("#81d8d0"))
+            binding.withdrawBtn.setTextColor(Color.parseColor("#81d8d0"))
             findNavController().navigate(R.id.action_walletFragment_to_withdrawFragment)
         }
 
         binding.walletBackImg.setOnClickListener {
             findNavController().popBackStack()
-        }
-    }
-
-    private fun transferIn() {
-        lifecycleScope.launch {
-            try {
-                val amount = binding.etAmount.text.toString().toInt() * 100
-                val response = RetrofitClient.api.addMoney(AddMoneyRequest(amount, userId))
-                val params = ConfirmPaymentIntentParams.create(
-                    clientSecret = response.clientSecret,
-                    paymentMethodType = PaymentMethod.Type.Card
-                )
-                stripe.confirmPayment(requireActivity(), params)
-                Toast.makeText(requireContext(), "Payment Confirmed", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun transferOut() {
-        lifecycleScope.launch {
-            try {
-                val amount = binding.etAmount.text.toString().toInt() * 100
-                val response = RetrofitClient.api.withdraw(WithdrawRequest(amount, userId))
-                if (response.success == true) {
-                    Toast.makeText(requireContext(), "Withdrawal successful", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(requireContext(), "Error: ${response.error}", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Withdraw failed: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun fetchBalance() {
-        lifecycleScope.launch {
-            try {
-                val balance = RetrofitClient.api.getBalance(userId).balance
-                binding.tvBalance.text = "Balance: \$${balance / 100.0}"
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
         }
     }
 
