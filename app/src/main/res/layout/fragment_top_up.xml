@@ -44,7 +44,7 @@
             android:textStyle="bold" />
 
         <ImageView
-            android:id="@+id/menuOption"
+            android:id="@+id/topUpMoreOption"
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:src="@drawable/moreicon"
