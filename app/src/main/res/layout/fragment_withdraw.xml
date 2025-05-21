@@ -28,7 +28,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginEnd="10dp"
             android:src="@drawable/arrowback"
-            app:tint="#0ABAB5" />
+            app:tint="#81d8d0" />
 
         <TextView
             android:id="@+id/withdrawBalanceTxt"
@@ -39,7 +39,7 @@
             android:fontFamily="@font/poppins_regular"
             android:padding="12dp"
             android:text="Withdraw Balance"
-            android:textColor="#0ABAB5"
+            android:textColor="#81d8d0"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -52,14 +52,14 @@
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
             android:layout_gravity="center_horizontal"
-            app:tint="#0ABAB5" />
+            app:tint="#81d8d0" />
 
     </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:background="#0ABAB5"
+        android:background="#81d8d0"
         android:layout_marginHorizontal="20dp"/>
 
     <RelativeLayout
@@ -81,7 +81,7 @@
             android:layout_alignParentStart="true"
             android:text="Withdraw to"
             android:layout_marginStart="20dp"
-            android:textColor="#0ABAB5"
+            android:textColor="#81d8d0"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -101,7 +101,7 @@
             android:layout_centerVertical="true"
             android:fontFamily="@font/poppins_regular"
             android:text="visa"
-            android:textColor="#0ABAB5"
+            android:textColor="#81d8d0"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_toEndOf="@+id/withdrawVisaCardIcon"/>
@@ -129,7 +129,7 @@
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
             android:layout_gravity="center_horizontal"
-            app:tint="#0ABAB5" />
+            app:tint="#81d8d0" />
 
     </RelativeLayout>
 
@@ -147,7 +147,7 @@
         android:fontFamily="@font/poppins_regular"
         android:padding="12dp"
         android:text="Withdraw amount"
-        android:textColor="#0ABAB5"
+        android:textColor="#81d8d0"
         android:layout_marginStart="40dp"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -167,7 +167,7 @@
             android:layout_marginTop="10dp"
             android:fontFamily="@font/poppins_regular"
             android:text="A$"
-            android:textColor="#0ABAB5"
+            android:textColor="#81d8d0"
             android:textSize="30sp"
             android:textStyle="bold" />
 
@@ -180,10 +180,9 @@
             android:layout_below="@+id/currencyTxt"
             android:fontFamily="@font/poppins_regular"
             android:text="735"
-
             android:paddingLeft="50dp"
             android:layout_marginHorizontal="40dp"
-            android:textColor="#0ABAB5"
+            android:textColor="#81d8d0"
             android:textSize="50sp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="-45dp"
