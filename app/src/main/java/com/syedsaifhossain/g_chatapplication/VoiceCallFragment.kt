@@ -67,28 +67,28 @@ class VoiceCallFragment : Fragment() {
 
     private fun leaveChannel() {
         rtcEngine?.leaveChannel()
-        binding.callStatus.text = "Disconnected"
+
     }
 
     private val rtcEventHandler = object : IRtcEngineEventHandler() {
         override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
             Log.d("Agora", "Joined channel: $channel")
             requireActivity().runOnUiThread {
-                binding.callStatus.text = "Connected to $channel"
+
             }
         }
 
         override fun onUserJoined(uid: Int, elapsed: Int) {
             Log.d("Agora", "User joined: $uid")
             requireActivity().runOnUiThread {
-                binding.callStatus.text = "User $uid joined"
+
             }
         }
 
         override fun onUserOffline(uid: Int, reason: Int) {
             Log.d("Agora", "User offline: $uid")
             requireActivity().runOnUiThread {
-                binding.callStatus.text = "User $uid left"
+
             }
         }
     }
