@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -19,7 +18,6 @@
 
         <ImageView
             android:id="@+id/videoCallBackArrow"
-
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_alignParentStart="true"
@@ -77,66 +75,55 @@
     <FrameLayout
         android:id="@+id/remote_video_view_container"
         android:layout_width="120dp"
-
         android:layout_height="130dp"
         android:layout_alignParentStart="true"
         android:layout_margin="16dp"
         android:background="#111"
         android:layout_below="@+id/videoCallHeader"/>
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/videoCallFooter"
         android:layout_width="match_parent"
         android:layout_height="120dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true">
+        android:layout_alignParentEnd="true"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:weightSum="4"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <ImageView
-            android:id="@+id/joinCall"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="30dp"
-            android:layout_marginBottom="30dp"
-            android:onClick="joinChannel"
-            android:src="@drawable/callend" />
-
-        <ImageView
-            android:id="@+id/voiceOn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginStart="30dp"
-            android:layout_marginBottom="30dp"
-            android:layout_toEndOf="@+id/joinCall"
-            android:src="@drawable/callend" />
+            android:id="@+id/speakerOn"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:src="@drawable/speakeron" />
 
         <ImageView
             android:id="@+id/switchCamera"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginStart="31dp"
-            android:layout_marginEnd="95dp"
-            android:layout_marginBottom="30dp"
-            android:layout_toStartOf="@+id/endCallButton"
-            android:layout_toEndOf="@+id/voiceOn"
-            android:src="@drawable/callend" />
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:src="@drawable/switchcamera" />
+
+        <ImageView
+            android:id="@+id/mute"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:src="@drawable/micoff" />
 
         <ImageView
             android:id="@+id/endCallButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginEnd="30dp"
-            android:layout_marginBottom="30dp"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
             android:src="@drawable/callend" />
-
-    </RelativeLayout>
+    </LinearLayout>
 </RelativeLayout>
