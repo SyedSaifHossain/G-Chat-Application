@@ -20,7 +20,8 @@
             android:layout_height="40dp"
             android:layout_marginStart="20dp"
             android:layout_marginTop="30dp"
-            android:src="@drawable/leftarrow" />
+            android:src="@drawable/leftarrow"
+            android:layout_gravity="top|start" />
 
         <ImageView
             android:id="@+id/moreOptionProfileImg"
