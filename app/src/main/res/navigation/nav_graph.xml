@@ -34,6 +34,9 @@
         <action
             android:id="@+id/action_homeFragment_to_chatScreenFragment"
             app:destination="@id/chatScreenFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_friendRequestsFragment"
+            app:destination="@id/friendRequestsFragment" />
     </fragment>
     <fragment
         android:id="@+id/signInFragment"
@@ -211,6 +214,10 @@
         <action
             android:id="@+id/action_signupPageVerificationFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
+        <!-- 新增的action，支持跳转到选择地区页面 -->
+        <action
+            android:id="@+id/action_signupPageVerificationFragment_to_selectRegionFragment"
+            app:destination="@id/selectRegionFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginPage"
@@ -252,4 +259,9 @@
         android:name="com.syedsaifhossain.g_chatapplication.VoiceCallFragment"
         android:label="fragment_voice_call"
         tools:layout="@layout/fragment_voice_call" />
+    <fragment
+        android:id="@+id/friendRequestsFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.FriendRequestsFragment"
+        android:label="好友请求"
+        tools:layout="@layout/fragment_friend_requests" />
 </navigation>
