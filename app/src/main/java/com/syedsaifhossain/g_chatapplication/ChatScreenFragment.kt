@@ -143,8 +143,8 @@ class ChatScreenFragment : Fragment(){
 
         // Get current user ID (Original)
         currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
-        if (currentUserId == "anonymous") {
-            Log.e("ChatScreenFragment", "Current user is anonymous!")
+        if (currentUserId == "anChatScreenFragmentonymous") {
+            Log.e("", "Current user is anonymous!")
             // Consider stronger error handling
         }
 

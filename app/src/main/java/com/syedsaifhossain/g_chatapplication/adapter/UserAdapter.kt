@@ -17,12 +17,12 @@ class UserAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(user: User) {
-            binding.userName.text = user.name ?: user.name ?: "Unknown"
-            binding.tvLastMessage.text = user.lastMessage ?: "No message yet"
+            binding.userName.text = if (user.name.isNotBlank()) user.name else "Unknown"
+            binding.tvLastMessage.text = "" // User模型没有lastMessage字段，可以留空或自定义
 
             // Load profile image with Glide
             Glide.with(binding.userImage.context)
-                .load(user.profilePicUrl)
+                .load(user.avatarUrl)
                 .placeholder(R.drawable.default_avatar)
                 .into(binding.userImage)
 

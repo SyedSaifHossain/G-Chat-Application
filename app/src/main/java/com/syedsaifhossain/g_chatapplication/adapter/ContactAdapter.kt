@@ -7,11 +7,15 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.R
+import com.syedsaifhossain.g_chatapplication.models.Contact
 
-class ContactAdapter(private val context: Context, private var contactsList: List<String>) :
-    RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
+class ContactAdapter(
+    private val context: Context,
+    private var contactsList: List<Contact>,
+    private val onItemClick: (Contact) -> Unit
+) : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
 
-    private var filteredContactsList: List<String> = contactsList
+    private var filteredContactsList: List<Contact> = contactsList
 
     class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val contactName: TextView = itemView.findViewById(R.id.contactName)
@@ -23,27 +27,27 @@ class ContactAdapter(private val context: Context, private var contactsList: Lis
     }
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
-        // Bind the contact name to the TextView
-        holder.contactName.text = filteredContactsList[position]
+        val contact = filteredContactsList[position]
+        holder.contactName.text = contact.name
+
+        holder.itemView.setOnClickListener {
+            onItemClick(contact)
+        }
     }
 
-    override fun getItemCount(): Int {
-        return filteredContactsList.size
-    }
+    override fun getItemCount(): Int = filteredContactsList.size
 
-    // Method to update the contact list dynamically
-    fun updateData(newContactsList: List<String>) {
+    fun updateData(newContactsList: List<Contact>) {
         contactsList = newContactsList
         filteredContactsList = newContactsList
         notifyDataSetChanged()
     }
 
-    // Method to filter contacts based on search query
-    fun filterContacts(query: String): List<String> {
+    fun filterContacts(query: String): List<Contact> {
         return if (query.isEmpty()) {
             contactsList
         } else {
-            contactsList.filter { it.contains(query, ignoreCase = true) }
+            contactsList.filter { it.name.contains(query, ignoreCase = true) }
         }
     }
 }
