@@ -51,7 +51,6 @@ class SignupNextFragment : Fragment() {
 
 
         binding.completeButton.setOnClickListener {
-
             val username = binding.nameEdit.text.toString().trim()
             val password = binding.passwordEdit.text.toString().trim()
             val confirmPassword = binding.comfirmPasswordEdit.text.toString().trim()
@@ -60,24 +59,24 @@ class SignupNextFragment : Fragment() {
             if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(
                     requireContext(),
-                    "Please provide the cridential",
+                    "请填写所有必填项",
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
             } else if (username.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter your name", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), "请输入您的姓名", Toast.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
             } else if (password.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter your password", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), "请输入密码", Toast.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
             } else if (confirmPassword.isEmpty()) {
-                Toast.makeText(requireContext(), "Please confirm your password", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), "请确认密码", Toast.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
             } else if (password != confirmPassword) {
-                Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), "两次输入的密码不一致", Toast.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
             }
@@ -85,22 +84,17 @@ class SignupNextFragment : Fragment() {
             if (!isPasswordValid(password)) {
                 Toast.makeText(
                     requireContext(),
-                    "Password must be at least 8 characters long and contain both letters and numbers",
+                    "密码必须至少8个字符，并包含字母和数字",
                     Toast.LENGTH_LONG
                 ).show()
                 return@setOnClickListener
             } else {
-                // Proceed with the sign-up process (e.g., call your API or save data locally)
-                Toast.makeText(requireContext(), "Sign Up Successful!", Toast.LENGTH_SHORT).show()
-
-                // For now, just clear the fields
-                binding.nameEdit.text.clear()
-                binding.passwordEdit.text.clear()
-                binding.comfirmPasswordEdit.text.clear()
-
+                // 将用户名和密码传递给验证页面
+                val bundle = Bundle()
+                bundle.putString("userName", username)
+                bundle.putString("password", password)
+                findNavController().navigate(R.id.action_signupNextFragment_to_signupPageVerificationFragment, bundle)
             }
-
-
         }
         return binding.root
     }

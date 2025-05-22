@@ -18,12 +18,6 @@ class ContactFragment : Fragment() {
     private lateinit var binding: FragmentContactBinding
     private lateinit var contactAdapter: ContactAdapter
 
-    private var contactsList: List<Contact> = listOf(
-        Contact(id = "user_1", name = "Alice"),
-        Contact(id = "user_2", name = "Bob"),
-        Contact(id = "user_3", name = "Charlie")
-    )
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,37 +29,44 @@ class ContactFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        loadContactsFromFirebase()
     }
 
     private fun setupRecyclerView() {
         binding.contactRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-        contactAdapter = ContactAdapter(requireContext(), contactsList) { contact ->
-            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return@ContactAdapter
-            val chatId = generateChatId(currentUserId, contact.id)
-            val db = FirebaseDatabase.getInstance().reference
-
-            // 创建 chat 节点（可重复写入，不会报错）
-            db.child("chats").child(chatId).child("participants").setValue(
-                mapOf("user1" to currentUserId, "user2" to contact.id)
-            ).addOnCompleteListener {
-                // 使用 NavController 跳转到聊天界面
-                val bundle = Bundle().apply {
-                    putString("otherUserId", contact.id)
-                    putString("otherUserName", contact.name)
-                    // 可选传递头像参数：
-                    // putString("otherUserAvatarUrl", contact.avatarUrl ?: "")
-                    // putString("myAvatarUrl", currentUserAvatarUrl)
-                }
-                findNavController().navigate(R.id.chatScreenFragment, bundle)
+        contactAdapter = ContactAdapter(requireContext(), emptyList()) { contact ->
+            // 点击联系人后跳转到ChatScreenFragment
+            val bundle = Bundle().apply {
+                putString("otherUserId", contact.id)
+                putString("otherUserName", contact.name)
             }
+            findNavController().navigate(R.id.chatScreenFragment, bundle)
         }
-
         binding.contactRecyclerView.adapter = contactAdapter
     }
 
-    private fun generateChatId(uid1: String, uid2: String): String {
-        return if (uid1 < uid2) "${uid1}_$uid2" else "${uid2}_$uid1"
+    private fun loadContactsFromFirebase() {
+        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
+        val usersRef = FirebaseDatabase.getInstance().getReference("users")
+        val friendsRef = usersRef.child(currentUser.uid).child("friends")
+
+        friendsRef.get().addOnSuccessListener { snapshot ->
+            val friendIds = snapshot.children.mapNotNull { it.key }
+            if (friendIds.isEmpty()) {
+                contactAdapter.updateData(emptyList())
+                return@addOnSuccessListener
+            }
+
+            usersRef.get().addOnSuccessListener { usersSnapshot ->
+                val contacts = friendIds.mapNotNull { fid ->
+                    val userSnap = usersSnapshot.child(fid)
+                    val name = userSnap.child("name").getValue(String::class.java) ?: ""
+                    val phone = userSnap.child("phone").getValue(String::class.java) ?: ""
+                    Contact(id = fid, name = name, phone = phone)
+                }
+                contactAdapter.updateData(contacts)
+            }
+        }
     }
 }
 

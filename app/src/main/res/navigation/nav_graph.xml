@@ -55,6 +55,9 @@
         android:name="com.syedsaifhossain.g_chatapplication.SignupNextFragment"
         android:label="fragment_signup_next"
         tools:layout="@layout/fragment_signup_next" >
+        <action
+            android:id="@+id/action_signupNextFragment_to_signupPageVerificationFragment"
+            app:destination="@id/signupPageVerificationFragment" />
     </fragment>
     <fragment
         android:id="@+id/signInNextFragment"

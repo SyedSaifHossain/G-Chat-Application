@@ -42,9 +42,12 @@ class SignupPageVerificationFragment : Fragment() {
             val phoneNumber = it.getString("phoneNumberWithCode")
             val countryName = it.getString("countryName")
             val userName = it.getString("userName") ?: ""
+            val password = it.getString("password") ?: ""
+            
             binding.singupPageCountryEdit.setText(countryName)
             binding.singupVerificationEdtPhoneEmail.setText(phoneNumber)
-            binding.singupVerificationEdtPhoneEmail.tag = userName // Store username temporarily
+            binding.singupVerificationEdtPhoneEmail.tag = userName // 存储用户名
+            binding.singupVerificationEdtPhoneEmail.tag = password // 存储密码
         }
 
         binding.singupPageCountryEdit.setOnClickListener {
@@ -166,7 +169,8 @@ class SignupPageVerificationFragment : Fragment() {
                     // Login successful, write user info to database
                     val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
                     val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
-                    val name = binding.singupVerificationEdtPhoneEmail.tag?.toString() ?: "G-Chat User"
+                    val name = arguments?.getString("userName") ?: "G-Chat User"
+                    val password = arguments?.getString("password") ?: ""
 
                     // Create user object
                     val user = User(
@@ -174,6 +178,7 @@ class SignupPageVerificationFragment : Fragment() {
                         name = name,
                         phone = phone,
                         email = "",
+                        password = password,
                         avatarUrl = "",
                         status = "Hey there! I'm using G-Chat",
                         isOnline = true,
@@ -192,25 +197,25 @@ class SignupPageVerificationFragment : Fragment() {
                                     // Initialize user's message data structure
                                     dbRef.child("user-messages").child(uid).setValue(true)
                                         .addOnSuccessListener {
-                                            Toast.makeText(requireContext(), "User profile created successfully", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(requireContext(), "用户注册成功", Toast.LENGTH_SHORT).show()
                                             navigateToHomePage()
                                         }
                                         .addOnFailureListener { e ->
-                                            Toast.makeText(requireContext(), "Failed to initialize message structure: ${e.message}", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(requireContext(), "初始化消息结构失败: ${e.message}", Toast.LENGTH_LONG).show()
                                             navigateToHomePage() // Continue navigation
                                         }
                                 }
                                 .addOnFailureListener { e ->
-                                    Toast.makeText(requireContext(), "Failed to initialize chat structure: ${e.message}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(requireContext(), "初始化聊天结构失败: ${e.message}", Toast.LENGTH_LONG).show()
                                     navigateToHomePage() // Continue navigation
                                 }
                         }
                         .addOnFailureListener { e ->
-                            Toast.makeText(requireContext(), "Failed to save user info: ${e.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(requireContext(), "保存用户信息失败: ${e.message}", Toast.LENGTH_LONG).show()
                             navigateToHomePage() // Continue navigation
                         }
                 } else {
-                    Toast.makeText(requireContext(), "Invalid OTP", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "验证码无效", Toast.LENGTH_SHORT).show()
                 }
             }
     }
