@@ -2,10 +2,11 @@ package com.syedsaifhossain.g_chatapplication
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.SurfaceView // <--- Ensure this is imported for android.view.SurfaceView
+import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -16,16 +17,17 @@ import com.syedsaifhossain.g_chatapplication.databinding.FragmentVideoCallBindin
 import io.agora.rtc2.Constants
 import io.agora.rtc2.IRtcEngineEventHandler
 import io.agora.rtc2.RtcEngine
-import io.agora.rtc2.RtcEngineConfig // <--- Potentially useful for specific configurations later
+import io.agora.rtc2.RtcEngineConfig
 import io.agora.rtc2.video.VideoCanvas
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.functions.ktx.functions
+import com.google.firebase.ktx.Firebase
 
 class VideoCallFragment : Fragment() {
 
-    // Agora App ID এবং Token
-    // !!! গুরুত্বপূর্ণ: TOKEN যদি null থাকে, তাহলে আপনার Agora প্রোজেক্টের App Certificate সেটিংস চেক করুন।
-    //                 সাধারণত, সুরক্ষিত কলের জন্য একটি ভ্যালিড টোকেন প্রয়োজন।
+    // Agora App ID (still needed for client-side SDK initialization)
     private val APP_ID = "01764965ef8f461197b67bb61a51ed30"
-    private val TOKEN = "007eJxTYJjqey/W9NLXZ06l3VdijY/7FAuVft7L6Dq17tE1Nc83yYIKDAaG5mYmlmamqWkWaSZmhoaW5klm5klJZoaJpoapKcYGbQ16GQ2BjAyaRndYGRkgEMQXYEhPzkgsiS/LTEnNj09OzMlhYAAA+fUjww==" // যদি App Certificate চালু থাকে তবে এখানে আপনার Agora টোকেন বসাতে হবে
     private val CHANNEL_NAME = "gchat_video_call"
 
     private var agoraEngine: RtcEngine? = null
@@ -37,12 +39,12 @@ class VideoCallFragment : Fragment() {
     private var _binding: FragmentVideoCallBinding? = null
     private val binding get() = _binding!! // Null-safe অ্যাক্সেসের জন্য
 
-    // প্রয়োজনীয় পারমিশনগুলো
+    // প্রয়োজনীয় পারমিশনগুলো
     private val PERMISSION_REQ_ID = 22
-    private val REQUESTED_PERMISSIONS = arrayOf(
-        Manifest.permission.RECORD_AUDIO,
-        Manifest.permission.CAMERA
-    )
+
+    // Firebase instances
+    private lateinit var auth: FirebaseAuth
+    private lateinit var functions: FirebaseFunctions
 
     // Agora ইভেন্ট হ্যান্ডলার
     private val mRtcEventHandler: IRtcEngineEventHandler = object : IRtcEngineEventHandler() {
@@ -67,9 +69,8 @@ class VideoCallFragment : Fragment() {
             }
         }
 
-        // --- সংশোধিত: onFirstLocalVideoFrame এর সিগনেচার ---
         override fun onFirstLocalVideoFrame(
-            source: Constants.VideoSourceType, // Added 'source' parameter
+            source: Constants.VideoSourceType,
             width: Int,
             height: Int,
             elapsed: Int
@@ -77,8 +78,6 @@ class VideoCallFragment : Fragment() {
             Log.d("Agora", "First local video frame rendered: ${width}x${height}")
         }
 
-        // --- সংশোধিত: onFirstRemoteVideoDecoded এর সিগনেচার (যদি ব্যবহৃত হয়, নিশ্চিত করুন) ---
-        // আপনার কোডে এটি ছিল, তাই এর সিগনেচারও Agora v4 অনুযায়ী ঠিক করা উচিত
         override fun onFirstRemoteVideoDecoded(
             uid: Int,
             width: Int,
@@ -86,112 +85,191 @@ class VideoCallFragment : Fragment() {
             elapsed: Int
         ) {
             Log.d("Agora", "First remote video decoded: $uid, ${width}x${height}")
-            // রিমোট ভিডিও সেটআপ করার জন্য এটিও একটি ভালো জায়গা
-            // setupRemoteVideo(uid) // এটি onUserJoined থেকে কল করাই সাধারণত ভালো
         }
 
         override fun onError(err: Int) {
             requireActivity().runOnUiThread {
                 Log.e("Agora", "Agora Error: $err")
-                Toast.makeText(requireContext(), "Agora Error: $err", Toast.LENGTH_LONG).show()
+                val errorMessage = when(err) {
+                    Constants.ERR_INVALID_APP_ID -> "Invalid App ID. Please check your Agora App ID."
+                    Constants.ERR_INVALID_TOKEN -> "Invalid or expired token. Generate a new token if required."
+                    Constants.ERR_JOIN_CHANNEL_REJECTED -> "Join channel rejected. Check channel name or user limits."
+                    Constants.ERR_DECRYPTION_FAILED -> "Decryption failed (check encryption settings if used)."
+                    else -> "Unknown Agora Error: $err"
+                }
+                Toast.makeText(requireContext(), "Agora Error: $errorMessage", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Initialize Firebase instances
+        auth = FirebaseAuth.getInstance()
+        functions = Firebase.functions
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // View Binding ইনিশিয়ালাইজ করুন
+        Log.d("VideoCallFragment", "onCreateView called.")
         _binding = FragmentVideoCallBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        // কন্ট্রোল বাটনগুলোর জন্য ক্লিক লিসেনার সেট করুন
         binding.speakerOn.setOnClickListener { toggleSpeaker() }
         binding.switchCamera.setOnClickListener { switchCamera() }
         binding.mute.setOnClickListener { toggleMic() }
         binding.endCallButton.setOnClickListener { endCall() }
 
-        // ব্যাক অ্যারো লিসেনার
         binding.videoCallBackArrow.setOnClickListener {
             Toast.makeText(requireContext(), "Back arrow clicked", Toast.LENGTH_SHORT).show()
             endCall()
         }
 
-        // কন্টাক্ট যোগ করার লিসেনার
         binding.videoCallAddContact.setOnClickListener {
             Toast.makeText(requireContext(), "Add contact clicked", Toast.LENGTH_SHORT).show()
         }
 
-        // বাটনগুলির প্রাথমিক UI অবস্থা সেট করুন
         updateSpeakerButton()
         updateMicButton()
 
         // পারমিশন রিকোয়েস্ট করুন এবং Agora ইনিশিয়ালাইজ করুন
         if (!checkPermissions()) {
-            ActivityCompat.requestPermissions(requireActivity(), REQUESTED_PERMISSIONS, PERMISSION_REQ_ID)
+            Log.d("PermissionDebug", "Permissions not granted, requesting...")
+            requestPermissions()
         } else {
-            initializeAndJoinChannel()
+            Log.d("PermissionDebug", "Permissions already granted, fetching token and initializing channel.")
+            fetchTokenAndJoinChannel()
         }
 
         return view
     }
 
-    // পারমিশন চেক করার ফাংশন
+    private fun getRequiredPermissions(): Array<String> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            arrayOf(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.BLUETOOTH_CONNECT
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CAMERA
+            )
+        }
+    }
+
+    private fun requestPermissions() {
+        ActivityCompat.requestPermissions(requireActivity(), getRequiredPermissions(), PERMISSION_REQ_ID)
+    }
+
     private fun checkPermissions(): Boolean {
-        for (permission in REQUESTED_PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+        Log.d("PermissionDebug", "Checking permissions...")
+        for (permission in getRequiredPermissions()) {
+            val status = ContextCompat.checkSelfPermission(requireContext(), permission)
+            Log.d("PermissionDebug", "Permission $permission status: ${if (status == PackageManager.PERMISSION_GRANTED) "GRANTED" else "DENIED"}")
+            if (status != PackageManager.PERMISSION_GRANTED) {
                 return false
             }
-            // For Android 12 (API 31) and above, if you target 31+, you might need BLUETOOTH_CONNECT for some features
-            // This is just a note, not an error fix for your current problem
-            // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && permission == Manifest.permission.BLUETOOTH_CONNECT) {
-            //     if (ContextCompat.checkSelfPermission(requireContext(), permission) != PackageManager.PERMISSION_GRANTED) {
-            //         return false
-            //     }
-            // }
         }
+        Log.d("PermissionDebug", "All permissions checked and granted.")
         return true
     }
 
-    // পারমিশন রিকোয়েস্টের ফলাফলের হ্যান্ডলার
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        Log.d("PermissionDebug", "onRequestPermissionsResult called. RequestCode: $requestCode")
         if (requestCode == PERMISSION_REQ_ID) {
             val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            for (i in permissions.indices) {
+                Log.d("PermissionDebug", "Permission: ${permissions[i]}, Granted: ${grantResults[i] == PackageManager.PERMISSION_GRANTED}")
+            }
             if (allGranted) {
-                initializeAndJoinChannel()
+                Log.d("PermissionDebug", "All requested permissions granted. Fetching token and initializing channel.")
+                fetchTokenAndJoinChannel()
             } else {
+                Log.e("PermissionDebug", "Not all permissions granted. Cannot start video call.")
                 Toast.makeText(requireContext(), "Permissions not granted. Cannot start video call.", Toast.LENGTH_LONG).show()
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
+        } else {
+            Log.d("PermissionDebug", "Unknown request code: $requestCode")
         }
     }
 
-    // Agora ইঞ্জিন ইনিশিয়ালাইজ করা এবং চ্যানেলে জয়েন করা
-    private fun initializeAndJoinChannel() {
+    // টোকেন এনে চ্যানেলে জয়েন করার ফাংশন (এখন Firebase Cloud Functions ব্যবহার করে)
+    private fun fetchTokenAndJoinChannel() {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Toast.makeText(requireContext(), "User not authenticated. Please log in.", Toast.LENGTH_LONG).show()
+            Log.e("AgoraToken", "User not authenticated for token fetch. Aborting call setup.")
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+            return
+        }
+
+        // Firebase UID কে Agora UID তে রূপান্তর (Agora UID একটি Int হয়)
+        // hashCode() ব্যবহার করে একটি Int পাওয়া যায়, তবে এটি সবসময় অনন্য নাও হতে পারে।
+        // যদি আপনার অ্যাপে সুনির্দিষ্ট ইউজার আইডি প্রয়োজন হয়, তাহলে আপনার ব্যাকএন্ডে একটি ম্যাপিং সিস্টেম ব্যবহার করতে পারেন।
+        val agoraUid = currentUser.uid.hashCode() and 0xFFFFFFFF.toInt() // Ensure positive integer
+
+        val data = hashMapOf(
+            "channelName" to CHANNEL_NAME,
+            "agoraUid" to agoraUid
+        )
+
+        functions
+            .getHttpsCallable("generateAgoraToken") // আপনার Cloud Function এর নাম
+            .call(data)
+            .addOnSuccessListener { result ->
+                // Explicitly cast result.data to Map<String, Any?> for better type inference
+                val responseData = result.data as? Map<String, Any?>
+                val token = responseData?.get("token") as? String
+                if (token != null) {
+                    Log.d("AgoraToken", "Fetched RTC token from Firebase Function: $token")
+                    initializeAndJoinChannel(token)
+                } else {
+                    Log.e("AgoraToken", "Failed to get token from Firebase Function result. Result: ${result.data}")
+                    Toast.makeText(requireContext(), "Failed to get call token from server.", Toast.LENGTH_LONG).show()
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("AgoraToken", "Error calling Firebase Function: ${e.message}", e)
+                Toast.makeText(requireContext(), "Error fetching token: ${e.message}", Toast.LENGTH_LONG).show()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+    }
+
+    // Agora ইঞ্জিন ইনিশিয়ালাইজ করা এবং চ্যানেলে জয়েন করা (এখন টোকেন গ্রহণ করে)
+    private fun initializeAndJoinChannel(token: String) {
         try {
-            // RtcEngine.create() ব্যবহার করার আগে RtcEngineConfig ব্যবহার করা ভালো
             val config = RtcEngineConfig()
             config.mContext = requireContext()
             config.mAppId = APP_ID
             config.mEventHandler = mRtcEventHandler
-            config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING // বা Constants.CHANNEL_PROFILE_COMMUNICATION
+            config.mChannelProfile = Constants.CHANNEL_PROFILE_LIVE_BROADCASTING
 
             agoraEngine = RtcEngine.create(config)
+            Log.d("AgoraInit", "Agora RtcEngine created successfully.")
 
             agoraEngine?.enableVideo()
             agoraEngine?.setEnableSpeakerphone(isSpeakerOn)
 
             setupLocalVideo()
-            joinChannel()
+            // এখন প্রাপ্ত টোকেন দিয়ে চ্যানেলে জয়েন করুন
+            agoraEngine?.joinChannel(token, CHANNEL_NAME, null, 0)
+            Toast.makeText(requireContext(), "Joining channel: $CHANNEL_NAME", Toast.LENGTH_SHORT).show()
+            Log.d("AgoraInit", "Join channel initiated for: $CHANNEL_NAME with token.")
 
         } catch (e: Exception) {
-            Log.e("Agora", "Error initializing Agora: ${e.message}")
+            Log.e("AgoraInit", "Error initializing Agora: ${e.message}", e)
             Toast.makeText(requireContext(), "Error initializing Agora: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
@@ -199,9 +277,7 @@ class VideoCallFragment : Fragment() {
     // লোকাল ভিডিও সেটআপ করা
     private fun setupLocalVideo() {
         _binding?.localVideoViewContainer?.let { container ->
-            // --- সংশোধিত: Standard SurfaceView তৈরি করুন, RtcEngine.createRendererView() নয় ---
             val surfaceView = SurfaceView(requireContext())
-            // --- সংশোধিত: setZOrderMediaOverlay() লাইনটি সরানো হয়েছে ---
             container.addView(surfaceView)
             agoraEngine?.setupLocalVideo(VideoCanvas(surfaceView, Constants.RENDER_MODE_HIDDEN, 0))
         }
@@ -211,18 +287,10 @@ class VideoCallFragment : Fragment() {
     private fun setupRemoteVideo(uid: Int) {
         _binding?.remoteVideoViewContainer?.let { container ->
             container.removeAllViews()
-
-            // --- সংশোধিত: Standard SurfaceView তৈরি করুন, RtcEngine.createRendererView() নয় ---
             val surfaceView = SurfaceView(requireContext())
             container.addView(surfaceView)
             agoraEngine?.setupRemoteVideo(VideoCanvas(surfaceView, Constants.RENDER_MODE_HIDDEN, uid))
         }
-    }
-
-    // চ্যানেলে জয়েন করার ফাংশন
-    private fun joinChannel() {
-        agoraEngine?.joinChannel(TOKEN, CHANNEL_NAME, null, 0)
-        Toast.makeText(requireContext(), "Joining channel: $CHANNEL_NAME", Toast.LENGTH_SHORT).show()
     }
 
     // স্পিকার টগল করার ফাংশন
@@ -239,7 +307,7 @@ class VideoCallFragment : Fragment() {
             if (isSpeakerOn) {
                 it.setImageResource(R.drawable.speakeron)
             } else {
-                it.setImageResource(R.drawable.speakeron) // আপনার প্রজেক্টে এই ড্রয়েবলটি থাকতে হবে
+                it.setImageResource(R.drawable.speakeron)
             }
         }
     }
@@ -258,7 +326,7 @@ class VideoCallFragment : Fragment() {
             if (isMicMuted) {
                 it.setImageResource(R.drawable.micoff)
             } else {
-                it.setImageResource(R.drawable.micoff) // আপনার প্রজেক্টে এই ড্রয়েবলটি থাকতে হবে
+                it.setImageResource(R.drawable.micoff)
             }
         }
     }
@@ -282,8 +350,8 @@ class VideoCallFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         agoraEngine?.leaveChannel()
-        RtcEngine.destroy() // এটি RTC ইঞ্জিনকে সম্পূর্ণরূপে রিলিজ করে
+        RtcEngine.destroy()
         agoraEngine = null
-        _binding = null // মেমরি লিক এড়ানোর জন্য গুরুত্বপূর্ণ
+        _binding = null
     }
 }
