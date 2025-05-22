@@ -28,10 +28,7 @@ class MeFragment : Fragment() {
         setupClickListeners()
         setupUserInfo()
 
-        // 设置好友请求点击事件
-        binding.layoutFriendRequests.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_friendRequestsFragment)
-        }
+
 
         // 设置钱包点击事件
         binding.layoutWallet.setOnClickListener {
