@@ -26,8 +26,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:background="#000000"
-        app:itemIconSize="35dp"
-        app:itemIconTint="#0ABAB5"
+        app:itemIconSize="60dp"
+        app:itemIconTint="#81d8d0"
         app:itemTextColor="#FFFFFF"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_navigation" />

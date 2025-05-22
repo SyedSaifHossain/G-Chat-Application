@@ -25,7 +25,7 @@ class VideoCallFragment : Fragment() {
     // !!! গুরুত্বপূর্ণ: TOKEN যদি null থাকে, তাহলে আপনার Agora প্রোজেক্টের App Certificate সেটিংস চেক করুন।
     //                 সাধারণত, সুরক্ষিত কলের জন্য একটি ভ্যালিড টোকেন প্রয়োজন।
     private val APP_ID = "01764965ef8f461197b67bb61a51ed30"
-    private val TOKEN: String? = null // যদি App Certificate চালু থাকে তবে এখানে আপনার Agora টোকেন বসাতে হবে
+    private val TOKEN = "007eJxTYJjqey/W9NLXZ06l3VdijY/7FAuVft7L6Dq17tE1Nc83yYIKDAaG5mYmlmamqWkWaSZmhoaW5klm5klJZoaJpoapKcYGbQ16GQ2BjAyaRndYGRkgEMQXYEhPzkgsiS/LTEnNj09OzMlhYAAA+fUjww==" // যদি App Certificate চালু থাকে তবে এখানে আপনার Agora টোকেন বসাতে হবে
     private val CHANNEL_NAME = "gchat_video_call"
 
     private var agoraEngine: RtcEngine? = null
