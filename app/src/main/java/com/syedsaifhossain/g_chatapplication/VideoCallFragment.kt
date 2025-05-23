@@ -326,7 +326,7 @@ class VideoCallFragment : Fragment() {
             if (isMicMuted) {
                 it.setImageResource(R.drawable.micoff)
             } else {
-                it.setImageResource(R.drawable.micoff)
+                it.setImageResource(R.drawable.micon)
             }
         }
     }
