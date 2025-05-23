@@ -95,6 +95,7 @@ class VideoCallFragment : Fragment() {
                     Constants.ERR_INVALID_TOKEN -> "Invalid or expired token. Generate a new token if required."
                     Constants.ERR_JOIN_CHANNEL_REJECTED -> "Join channel rejected. Check channel name or user limits."
                     Constants.ERR_DECRYPTION_FAILED -> "Decryption failed (check encryption settings if used)."
+                    Constants.ERR_NO_PERMISSION -> "No video or audio recording permission." // Specific error for missing permissions
                     else -> "Unknown Agora Error: $err"
                 }
                 Toast.makeText(requireContext(), "Agora Error: $errorMessage", Toast.LENGTH_LONG).show()
@@ -208,16 +209,32 @@ class VideoCallFragment : Fragment() {
     private fun fetchTokenAndJoinChannel() {
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            Toast.makeText(requireContext(), "User not authenticated. Please log in.", Toast.LENGTH_LONG).show()
-            Log.e("AgoraToken", "User not authenticated for token fetch. Aborting call setup.")
-            requireActivity().onBackPressedDispatcher.onBackPressed()
-            return
+            // কোনো ব্যবহারকারী প্রমাণীকৃত নেই, পরীক্ষার জন্য বেনামীভাবে সাইন-ইন করার চেষ্টা করুন
+            Log.d("AgoraToken", "No user authenticated. Attempting anonymous sign-in...")
+            auth.signInAnonymously() // বেনামীভাবে সাইন-ইন করার চেষ্টা করুন
+                .addOnCompleteListener(requireActivity()) { task ->
+                    if (task.isSuccessful) {
+                        // বেনামী সাইন-ইন সফল, এখন টোকেন আনার জন্য আবার চেষ্টা করুন
+                        Log.d("AgoraToken", "Anonymous sign-in successful. Retrying token fetch.")
+                        fetchTokenAndJoinChannel() // রিকার্সিভ কল, এখন currentUser থাকবে
+                    } else {
+                        // বেনামী সাইন-ইন ব্যর্থ হয়েছে
+                        Log.e("AgoraToken", "Anonymous sign-in failed: ${task.exception?.message}", task.exception)
+                        Toast.makeText(requireContext(), "Authentication required to start call.", Toast.LENGTH_LONG).show()
+                        // যদি প্রমাণীকরণ ব্যর্থ হয়, তাহলে আগের স্ক্রিনে ফিরে যান
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            return // এই ফাংশন কল থেকে বেরিয়ে আসুন, কারণ আমরা সাইন-ইন শেষ হওয়ার জন্য অপেক্ষা করছি
         }
+
+        // --- যদি currentUser 'null' না হয় (হয় আগে থেকেই লগইন করা অথবা এইমাত্র বেনামীভাবে সাইন-ইন হয়েছে) ---
+        Log.d("AgoraToken", "User authenticated: ${currentUser.uid}. Fetching token...")
 
         // Firebase UID কে Agora UID তে রূপান্তর (Agora UID একটি Int হয়)
         // hashCode() ব্যবহার করে একটি Int পাওয়া যায়, তবে এটি সবসময় অনন্য নাও হতে পারে।
         // যদি আপনার অ্যাপে সুনির্দিষ্ট ইউজার আইডি প্রয়োজন হয়, তাহলে আপনার ব্যাকএন্ডে একটি ম্যাপিং সিস্টেম ব্যবহার করতে পারেন।
-        val agoraUid = currentUser.uid.hashCode() and 0xFFFFFFFF.toInt() // Ensure positive integer
+        val agoraUid = currentUser.uid.hashCode() and 0xFFFFFFFF.toInt() // নিশ্চিত করুন যে এটি একটি ধনাত্মক পূর্ণসংখ্যা
 
         val data = hashMapOf(
             "channelName" to CHANNEL_NAME,
