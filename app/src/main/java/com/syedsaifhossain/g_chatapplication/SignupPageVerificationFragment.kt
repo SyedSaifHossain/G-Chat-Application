@@ -197,25 +197,25 @@ class SignupPageVerificationFragment : Fragment() {
                                     // Initialize user's message data structure
                                     dbRef.child("user-messages").child(uid).setValue(true)
                                         .addOnSuccessListener {
-                                            Toast.makeText(requireContext(), "用户注册成功", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(requireContext(), "User registration successful", Toast.LENGTH_SHORT).show()
                                             navigateToHomePage()
                                         }
                                         .addOnFailureListener { e ->
-                                            Toast.makeText(requireContext(), "初始化消息结构失败: ${e.message}", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(requireContext(), "Failed to initialize message structure: ${e.message}", Toast.LENGTH_LONG).show()
                                             navigateToHomePage() // Continue navigation
                                         }
                                 }
                                 .addOnFailureListener { e ->
-                                    Toast.makeText(requireContext(), "初始化聊天结构失败: ${e.message}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(requireContext(), "Failed to initialize chat structure: ${e.message}", Toast.LENGTH_LONG).show()
                                     navigateToHomePage() // Continue navigation
                                 }
                         }
                         .addOnFailureListener { e ->
-                            Toast.makeText(requireContext(), "保存用户信息失败: ${e.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(requireContext(), "Failed to save user information: ${e.message}", Toast.LENGTH_LONG).show()
                             navigateToHomePage() // Continue navigation
                         }
                 } else {
-                    Toast.makeText(requireContext(), "验证码无效", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Verification code is invalid", Toast.LENGTH_SHORT).show()
                 }
             }
     }
