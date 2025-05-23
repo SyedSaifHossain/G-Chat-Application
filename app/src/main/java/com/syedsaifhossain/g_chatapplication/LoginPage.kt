@@ -57,11 +57,11 @@ class LoginPage : Fragment() {
                                 getUserInfo(user.uid) { userInfo ->
                                     if (userInfo != null) {
                                         Log.d("LoginPage", "User logged in successfully: ${userInfo.name}")
-                                        Toast.makeText(requireContext(), "登录成功！", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(requireContext(), "Login successfully！", Toast.LENGTH_SHORT).show()
                                         findNavController().navigate(R.id.action_loginPage_to_homeFragment)
                                     } else {
                                         Log.e("LoginPage", "Failed to get user info")
-                                        Toast.makeText(requireContext(), "获取用户信息失败", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(requireContext(), "Failed to obtain user information", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
