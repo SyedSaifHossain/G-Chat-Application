@@ -30,29 +30,17 @@
 
 
         <TextView
-            android:id="@+id/videoCallUserName"
+            android:id="@+id/videoCallTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="30dp"
             android:padding="10dp"
-            android:text="User Name"
+            android:text="End-to-end-encrypted"
             android:textColor="#8ad8d0"
             android:textSize="22sp"
             android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/videoCallTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/videoCallUserName"
-            android:layout_centerHorizontal="true"
-            android:text="0:00"
-            android:textColor="#8ad8d0"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
 
         <ImageView
             android:id="@+id/videoCallAddContact"
@@ -66,12 +54,37 @@
 
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/videoCallUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/voiceCallHeader"
+        android:layout_centerHorizontal="true"
+        android:text="Aaron Loeb"
+        android:textColor="#8ad8d0"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="30dp"/>
+
+    <TextView
+        android:id="@+id/videoCallTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/videoCallUserName"
+        android:layout_centerHorizontal="true"
+        android:text="0:00"
+        android:textColor="#8ad8d0"
+        android:textSize="24sp"
+        android:layout_marginTop="15dp"
+        android:textStyle="bold" />
+
     <ImageView
         android:id="@+id/videoCallUserImg"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="200dp"
         android:src="@drawable/profileimage" />
 
     <LinearLayout
@@ -86,17 +99,16 @@
 
         <ImageView
             android:id="@+id/speakerOn"
-            android:layout_width="55dp"
+            android:layout_width="60dp"
             android:layout_height="55dp"
             android:layout_centerInParent="true"
             android:layout_weight="1"
             android:onClick="joinChannel"
             android:src="@drawable/speakeron" />
 
-
         <ImageView
             android:id="@+id/videoCall"
-            android:layout_width="55dp"
+            android:layout_width="60dp"
             android:layout_height="55dp"
             android:layout_centerInParent="true"
             android:layout_weight="1"
@@ -105,7 +117,7 @@
 
         <ImageView
             android:id="@+id/mute"
-            android:layout_width="55dp"
+            android:layout_width="60dp"
             android:layout_height="55dp"
             android:layout_centerInParent="true"
             android:layout_weight="1"
@@ -114,7 +126,7 @@
 
         <ImageView
             android:id="@+id/endCallButton"
-            android:layout_width="55dp"
+            android:layout_width="60dp"
             android:layout_height="55dp"
             android:layout_centerInParent="true"
             android:layout_weight="1"
