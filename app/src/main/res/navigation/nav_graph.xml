@@ -201,6 +201,9 @@
         <action
             android:id="@+id/action_chatScreenFragment_to_voiceCallFragment"
             app:destination="@id/voiceCallFragment" />
+        <action
+            android:id="@+id/action_chatScreenFragment_to_chatScreenPageMoreOptionFragment"
+            app:destination="@id/chatScreenPageMoreOptionFragment" />
     </fragment>
 
     <fragment
@@ -256,7 +259,11 @@
         android:id="@+id/topUpFragment"
         android:name="com.syedsaifhossain.g_chatapplication.TopUpFragment"
         android:label="fragment_top_up"
-        tools:layout="@layout/fragment_top_up" />
+        tools:layout="@layout/fragment_top_up" >
+        <action
+            android:id="@+id/action_topUpFragment_to_topUpMoreOptionPageFragment"
+            app:destination="@id/topUpMoreOptionPageFragment" />
+    </fragment>
     <fragment
         android:id="@+id/voiceCallFragment"
         android:name="com.syedsaifhossain.g_chatapplication.VoiceCallFragment"
