@@ -274,4 +274,14 @@
         android:name="com.syedsaifhossain.g_chatapplication.FriendRequestsFragment"
         android:label="好友请求"
         tools:layout="@layout/fragment_friend_requests" />
+    <fragment
+        android:id="@+id/chatScreenPageMoreOptionFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.ChatScreenPageMoreOptionFragment"
+        android:label="fragment_chat_screen_page_more_option"
+        tools:layout="@layout/fragment_chat_screen_page_more_option" />
+    <fragment
+        android:id="@+id/topUpMoreOptionPageFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.TopUpMoreOptionPageFragment"
+        android:label="fragment_top_up_more_option_page"
+        tools:layout="@layout/fragment_top_up_more_option_page" />
 </navigation>
