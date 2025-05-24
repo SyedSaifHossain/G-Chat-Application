@@ -24,6 +24,10 @@ class TopUpFragment : Fragment() {
         binding.topUpBackImg.setOnClickListener {
             findNavController().popBackStack()
         }
+
+        binding.topUpMoreOption.setOnClickListener {
+            findNavController().navigate(R.id.action_topUpFragment_to_topUpMoreOptionPageFragment)
+        }
         return binding.root
     }
 }

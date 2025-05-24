@@ -2,6 +2,7 @@ package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,8 @@ class SignupPageVerificationFragment : Fragment() {
     private var storedVerificationId: String? = null
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
     private var countDownTimer: CountDownTimer? = null
+
+    private var isLoginFlow = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -80,10 +83,11 @@ class SignupPageVerificationFragment : Fragment() {
         binding.resendCodeVerify.setOnClickListener {
             val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
             if (resendToken != null) {
-                startTimer()
+                Toast.makeText(requireContext(), "Resending OTP...", Toast.LENGTH_SHORT).show()
                 resendVerificationCode(phone, resendToken!!)
             } else {
                 Toast.makeText(requireContext(), "Resend token not available yet", Toast.LENGTH_SHORT).show()
+                Log.e("VERIFICATION", "Resend token is null")
             }
         }
 
@@ -114,6 +118,7 @@ class SignupPageVerificationFragment : Fragment() {
             .setCallbacks(callbacks)
             .build()
         PhoneAuthProvider.verifyPhoneNumber(options)
+        Log.d("VERIFICATION", "Started phone number verification for $phoneNumber")
     }
 
     private fun resendVerificationCode(phoneNumber: String, token: PhoneAuthProvider.ForceResendingToken) {
@@ -126,12 +131,14 @@ class SignupPageVerificationFragment : Fragment() {
             .setForceResendingToken(token)
             .build()
         PhoneAuthProvider.verifyPhoneNumber(options)
+        Log.d("VERIFICATION", "Resent verification code to $phoneNumber")
     }
 
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
             if (!isAdded) return
             val code = credential.smsCode
+            Log.d("VERIFICATION", "Auto OTP received: $code")
             if (code != null) {
                 binding.verificationEdt.setText(code)
                 verifyPhoneNumberWithCode(storedVerificationId!!, code)
@@ -142,6 +149,7 @@ class SignupPageVerificationFragment : Fragment() {
             if (!isAdded) return
             binding.resendCodeVerify.isEnabled = true
             binding.timeCount.text = ""
+
             val message = when (e) {
                 is FirebaseAuthInvalidCredentialsException -> "Invalid request: ${e.message}"
                 is FirebaseTooManyRequestsException -> "SMS quota exceeded."
@@ -153,6 +161,9 @@ class SignupPageVerificationFragment : Fragment() {
         override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
             storedVerificationId = verificationId
             resendToken = token
+            binding.resendCodeVerify.isEnabled = false
+            startTimer()
+            Log.d("VERIFICATION", "onCodeSent called. VerificationId: $verificationId")
             Toast.makeText(requireContext(), "OTP Sent", Toast.LENGTH_SHORT).show()
         }
     }
@@ -247,4 +258,3 @@ class SignupPageVerificationFragment : Fragment() {
         countDownTimer?.cancel()
     }
 }
-
