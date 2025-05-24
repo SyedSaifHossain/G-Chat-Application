@@ -47,10 +47,36 @@ class LoginViaEmailFragment : Fragment() {
             if (validateInput(email, password)) {
                 // Consider showing a progress bar here
                 registerUser(email, password)
+                writeUserToDatabase()
             }
         }
     }
 
+    // 注册成功后写入数据库（请在注册成功的回调里调用此逻辑）
+    fun writeUserToDatabase() {
+        val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val dbRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users")
+            val nickname = "G-Chat User" // 你可以让用户输入昵称后再写入
+            val userInfo = com.syedsaifhossain.g_chatapplication.models.User(
+                uid = user.uid,
+                name = nickname,
+                phone = user.phoneNumber ?: "",
+                email = user.email ?: "",
+                avatarUrl = user.photoUrl?.toString() ?: "",
+                status = "Hey there! I'm using G-Chat",
+                isOnline = true,
+                lastSeen = System.currentTimeMillis()
+            )
+            dbRef.child(user.uid).setValue(userInfo)
+                .addOnSuccessListener {
+                    android.widget.Toast.makeText(requireContext(), "用户信息写入成功", android.widget.Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    android.widget.Toast.makeText(requireContext(), "写入失败: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
     private fun validateInput(email: String, password: String): Boolean {
         if (email.isEmpty()) {
             binding.loginViaEmailEdtEmail.error = "Email is required"

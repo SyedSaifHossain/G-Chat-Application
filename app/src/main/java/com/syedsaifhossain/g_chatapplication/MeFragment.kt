@@ -10,14 +10,15 @@ import androidx.navigation.fragment.findNavController
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentMeBinding
 
 class MeFragment : Fragment() {
-    private lateinit var binding: FragmentMeBinding
+    private var _binding: FragmentMeBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
+        savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMeBinding.inflate(inflater, container, false)
+        _binding = FragmentMeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -26,6 +27,18 @@ class MeFragment : Fragment() {
 
         setupClickListeners()
         setupUserInfo()
+
+
+
+        // 设置钱包点击事件
+        binding.layoutWallet.setOnClickListener {
+            findNavController().navigate(R.id.action_meFragment_to_walletFragment)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun setupUserInfo() {
@@ -38,10 +51,6 @@ class MeFragment : Fragment() {
                 startActivity(Intent(requireContext(), VouchersActivity::class.java))
             }
 
-            layoutWallet.setOnClickListener {
-                findNavController().navigate(R.id.walletFragment)
-            }
-
             layoutFavorites.setOnClickListener {
                 startActivity(Intent(requireContext(), FavoritesActivity::class.java))
             }
@@ -51,5 +60,4 @@ class MeFragment : Fragment() {
             }
         }
     }
-
 }

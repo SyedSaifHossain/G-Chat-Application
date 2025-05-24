@@ -1,55 +1,73 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.syedsaifhossain.g_chatapplication.adapter.ContactAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentContactBinding
+import com.syedsaifhossain.g_chatapplication.models.Contact
 
 class ContactFragment : Fragment() {
 
     private lateinit var binding: FragmentContactBinding
-
     private lateinit var contactAdapter: ContactAdapter
-    private var contactsList: List<String> = listOf(
-        "John Doe", "Jane Smith", "Alice Johnson", "Bob Brown", "Charlie Davis"
-    ) // Example list, replace with actual data
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentContactBinding.inflate(inflater, container, false)
-        val view = binding.root
+        return binding.root
+    }
 
-        // Set up RecyclerView
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
-
-        // Handle search input using EditText
-        binding.contactSearchbar.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(charSequence: CharSequence, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
-                // Filter contacts based on search query
-                val filteredContacts = contactAdapter.filterContacts(charSequence.toString())
-                contactAdapter.updateData(filteredContacts)
-            }
-
-            override fun afterTextChanged(editable: Editable?) {}
-        })
-
-        return view
+        loadContactsFromFirebase()
     }
 
     private fun setupRecyclerView() {
-        binding.contactRecyclerView.layoutManager = LinearLayoutManager(context)
-        contactAdapter = ContactAdapter(requireContext(), contactsList)
+        binding.contactRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        contactAdapter = ContactAdapter(requireContext(), emptyList()) { contact ->
+            // 点击联系人后跳转到ChatScreenFragment
+            val bundle = Bundle().apply {
+                putString("otherUserId", contact.id)
+                putString("otherUserName", contact.name)
+            }
+            findNavController().navigate(R.id.chatScreenFragment, bundle)
+        }
         binding.contactRecyclerView.adapter = contactAdapter
     }
 
+    private fun loadContactsFromFirebase() {
+        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
+        val usersRef = FirebaseDatabase.getInstance().getReference("users")
+        val friendsRef = usersRef.child(currentUser.uid).child("friends")
+
+        friendsRef.get().addOnSuccessListener { snapshot ->
+            val friendIds = snapshot.children.mapNotNull { it.key }
+            if (friendIds.isEmpty()) {
+                contactAdapter.updateData(emptyList())
+                return@addOnSuccessListener
+            }
+
+            usersRef.get().addOnSuccessListener { usersSnapshot ->
+                val contacts = friendIds.mapNotNull { fid ->
+                    val userSnap = usersSnapshot.child(fid)
+                    val name = userSnap.child("name").getValue(String::class.java) ?: ""
+                    val phone = userSnap.child("phone").getValue(String::class.java) ?: ""
+                    Contact(id = fid, name = name, phone = phone)
+                }
+                contactAdapter.updateData(contacts)
+            }
+        }
+    }
 }
+
+
