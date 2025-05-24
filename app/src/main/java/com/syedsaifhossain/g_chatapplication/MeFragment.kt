@@ -28,12 +28,6 @@ class MeFragment : Fragment() {
         setupClickListeners()
         setupUserInfo()
 
-
-
-        // 设置钱包点击事件
-        binding.layoutWallet.setOnClickListener {
-            findNavController().navigate(R.id.action_meFragment_to_walletFragment)
-        }
     }
 
     override fun onDestroyView() {
@@ -49,6 +43,10 @@ class MeFragment : Fragment() {
         binding.apply {
             layoutVouchers.setOnClickListener {
                 startActivity(Intent(requireContext(), VouchersActivity::class.java))
+            }
+
+            layoutWallet.setOnClickListener {
+                findNavController().navigate(R.id.walletFragment)
             }
 
             layoutFavorites.setOnClickListener {
