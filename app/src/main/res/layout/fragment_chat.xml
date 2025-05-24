@@ -1,70 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:orientation="vertical"
+    android:background="@color/black"
     tools:context=".ChatFragment">
 
     <RelativeLayout
-        android:id="@+id/chatHeader"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true">
-
-        <ImageView
-            android:id="@+id/chatBackButton"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            android:elevation="4dp"
-            android:padding="8dp"
-            android:src="@drawable/arrowback"
-            app:tint="#FFFFFF" />
+        android:layout_height="wrap_content"
+        android:padding="16dp">
 
         <TextView
-            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Message"
-            android:textColor="#FFFFFF"
+            android:text="聊天"
+            android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold" />
 
         <ImageView
-            android:id="@+id/add_button"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
+            android:id="@+id/addButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="10dp"
-            android:elevation="4dp"
-            android:padding="8dp"
-            android:src="@drawable/addcirclebutton"
-            app:tint="#FFFFFF" />
+            android:src="@drawable/ic_add"
+            android:tint="@android:color/white" />
+
     </RelativeLayout>
 
-    <View
-        android:id="@+id/headerUnderline"
+    <!-- 用户列表 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/userRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:layout_below="@id/chatHeader"
-        android:background="#333333"
-        android:layout_marginHorizontal="20dp"/>
+        android:layout_height="wrap_content"
+        android:maxHeight="200dp"
+        android:padding="8dp" />
 
+    <!-- 聊天列表 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chatRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/chatHeader"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
         tools:listitem="@layout/chat_item_list" />
 
-</RelativeLayout>
+</LinearLayout>

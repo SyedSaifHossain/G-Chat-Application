@@ -98,7 +98,6 @@
                 android:tint="#09A6A2" />
         </LinearLayout>
 
-        <!-- Favorites -->
         <LinearLayout
             android:id="@+id/layout_favorites"
             android:layout_width="match_parent"

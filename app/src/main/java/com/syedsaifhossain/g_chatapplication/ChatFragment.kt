@@ -1,241 +1,180 @@
 package com.syedsaifhossain.g_chatapplication
 
-import android.os.Build // Keep existing imports
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import android.widget.Toast // Import Toast
-import android.util.Log // Import Log
+import android.widget.Toast
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth // Import FirebaseAuth
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 import com.syedsaifhossain.g_chatapplication.adapter.ChatAdapter
+import com.syedsaifhossain.g_chatapplication.adapter.UserAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatBinding
-import com.syedsaifhossain.g_chatapplication.models.Chats // Make sure Chats model is imported
+import com.syedsaifhossain.g_chatapplication.models.Chats
+import com.syedsaifhossain.g_chatapplication.models.User
+import com.syedsaifhossain.g_chatapplication.api.FirebaseManager
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class ChatFragment : Fragment() {
 
-    // Use ViewBinding for layout inflation
     private var _binding: FragmentChatBinding? = null
-    private val binding get() = _binding!! // Non-null assertion
+    private val binding get() = _binding!!
 
-    // RecyclerView and Adapter members
     private lateinit var recyclerView: RecyclerView
     private lateinit var chatAdapter: ChatAdapter
-    // messageList will hold Chats objects
+    private lateinit var userAdapter: UserAdapter
     private lateinit var messageList: ArrayList<Chats>
+    private lateinit var userList: ArrayList<User>
+    private val database = FirebaseDatabase.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
-    @RequiresApi(Build.VERSION_CODES.Q) // Keep Q requirement if needed for popup menu icons
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View { // Return non-nullable View
+    ): View {
         _binding = FragmentChatBinding.inflate(inflater, container, false)
-        val view = binding.root // Get root view from binding
+        val view = binding.root
 
-        // Initialize RecyclerView using binding
+        // 初始化聊天列表
+        setupChatList()
+        
+        // 初始化好友列表
+        setupUserList()
+
+        return view
+    }
+
+    private fun setupChatList() {
         recyclerView = binding.chatRecyclerView
-        recyclerView.layoutManager = LinearLayoutManager(context) // Set LayoutManager
+        recyclerView.layoutManager = LinearLayoutManager(context)
 
-        // --- Data Loading and Adapter Setup ---
+        // 初始化空消息列表
+        messageList = arrayListOf()
 
-        // 1. TODO: Replace example data with REAL data loading from Firebase later!
-        // This should query the `/user-chats/{currentUserId}` node in Firebase
-        // to get the list of recent chats.
-        messageList = arrayListOf(
-            Chats(
-                imageRes = R.drawable.profile, // Still using drawable for example
-                name = "Aaron Loed (Example)",
-                message = "Hi from example!",
-                otherUserId = "user_id_aaron", // Example ID
-                otherUserAvatarUrl = "https://example.com/aaron_avatar.png" // Example URL
-            ),
-            Chats(
-                imageRes = R.drawable.cityimg,
-                name = "Jane Smith (Example)",
-                message = "See you soon!",
-                otherUserId = "user_id_jane",
-                otherUserAvatarUrl = null // Example null URL
-            )
-        )
-
-        // 2. TODO: IMPORTANT - Get the current user's avatar URL reliably!
-        // Replace this placeholder with actual logic. Fetch from SharedPreferences,
-        // ViewModel, or a one-time Firebase read in this Fragment.
-        val myAvatarUrlPlaceholder = "https://example.com/my_avatar.png" // *** CRITICAL PLACEHOLDER ***
-
-        // 3. Initialize and set the ChatAdapter with click listener containing navigation logic and checks
+        // 初始化聊天适配器
         chatAdapter = ChatAdapter(messageList) { clickedChatItem ->
-            // --- ** PRE-NAVIGATION CHECKS START ** ---
+            navigateToChatScreen(clickedChatItem)
+        }
+        recyclerView.adapter = chatAdapter
 
-            // a) Check if current user is logged in and UID is available
-            val currentUserIdAuth = FirebaseAuth.getInstance().currentUser?.uid
-            if (currentUserIdAuth.isNullOrBlank()) {
-                Log.e("ChatFragment", "User not identified. Cannot navigate to chat screen.")
-                Toast.makeText(requireContext(), "Please log in to chat", Toast.LENGTH_SHORT).show()
-                return@ChatAdapter // Stop execution here if user is not valid
-            }
+        // 从 Firebase 加载聊天数据
+        FirebaseManager.ChatManager.getUserChats { chats ->
+            messageList.clear()
+            messageList.addAll(chats)
+            chatAdapter.notifyDataSetChanged()
+        }
+    }
 
-            // b) Get the current user's avatar URL (replace placeholder!)
-            // For now, we use the placeholder. Ensure this gets replaced!
-            val actualMyAvatarUrl = myAvatarUrlPlaceholder // <-- ** REPLACE THIS **
-            if (actualMyAvatarUrl.isBlank() || actualMyAvatarUrl == "https://example.com/my_avatar.png") { // Check if still placeholder or blank
-                Log.w("ChatFragment", "Current user avatar URL is missing or using placeholder: $actualMyAvatarUrl")
-                // Decide how to handle: pass null, pass placeholder, or show error?
-                // Passing the placeholder might be okay if ChatScreenFragment handles it gracefully.
-            }
+    private fun setupUserList() {
+        // 初始化用户列表
+        userList = arrayListOf()
+        
+        // 初始化用户适配器
+        userAdapter = UserAdapter(userList) { clickedUser ->
+            navigateToChatScreenWithUser(clickedUser)
+        }
 
-            // --- ** PRE-NAVIGATION CHECKS END ** ---
+        // 设置用户列表的 RecyclerView
+        binding.userRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = userAdapter
+        }
 
+        // 从 Firebase 加载用户列表
+        loadUsers()
+    }
 
-            // 4. Prepare arguments for ChatScreenFragment
-            val args = Bundle().apply {
-                putString("otherUserId", clickedChatItem.otherUserId)
-
-                // Clean the name before passing (remove "(Example)")
-                val originalName = clickedChatItem.name
-                val cleanedName = if (originalName.endsWith(" (Example)")) {
-                    originalName.removeSuffix(" (Example)")
-                } else {
-                    originalName
+    private fun loadUsers() {
+        val currentUserId = auth.currentUser?.uid ?: return
+        
+        database.getReference("users")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    userList.clear()
+                    for (userSnapshot in snapshot.children) {
+                        val user = userSnapshot.getValue(User::class.java)
+                        if (user != null && user.uid != currentUserId) {
+                            userList.add(user)
+                        }
+                    }
+                    userAdapter.notifyDataSetChanged()
                 }
-                putString("otherUserName", cleanedName)
 
-                putString("otherUserAvatarUrl", clickedChatItem.otherUserAvatarUrl) // Pass URL (can be null)
-                putString("myAvatarUrl", actualMyAvatarUrl) // Pass the (potentially placeholder) avatar URL
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("ChatFragment", "加载用户列表失败", error.toException())
+                    Toast.makeText(requireContext(), "加载用户列表失败", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
+    private fun navigateToChatScreen(chatItem: Chats) {
+        val currentUserIdAuth = FirebaseAuth.getInstance().currentUser?.uid
+        if (currentUserIdAuth.isNullOrBlank()) {
+            Log.e("ChatFragment", "用户未登录，无法进入聊天界面")
+            Toast.makeText(requireContext(), "请先登录", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            val myUser = FirebaseManager.UserManager.getUser(currentUserIdAuth)
+            val myAvatarUrl = myUser?.avatarUrl ?: ""
+
+            val args = Bundle().apply {
+                putString("otherUserId", chatItem.otherUserId)
+                putString("otherUserName", chatItem.name)
+                putString("otherUserAvatarUrl", chatItem.otherUserAvatarUrl)
+                putString("myAvatarUrl", myAvatarUrl)
             }
 
-            Log.d("ChatFragment", "Navigating to ChatScreen. OtherUser ID: ${clickedChatItem.otherUserId}, MyAvatar: $actualMyAvatarUrl")
-
-            // 5. Perform Navigation with error handling
             try {
-                // Use the correct action ID from your nav_graph.xml
                 findNavController().navigate(R.id.action_homeFragment_to_chatScreenFragment, args)
-            } catch (e: IllegalArgumentException) {
-                Log.e("ChatFragment", "Navigation failed: Invalid argument or action ID?", e)
-                Toast.makeText(context, "Error opening chat (Nav)", Toast.LENGTH_SHORT).show()
             } catch (e: Exception) {
-                Log.e("ChatFragment", "Navigation failed with unexpected error", e)
-                Toast.makeText(context, "Error opening chat (Other)", Toast.LENGTH_SHORT).show()
+                Log.e("ChatFragment", "导航失败", e)
+                Toast.makeText(context, "打开聊天失败", Toast.LENGTH_SHORT).show()
             }
         }
-        recyclerView.adapter = chatAdapter // Set the adapter to the RecyclerView
-
-        // --- End Data Loading and Adapter Setup ---
-
-
-        // Setup PopupMenu for the addButton (remains the same)
-        binding.addButton.setOnClickListener {
-            showPopupMenu(it)
-        }
-
-        return view // Return the root view
     }
 
-    // Method to show PopupMenu (remains the same)
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun showPopupMenu(view: View) {
-        val popupMenu = PopupMenu(requireContext(), view)
-        popupMenu.inflate(R.menu.popup_menu)
-        try { // Add try-catch for reflection method
-            popupMenu.setForceShowIcon(true)
-        } catch (e: Exception) {
-            Log.w("ChatFragment", "Failed to force show popup menu icons", e)
+    private fun navigateToChatScreenWithUser(user: User) {
+        val currentUserIdAuth = FirebaseAuth.getInstance().currentUser?.uid
+        if (currentUserIdAuth.isNullOrBlank()) {
+            Log.e("ChatFragment", "用户未登录，无法进入聊天界面")
+            Toast.makeText(requireContext(), "请先登录", Toast.LENGTH_SHORT).show()
+            return
         }
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.newChats -> { findNavController().navigate(R.id.action_homeFragment_to_newChatsFragment); true }
-                R.id.addContacts -> { findNavController().navigate(R.id.action_homeFragment_to_addContactsFragment); true }
-                R.id.scan -> { findNavController().navigate(R.id.action_homeFragment_to_scanFragment); true }
-                else -> false
+
+        lifecycleScope.launch {
+            val myUser = FirebaseManager.UserManager.getUser(currentUserIdAuth)
+            val myAvatarUrl = myUser?.avatarUrl ?: ""
+
+            val args = Bundle().apply {
+                putString("otherUserId", user.uid)
+                putString("otherUserName", user.name)
+                putString("otherUserAvatarUrl", user.avatarUrl)
+                putString("myAvatarUrl", myAvatarUrl)
+            }
+
+            try {
+                findNavController().navigate(R.id.action_homeFragment_to_chatScreenFragment, args)
+            } catch (e: Exception) {
+                Log.e("ChatFragment", "导航失败", e)
+                Toast.makeText(context, "打开聊天失败", Toast.LENGTH_SHORT).show()
             }
         }
-        popupMenu.show()
     }
 
-    // Add onDestroyView to clean up binding (remains the same)
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null // Avoid memory leaks
+        _binding = null
     }
 }
-
-
-
-//import android.os.Build
-//import android.os.Bundle
-//import android.util.Log
-//import android.view.*
-//import android.widget.PopupMenu
-//import androidx.annotation.RequiresApi
-//import androidx.fragment.app.Fragment
-//import androidx.navigation.fragment.findNavController
-//import androidx.recyclerview.widget.LinearLayoutManager
-//import com.google.firebase.auth.FirebaseAuth
-//import com.google.firebase.database.*
-//import com.syedsaifhossain.g_chatapplication.adapter.UserAdapter
-//import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatBinding
-//import com.syedsaifhossain.g_chatapplication.models.User
-//
-//class ChatFragment : Fragment() {
-//
-//    private lateinit var mAuth: FirebaseAuth
-//    private lateinit var userList: ArrayList<User>
-//    private lateinit var adapter: UserAdapter
-//    private lateinit var mDbRef: DatabaseReference
-//    private var _binding: FragmentChatBinding? = null
-//    private val binding get() = _binding!!
-//
-//    override fun onCreateView(
-//        inflater: LayoutInflater, container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View {
-//        _binding = FragmentChatBinding.inflate(inflater, container, false)
-//        return binding.root
-//    }
-//
-//    @RequiresApi(Build.VERSION_CODES.Q)
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//
-//        mAuth = FirebaseAuth.getInstance()
-//        mDbRef = FirebaseDatabase.getInstance().reference
-//        userList = ArrayList()
-//
-//        adapter = UserAdapter(userList) { user ->
-//            val bundle = Bundle().apply {
-//                putString("userUid", user.uid)
-//                putString("userPhone", user.phone?.toString())
-//            }
-//            findNavController().navigate(R.id.action_homeFragment_to_chatScreenFragment, bundle)
-//        }
-//
-//        binding.userRecyclerView.layoutManager = LinearLayoutManager(requireActivity())
-//        binding.userRecyclerView.adapter = adapter
-//        mDbRef.child("Users").addValueEventListener(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                userList.clear()
-//                for (postSnapshot in snapshot.children) {
-//                    val currentUser = postSnapshot.getValue(User::class.java)
-//
-//                    if (mAuth.currentUser?.uid != currentUser?.uid) {
-//                        userList.add(currentUser!!)
-//                    }
-//                }
-//                adapter.notifyDataSetChanged()
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                Log.e("ChatFragment", "Database error: ${error.message}")
-//            }
-//        })
-//
-//        binding.addButton.setOnClickListener {
-//            showPopupMenu(it)
-//        }
-//    }

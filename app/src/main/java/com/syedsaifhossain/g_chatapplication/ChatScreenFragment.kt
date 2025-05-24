@@ -216,6 +216,7 @@ class ChatScreenFragment : Fragment(){
                 when (menuItem.itemId) {
                     R.id.galleryId -> {
                         // Handle Gallery
+                        checkAndRequestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                         true
                     }
                     R.id.documentId -> {
@@ -315,27 +316,39 @@ class ChatScreenFragment : Fragment(){
             return
         }
 
+        // 获取当前登录用户的 UID
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            Log.e("ChatScreenFragment", "User not logged in")
+            Toast.makeText(requireContext(), "请先登录", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val senderId = currentUser.uid
+
         // Create a specific chat node ID based on the two users involved
-        val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+        val chatNodeId = getChatNodeId(senderId, otherUserId!!)
+        Log.d("ChatScreenFragment", "Sending message to chat node: $chatNodeId")
 
         // Reference to the specific chat node
         val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
 
         val messageId = chatRef.push().key ?: return
+        Log.d("ChatScreenFragment", "Generated message ID: $messageId")
 
-        val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
         val message = ChatModel(
-            senderId = senderId,
+            senderId = senderId,  // 使用当前登录用户的 UID
             message = messageText,
             timestamp = System.currentTimeMillis()
-            // You could add avatar URLs here if needed
         )
+        Log.d("ChatScreenFragment", "Created message object: $message")
 
         chatRef.child(messageId).setValue(message)
-            .addOnSuccessListener { Log.d("ChatScreenFragment", "Message sent.") }
+            .addOnSuccessListener { 
+                Log.d("ChatScreenFragment", "Message sent successfully to path: chats/$chatNodeId/$messageId")
+            }
             .addOnFailureListener { e ->
+                Log.e("ChatScreenFragment", "Failed to send message to path: chats/$chatNodeId/$messageId", e)
                 Toast.makeText(requireContext(), "Failed to send message: ${e.message}", Toast.LENGTH_SHORT).show()
-                Log.e("ChatScreenFragment", "Failed to send message", e)
             }
     }
     // --- END MODIFICATION ---
@@ -348,19 +361,32 @@ class ChatScreenFragment : Fragment(){
             return
         }
 
+        // 获取当前登录用户的 UID
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            Log.e("ChatScreenFragment", "User not logged in")
+            Toast.makeText(requireContext(), "请先登录", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val senderId = currentUser.uid
+
         // Create a specific chat node ID based on the two users involved
-        val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+        val chatNodeId = getChatNodeId(senderId, otherUserId!!)
+        Log.d("ChatScreenFragment", "Listening for messages in chat node: $chatNodeId")
 
         // Reference to the specific chat node
         val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
 
         chatRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                Log.d("ChatScreenFragment", "Received data snapshot: ${snapshot.exists()}")
                 chatList.clear()
                 for (child in snapshot.children) {
                     val message = child.getValue(ChatModel::class.java)
+                    Log.d("ChatScreenFragment", "Message from Firebase: $message")
                     message?.let { chatList.add(it) }
                 }
+                Log.d("ChatScreenFragment", "Total messages in chatList: ${chatList.size}")
                 chatList.sortBy { it.timestamp }
                 chatMessageAdapter.notifyDataSetChanged()
                 if (chatList.isNotEmpty()) {

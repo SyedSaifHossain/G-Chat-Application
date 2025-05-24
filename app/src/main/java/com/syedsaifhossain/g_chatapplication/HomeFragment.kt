@@ -72,4 +72,10 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    override fun onResume() {
+        super.onResume()
+        // 回到HomeFragment时自动选中Chats
+        binding.bottomNavigation.selectedItemId = R.id.nav_chats
+    }
 }

@@ -26,7 +26,7 @@ class SignInNextFragment : Fragment() {
             binding.signInPagePhoneEdt.setText(fullPhoneNumber)
         }
 
-        binding.signPageeLoginButton.setOnClickListener {
+        binding.signPageeLoginButton.setOnClickListener {//TODO 有漏洞需要补全
             val phoneNumber = binding.signInPagePhoneEdt.text.toString().trim()
             val password = binding.passwordEdtSignInNext.text.toString().trim()
 
