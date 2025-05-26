@@ -54,31 +54,28 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.androidx.ui.text.android)
     implementation(libs.filament.android)
-    implementation("androidx.activity:activity-ktx:1.8.0") // Specific version for activity-ktx
+    implementation("androidx.activity:activity-ktx:1.8.0")
 
-    // Image Loading
-    implementation(libs.glide)
-    annotationProcessor("com.github.bumptech.glide:compiler:4.13.0")
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
 
     // Custom Image Views
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("com.mikhaellopez:circularimageview:4.3.1")
 
-    // Firebase BOM (Platform) - This is correct and up-to-date
+    // Firebase BOM (Platform) - Only the latest version is kept
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
 
     // Firebase Authentication (using BOM version via libs.firebase.auth)
     implementation(libs.firebase.auth)
 
-    // Firebase Cloud Functions (This is correctly present!)
+    // Firebase Cloud Functions
     implementation("com.google.firebase:firebase-functions-ktx")
-
-    // Firebase Realtime Database and Storage
-    implementation("com.google.firebase:firebase-database:20.3.0")
-    implementation("com.google.firebase:firebase-storage:20.3.0")
+    implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-firestore:24.9.0")
 
-    // Agora SDK (using libs.full.sdk which points to 4.5.2)
+    // Agora SDK
     implementation(libs.full.sdk)
 
     // Coroutines
@@ -100,6 +97,4 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-
 }
