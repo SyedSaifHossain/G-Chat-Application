@@ -181,14 +181,14 @@
         android:label="fragment_signup_page"
         tools:layout="@layout/fragment_signup_page" >
         <action
-            android:id="@+id/action_signupPageFragment_to_selectRegionFragment"
-            app:destination="@id/selectRegionFragment" />
-        <action
             android:id="@+id/action_signupPageFragment_to_signupPageVerificationFragment"
             app:destination="@id/signupPageVerificationFragment" />
         <action
             android:id="@+id/action_signupPageFragment_to_loginViaEmailFragment"
             app:destination="@id/loginViaEmailFragment" />
+        <action
+            android:id="@+id/action_signupPageFragment_to_selectRegionFragment"
+            app:destination="@id/selectRegionFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatScreenFragment"
