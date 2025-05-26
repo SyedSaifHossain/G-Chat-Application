@@ -17,7 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide // For loading images
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
@@ -40,8 +40,12 @@ class SignupNextFragment : Fragment() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var storage: FirebaseStorage
 
+    // TAG for logging
+    private val TAG = "SignupNextFragment"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate: Fragment created.")
         // Initialize Firebase instances
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
@@ -52,114 +56,123 @@ class SignupNextFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
+        Log.d(TAG, "onCreateView: Layout inflated.")
         binding = FragmentSignupNextBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "onViewCreated: Views created.")
 
         // Load existing profile data if user is already logged in
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            // Load display name into EditText
+            Log.d(TAG, "onViewCreated: Current user is logged in (UID: ${currentUser.uid})")
             currentUser.displayName?.let { name ->
                 binding.nameEdit.setText(name)
+                Log.d(TAG, "onViewCreated: Loaded existing display name: $name")
             }
 
-            // Load profile image into CircleImageView
             currentUser.photoUrl?.let { uri ->
                 Glide.with(this)
                     .load(uri)
-                    .placeholder(R.drawable.profile) // Default image while loading or if error
+                    .placeholder(R.drawable.profile)
                     .into(binding.profileImage)
                 imageUri = uri // Set imageUri to existing photoUrl so it's preserved if not changed
+                Log.d(TAG, "onViewCreated: Loaded existing photoUrl: $uri")
             }
+        } else {
+            Log.d(TAG, "onViewCreated: No current user logged in. This might be an issue if signup just completed.")
+            Toast.makeText(requireContext(), "User not logged in. Please restart verification.", Toast.LENGTH_LONG).show()
+            // Consider navigating back to verification if no user is found here
+            // findNavController().navigate(R.id.action_signupNextFragment_to_signupPageVerificationFragment)
         }
 
+
         binding.addImageButton.setOnClickListener {
-            // Display options to pick image from gallery or camera
+            Log.d(TAG, "addImageButton clicked.")
             val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
             val builder = AlertDialog.Builder(requireContext())
             builder.setTitle("Change Profile Picture")
             builder.setItems(options) { dialog, which ->
                 when (which) {
-                    0 -> takePhoto()  // Take photo using camera
-                    1 -> chooseFromGallery() // Choose from gallery
-                    2 -> dialog.dismiss()  // Cancel
+                    0 -> takePhoto()
+                    1 -> chooseFromGallery()
+                    2 -> dialog.dismiss()
                 }
             }
             builder.show()
         }
 
         binding.completeButton.setOnClickListener {
+            Log.d(TAG, "completeButton clicked. Calling handleCompleteButtonClick().")
             handleCompleteButtonClick()
         }
     }
 
-    // Removed isPasswordValid function as it's no longer needed
-
     private fun handleCompleteButtonClick() {
+        Log.d(TAG, "handleCompleteButtonClick() called.")
         val username = binding.nameEdit.text.toString().trim()
-        // Removed password and confirmPassword variables
 
-        // Validate the inputs (only username now)
         if (username.isEmpty()) {
-            Toast.makeText(requireContext(), "请输入您的姓名", Toast.LENGTH_SHORT) // Please enter your name
-                .show()
+            Toast.makeText(requireContext(), "请输入您的姓名", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "handleCompleteButtonClick: Username is empty. Returning.")
             return
         }
 
-        // All validations passed, proceed with Firebase profile update
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            Toast.makeText(requireContext(), "用户未认证，请重新登录", Toast.LENGTH_LONG).show() // User not authenticated, please log in again
+            Toast.makeText(requireContext(), "用户未认证，请重新登录", Toast.LENGTH_LONG).show()
+            Log.e(TAG, "handleCompleteButtonClick: Current user is NULL. Cannot proceed.")
             findNavController().popBackStack() // Go back to previous screen if no user
             return
         }
 
-        // Disable button and show loading (if you have a ProgressBar)
-        binding.completeButton.isEnabled = false
+        binding.completeButton.isEnabled = false // Disable button to prevent multiple clicks
+        Log.d(TAG, "handleCompleteButtonClick: Button disabled.")
         // binding.progressBar.visibility = View.VISIBLE // Uncomment if you have a ProgressBar
 
         // Only upload if a new image is selected AND it's different from the current photoUrl
+        // or if currentUser.photoUrl is null and imageUri is not null (new image for user without one)
         if (imageUri != null && imageUri != currentUser.photoUrl) {
-            uploadProfileImage(currentUser.uid, username, imageUri!!) // Removed password parameter
+            Log.d(TAG, "handleCompleteButtonClick: New imageUri selected or different from current. Uploading image.")
+            uploadProfileImage(currentUser.uid, username, imageUri!!)
         } else {
-            // No new image selected, just update name and save to Firestore
-            // Pass the current photoUrl from Firebase Auth if no new image was selected
-            updateUserProfileAndFirestore(currentUser.uid, username, currentUser.photoUrl?.toString()) // Removed password parameter
+            Log.d(TAG, "handleCompleteButtonClick: No new image selected or image is same as current. Updating profile directly.")
+            // Pass the current photoUrl from Firebase Auth if no new image was selected or if it's the same
+            updateUserProfileAndFirestore(currentUser.uid, username, currentUser.photoUrl?.toString())
         }
     }
 
     private fun takePhoto() {
-        // Check if the camera permission is granted
+        Log.d(TAG, "takePhoto() called. Checking camera permission.")
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            // Create the file to store the photo
             val photoFile: File? = try {
                 createImageFile()
             } catch (ex: IOException) {
-                Log.e("SignupNext", "Error creating image file: ${ex.message}", ex)
+                Log.e(TAG, "Error creating image file: ${ex.message}", ex)
                 Toast.makeText(requireContext(), "Error creating image file.", Toast.LENGTH_SHORT).show()
                 null
             }
 
-            // Open the camera
             photoFile?.also {
-                // IMPORTANT: "com.yourapp.fileprovider" must match your AndroidManifest.xml authority
-                imageUri = FileProvider.getUriForFile(requireContext(), "com.yourapp.fileprovider", it)
+                // IMPORTANT: "com.syedsaifhossain.g_chatapplication.fileprovider" must match your AndroidManifest.xml authority
+                imageUri = FileProvider.getUriForFile(requireContext(), "com.syedsaifhossain.g_chatapplication.fileprovider", it)
                 val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
                 @Suppress("DEPRECATION")
                 startActivityForResult(takePictureIntent, REQUEST_CODE_CAMERA)
+                Log.d(TAG, "takePhoto: Starting camera intent.")
             }
         } else {
+            Log.d(TAG, "takePhoto: Camera permission not granted. Requesting permission.")
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(android.Manifest.permission.CAMERA), 1)
         }
     }
 
     private fun chooseFromGallery() {
-        // Intent to open the gallery
+        Log.d(TAG, "chooseFromGallery() called. Starting gallery intent.")
         val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         @Suppress("DEPRECATION")
         startActivityForResult(galleryIntent, REQUEST_CODE_GALLERY)
@@ -168,70 +181,69 @@ class SignupNextFragment : Fragment() {
     @Suppress("DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        Log.d(TAG, "onActivityResult: requestCode=$requestCode, resultCode=$resultCode")
 
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 REQUEST_CODE_GALLERY -> {
-                    // Get the image URI from the gallery
                     imageUri = data?.data
                     imageUri?.let { uri ->
-                        Glide.with(this)
-                            .load(uri)
-                            .into(binding.profileImage)
-                    }
+                        Glide.with(this).load(uri).into(binding.profileImage)
+                        Log.d(TAG, "onActivityResult: Gallery image selected: $uri")
+                    } ?: Log.w(TAG, "onActivityResult: Gallery data or URI is null.")
                 }
                 REQUEST_CODE_CAMERA -> {
-                    // Display the image that was captured by the camera
-                    // imageUri is already set in takePhoto()
                     imageUri?.let { uri ->
-                        Glide.with(this)
-                            .load(uri)
-                            .into(binding.profileImage)
-                    }
+                        Glide.with(this).load(uri).into(binding.profileImage)
+                        Log.d(TAG, "onActivityResult: Camera image captured: $uri")
+                    } ?: Log.w(TAG, "onActivityResult: Camera imageUri is null after capture.")
                 }
             }
         } else {
             Toast.makeText(requireContext(), "Failed to get image", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "onActivityResult: Image selection cancelled or failed.")
         }
     }
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
-        // Create a file to store the image
         val storageDir: File = requireContext().getExternalFilesDir(null) ?: throw IOException("External storage is not available")
-        return File.createTempFile(
-            "JPEG_${System.currentTimeMillis()}_",  /* prefix */
-            ".jpg",  /* suffix */
-            storageDir      /* directory */
-        ).apply {
-            currentPhotoPath = absolutePath
-        }
+        val imageFileName = "JPEG_${System.currentTimeMillis()}_"
+        val imageFile = File.createTempFile(imageFileName, ".jpg", storageDir)
+        currentPhotoPath = imageFile.absolutePath
+        Log.d(TAG, "createImageFile: Created temp file: $currentPhotoPath")
+        return imageFile
     }
 
-    // Function to upload profile image to Firebase Storage
-    private fun uploadProfileImage(userId: String, name: String, imageUri: Uri) { // Removed password parameter
+    private fun uploadProfileImage(userId: String, name: String, imageUri: Uri) {
+        Log.d(TAG, "uploadProfileImage: Uploading image for userId: $userId, imageUri: $imageUri")
         val storageRef = storage.reference.child("profile_images").child("$userId.jpg")
 
         storageRef.putFile(imageUri)
             .addOnSuccessListener { taskSnapshot ->
+                Log.d(TAG, "uploadProfileImage: Image upload successful. Getting download URL.")
                 taskSnapshot.storage.downloadUrl.addOnSuccessListener { downloadUri ->
-                    Log.d("ProfileUpdate", "Profile image uploaded. Download URL: $downloadUri")
-                    // Now update user profile in Auth and Firestore with the new image URL
-                    updateUserProfileAndFirestore(userId, name, downloadUri.toString()) // Removed password parameter
+                    Log.d(TAG, "uploadProfileImage: Download URL received: $downloadUri")
+                    updateUserProfileAndFirestore(userId, name, downloadUri.toString())
                 }
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "uploadProfileImage: Failed to get download URL: ${e.message}", e)
+                        Toast.makeText(requireContext(), "Failed to get image URL.", Toast.LENGTH_LONG).show()
+                        binding.completeButton.isEnabled = true
+                    }
             }
             .addOnFailureListener { e ->
-                Log.e("ProfileUpdate", "Error uploading profile image: ${e.message}", e)
+                Log.e(TAG, "uploadProfileImage: Error uploading profile image: ${e.message}", e)
                 Toast.makeText(requireContext(), "Failed to upload image: ${e.message}", Toast.LENGTH_LONG).show()
-                binding.completeButton.isEnabled = true // Re-enable button
+                binding.completeButton.isEnabled = true
                 // binding.progressBar.visibility = View.GONE
             }
     }
 
-    // Function to update user profile in Firebase Auth and Firestore
-    private fun updateUserProfileAndFirestore(userId: String, name: String, profileImageUrl: String?) { // Removed password parameter
+    private fun updateUserProfileAndFirestore(userId: String, name: String, avatarUrl: String?) {
+        Log.d(TAG, "updateUserProfileAndFirestore: Updating profile for userId: $userId, name: $name, avatarUrl: $avatarUrl")
         val currentUser = auth.currentUser ?: run {
-            Log.e("ProfileUpdate", "Current user is null during profile update attempt.")
+            Log.e(TAG, "updateUserProfileAndFirestore: Current user is null during profile update attempt.")
             Toast.makeText(requireContext(), "Authentication error.", Toast.LENGTH_SHORT).show()
             binding.completeButton.isEnabled = true
             return
@@ -241,25 +253,24 @@ class SignupNextFragment : Fragment() {
         val profileUpdates = UserProfileChangeRequest.Builder()
             .setDisplayName(name)
             .apply {
-                // Set photo URL only if a new image was uploaded or an existing one is passed
-                if (profileImageUrl != null) {
-                    setPhotoUri(Uri.parse(profileImageUrl))
-                } else if (currentUser.photoUrl != null && imageUri == currentUser.photoUrl) {
-                    // If no new image, but user already has one and it's the same as current imageUri, keep it
-                    setPhotoUri(currentUser.photoUrl)
+                if (avatarUrl != null) {
+                    setPhotoUri(Uri.parse(avatarUrl))
+                    Log.d(TAG, "updateUserProfileAndFirestore: Setting Auth photoUri to $avatarUrl")
+                } else {
+                    setPhotoUri(null) // If avatarUrl is null, set photoUri to null in Auth
+                    Log.d(TAG, "updateUserProfileAndFirestore: Setting Auth photoUri to NULL")
                 }
-                // If profileImageUrl is null AND currentUser.photoUrl is null, then photoUrl will be set to null in Auth
             }
             .build()
 
         currentUser.updateProfile(profileUpdates)
             .addOnCompleteListener { authTask ->
                 if (authTask.isSuccessful) {
-                    Log.d("ProfileUpdate", "Firebase Auth profile updated.")
+                    Log.d(TAG, "updateUserProfileAndFirestore: Firebase Auth profile updated successfully.")
                     // 2. Save/Update user profile in Cloud Firestore
-                    saveUserProfileToFirestore(userId, name, profileImageUrl) // Removed password parameter
+                    saveUserProfileToFirestore(userId, name, avatarUrl)
                 } else {
-                    Log.e("ProfileUpdate", "Error updating Firebase Auth profile: ${authTask.exception?.message}", authTask.exception)
+                    Log.e(TAG, "updateUserProfileAndFirestore: Error updating Firebase Auth profile: ${authTask.exception?.message}", authTask.exception)
                     Toast.makeText(requireContext(), "Failed to update profile: ${authTask.exception?.message}", Toast.LENGTH_LONG).show()
                     binding.completeButton.isEnabled = true
                     // binding.progressBar.visibility = View.GONE
@@ -267,35 +278,32 @@ class SignupNextFragment : Fragment() {
             }
     }
 
-    // Function to save/update user profile in Cloud Firestore
-    private fun saveUserProfileToFirestore(userId: String, name: String, profileImageUrl: String?) { // Removed password parameter
+    private fun saveUserProfileToFirestore(userId: String, name: String, avatarUrl: String?) {
+        Log.d(TAG, "saveUserProfileToFirestore: Saving profile to Firestore for UID: $userId, name: $name, avatarUrl: $avatarUrl")
         val userProfileData = hashMapOf(
             "uid" to userId,
             "name" to name,
-            "email" to auth.currentUser?.email, // Get email from Auth
-            "profileImageUrl" to (profileImageUrl ?: auth.currentUser?.photoUrl?.toString() ?: ""), // Use new URL or existing or empty
-            // Removed "password" field from Firestore data
-            "lastUpdated" to System.currentTimeMillis() // Timestamp
-            // Add other fields as needed, e.g., "bio", "status"
+            "phone" to (auth.currentUser?.phoneNumber ?: ""),
+            "email" to (auth.currentUser?.email ?: ""),
+            "avatarUrl" to (avatarUrl ?: auth.currentUser?.photoUrl?.toString() ?: ""),
+            "status" to "Hey there! I'm using G-Chat",
+            "isOnline" to true,
+            "lastSeen" to System.currentTimeMillis(),
+            "lastUpdated" to System.currentTimeMillis()
         )
 
         firestore.collection("users").document(userId)
             .set(userProfileData) // Use .set() to create or overwrite
             .addOnSuccessListener {
-                Log.d("ProfileUpdate", "User profile saved to Firestore for UID: $userId")
+                Log.d(TAG, "saveUserProfileToFirestore: User profile saved to Firestore successfully for UID: $userId")
                 Toast.makeText(requireContext(), "Profile setup complete!", Toast.LENGTH_SHORT).show()
 
-                // Pass username and profile image URL to the next fragment
-                val bundle = Bundle().apply {
-                    putString("userName", name)
-                    // Removed password from bundle
-                    putString("profileImageUrl", profileImageUrl) // Pass the image URL
-                }
-                // Assuming signupPageVerificationFragment is still the next step for phone verification
-                findNavController().navigate(R.id.action_signupNextFragment_to_signupPageVerificationFragment, bundle)
+                // Navigate to homeFragment after successful Firestore update
+                Log.d(TAG, "saveUserProfileToFirestore: Navigating to homeFragment.")
+                findNavController().navigate(R.id.action_signupNextFragment_to_homeFragment)
             }
             .addOnFailureListener { e ->
-                Log.e("ProfileUpdate", "Error saving user profile to Firestore: ${e.message}", e)
+                Log.e(TAG, "saveUserProfileToFirestore: Error saving user profile to Firestore: ${e.message}", e)
                 Toast.makeText(requireContext(), "Failed to save profile data: ${e.message}", Toast.LENGTH_LONG).show()
                 binding.completeButton.isEnabled = true
                 // binding.progressBar.visibility = View.GONE
