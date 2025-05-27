@@ -250,7 +250,7 @@ class SignupPageVerificationFragment : Fragment() {
 
     private fun navigateToHomePage() {
 
-        findNavController().navigate(R.id.action_signupPageVerificationFragment_to_signupNextFragment)
+        findNavController().navigate(R.id.action_signupPageVerificationFragment_to_profileSettingFragment)
     }
 
     override fun onDestroyView() {
