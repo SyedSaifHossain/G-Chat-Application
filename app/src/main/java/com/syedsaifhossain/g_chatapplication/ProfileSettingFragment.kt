@@ -98,6 +98,7 @@ class ProfileSettingFragment : Fragment() {
 
         binding.profileSettingNextButton.setOnClickListener {
             validateAndSaveProfile() // New function to handle validation and saving
+            findNavController().navigate(R.id.action_profileSettingFragment_to_homeFragment)
         }
     }
 

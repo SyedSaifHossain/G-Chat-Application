@@ -218,9 +218,6 @@
         android:label="fragment_signup_page_verification"
         tools:layout="@layout/fragment_signup_page_verification" >
         <action
-            android:id="@+id/action_signupPageVerificationFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
-        <action
             android:id="@+id/action_signupPageVerificationFragment_to_selectRegionFragment"
             app:destination="@id/selectRegionFragment" />
         <action
@@ -291,6 +288,10 @@
         android:id="@+id/profileSettingFragment"
         android:name="com.syedsaifhossain.g_chatapplication.ProfileSettingFragment"
         android:label="fragment_profile_setting"
-        tools:layout="@layout/fragment_profile_setting" />
+        tools:layout="@layout/fragment_profile_setting" >
+        <action
+            android:id="@+id/action_profileSettingFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 
 </navigation>
