@@ -19,7 +19,8 @@
         android:src="@drawable/leftarrow" />
 
     <ImageView
-        android:id="@+id/profileSelect"
+
+        android:id="@+id/profileImage"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_alignParentTop="true"
@@ -31,7 +32,7 @@
         android:id="@+id/addImageButton"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:layout_below="@id/profileSelect"
+        android:layout_below="@id/profileImage"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="-52dp"
         android:layout_marginEnd="142dp"
@@ -56,7 +57,7 @@
         android:id="@+id/uploadPictureTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/profileSelect"
+        android:layout_below="@+id/profileImage"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:fontFamily="@font/poppins_regular"
