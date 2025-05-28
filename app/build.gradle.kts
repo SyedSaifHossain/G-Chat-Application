@@ -11,6 +11,7 @@ android {
     compileSdk = 35
     buildFeatures {
         viewBinding = true // Ensure viewBinding is enabled
+        dataBinding = true
     }
     defaultConfig {
         applicationId = "com.syedsaifhossain.g_chatapplication"

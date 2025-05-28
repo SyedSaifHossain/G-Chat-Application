@@ -20,7 +20,10 @@ import com.syedsaifhossain.g_chatapplication.databinding.FragmentProfileSettingB
 
 // Import Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+// Removed Firestore import
+// import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.FirebaseDatabase // Added Realtime Database import
+import com.google.firebase.database.DatabaseReference // Added DatabaseReference import
 import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID // For generating unique image filenames
 
@@ -31,7 +34,8 @@ class ProfileSettingFragment : Fragment() {
 
     // Firebase instances
     private lateinit var auth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
+    // Changed from firestore to database reference
+    private lateinit var database: DatabaseReference
     private lateinit var storage: FirebaseStorage
 
     // Holds the URI of the selected image
@@ -56,7 +60,7 @@ class ProfileSettingFragment : Fragment() {
             val uri: Uri? = result.data?.data
             uri?.let {
                 selectedImageUri = it // Store the URI
-                binding.profileSelect.setImageURI(it)
+                binding.profileImage.setImageURI(it)
                 Toast.makeText(requireContext(), "Image selected successfully!", Toast.LENGTH_SHORT).show()
             } ?: run {
                 Toast.makeText(requireContext(), "Failed to get image URI.", Toast.LENGTH_SHORT).show()
@@ -73,7 +77,8 @@ class ProfileSettingFragment : Fragment() {
         super.onCreate(savedInstanceState)
         // Initialize Firebase instances here
         auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
+        // Changed initialization to Firebase Realtime Database
+        database = FirebaseDatabase.getInstance().reference
         storage = FirebaseStorage.getInstance()
     }
 
@@ -96,9 +101,9 @@ class ProfileSettingFragment : Fragment() {
             checkPermissionsAndPickImage()
         }
 
+
         binding.profileSettingNextButton.setOnClickListener {
             validateAndSaveProfile() // New function to handle validation and saving
-            findNavController().navigate(R.id.action_profileSettingFragment_to_homeFragment)
         }
     }
 
@@ -131,7 +136,6 @@ class ProfileSettingFragment : Fragment() {
     private fun validateAndSaveProfile() {
         val firstName = binding.firstNameEdt.text.toString().trim()
         val lastName = binding.lastNameEdt.text.toString().trim()
-
         if (firstName.isEmpty()) {
             binding.firstNameEdt.error = "First Name cannot be empty"
             binding.firstNameEdt.requestFocus()
@@ -157,9 +161,10 @@ class ProfileSettingFragment : Fragment() {
         if (selectedImageUri != null) {
             uploadImageToFirebaseStorage(userId, firstName, lastName, selectedImageUri!!)
         } else {
-            // If no image is selected, just save the names
-            saveProfileNamesToFirestore(userId, firstName, lastName, null)
+            // If no image is selected, just save the names to Realtime Database
+            saveProfileNamesToRealtimeDatabase(userId, firstName, lastName, null)
         }
+        // findNavController().navigate(R.id.action_profileSettingFragment_to_homeFragment) // This navigation should happen after successful save/upload
     }
 
     private fun uploadImageToFirebaseStorage(userId: String, firstName: String, lastName: String, imageUri: Uri) {
@@ -171,8 +176,8 @@ class ProfileSettingFragment : Fragment() {
                 // Image uploaded successfully, now get the download URL
                 taskSnapshot.storage.downloadUrl.addOnSuccessListener { downloadUri ->
                     Toast.makeText(requireContext(), "Image uploaded successfully!", Toast.LENGTH_SHORT).show()
-                    // Save profile data including the image URL to Firestore
-                    saveProfileNamesToFirestore(userId, firstName, lastName, downloadUri.toString())
+                    // Save profile data including the image URL to Realtime Database
+                    saveProfileNamesToRealtimeDatabase(userId, firstName, lastName, downloadUri.toString())
                 }.addOnFailureListener {
                     Toast.makeText(requireContext(), "Failed to get download URL: ${it.message}", Toast.LENGTH_LONG).show()
                 }
@@ -187,23 +192,25 @@ class ProfileSettingFragment : Fragment() {
             }
     }
 
-    private fun saveProfileNamesToFirestore(userId: String, firstName: String, lastName: String, profileImageUrl: String?) {
+    // Changed function name and implementation to save to Firebase Realtime Database
+    private fun saveProfileNamesToRealtimeDatabase(userId: String, firstName: String, lastName: String, profileImageUrl: String?) {
         val userProfile = hashMapOf(
             "firstName" to firstName,
             "lastName" to lastName,
-            "profileImageUrl" to profileImageUrl, // This will be null if no image is selected
-            "timestamp" to System.currentTimeMillis() // Optional: add a timestamp
+            "profileImageUrl" to profileImageUrl,
+            "timestamp" to System.currentTimeMillis()
         )
 
-        firestore.collection("users").document(userId)
-            .set(userProfile) // Use set() to create or overwrite the document
+        // Save data to Realtime Database under "users/userId" node
+        database.child("users").child(userId)
+            .setValue(userProfile)
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Profile saved successfully!", Toast.LENGTH_SHORT).show()
-                // Navigate to the next screen or close this fragment
-                // findNavController().navigate(R.id.action_profileSettingFragment_to_homeFragment) // Example navigation
+                Toast.makeText(requireContext(), "Profile saved successfully to Realtime Database!", Toast.LENGTH_SHORT).show()
+                // Navigate only after successful profile save
+                findNavController().navigate(R.id.action_profileSettingFragment_to_homeFragment)
             }
             .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Failed to save profile: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Failed to save profile to Realtime Database: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
