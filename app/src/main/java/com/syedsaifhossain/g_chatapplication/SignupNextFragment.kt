@@ -300,7 +300,6 @@ class SignupNextFragment : Fragment() {
 
                 // Navigate to homeFragment after successful Firestore update
                 Log.d(TAG, "saveUserProfileToFirestore: Navigating to homeFragment.")
-                findNavController().navigate(R.id.action_signupNextFragment_to_homeFragment)
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "saveUserProfileToFirestore: Error saving user profile to Firestore: ${e.message}", e)
@@ -309,5 +308,4 @@ class SignupNextFragment : Fragment() {
                 // binding.progressBar.visibility = View.GONE
             }
     }
-
 }
