@@ -8,76 +8,55 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.syedsaifhossain.g_chatapplication.databinding.FragmentProfileSettingBinding
-
-// Import Firebase
 import com.google.firebase.auth.FirebaseAuth
-// Removed Firestore import
-// import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.database.FirebaseDatabase // Added Realtime Database import
-import com.google.firebase.database.DatabaseReference // Added DatabaseReference import
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID // For generating unique image filenames
+import com.syedsaifhossain.g_chatapplication.databinding.FragmentProfileSettingBinding
+import java.util.*
 
 class ProfileSettingFragment : Fragment() {
 
     private var _binding: FragmentProfileSettingBinding? = null
     private val binding get() = _binding!!
 
-    // Firebase instances
     private lateinit var auth: FirebaseAuth
-    // Changed from firestore to database reference
     private lateinit var database: DatabaseReference
     private lateinit var storage: FirebaseStorage
 
-    // Holds the URI of the selected image
     private var selectedImageUri: Uri? = null
 
-    // For requesting gallery permissions
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
+    ) { isGranted ->
         if (isGranted) {
             pickImageFromGallery()
         } else {
-            Toast.makeText(requireContext(), "Permission denied to access gallery", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // For handling the result of picking an image from the gallery
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val uri: Uri? = result.data?.data
+            val uri = result.data?.data
             uri?.let {
-                selectedImageUri = it // Store the URI
+                selectedImageUri = it
                 binding.profileImage.setImageURI(it)
-                Toast.makeText(requireContext(), "Image selected successfully!", Toast.LENGTH_SHORT).show()
-            } ?: run {
-                Toast.makeText(requireContext(), "Failed to get image URI.", Toast.LENGTH_SHORT).show()
             }
-        } else if (result.resultCode == Activity.RESULT_CANCELED) {
-            Toast.makeText(requireContext(), "Image selection cancelled.", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(requireContext(), "Image selection failed.", Toast.LENGTH_SHORT).show()
         }
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Initialize Firebase instances here
         auth = FirebaseAuth.getInstance()
-        // Changed initialization to Firebase Realtime Database
         database = FirebaseDatabase.getInstance().reference
         storage = FirebaseStorage.getInstance()
     }
@@ -85,7 +64,7 @@ class ProfileSettingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentProfileSettingBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -101,9 +80,8 @@ class ProfileSettingFragment : Fragment() {
             checkPermissionsAndPickImage()
         }
 
-
         binding.profileSettingNextButton.setOnClickListener {
-            validateAndSaveProfile() // New function to handle validation and saving
+            validateAndSaveProfile()
         }
     }
 
@@ -119,7 +97,7 @@ class ProfileSettingFragment : Fragment() {
                 pickImageFromGallery()
             }
             shouldShowRequestPermissionRationale(permission) -> {
-                Toast.makeText(requireContext(), "Permission is needed to access your photo gallery.", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Gallery permission is required", Toast.LENGTH_SHORT).show()
                 requestPermissionLauncher.launch(permission)
             }
             else -> {
@@ -136,86 +114,65 @@ class ProfileSettingFragment : Fragment() {
     private fun validateAndSaveProfile() {
         val firstName = binding.firstNameEdt.text.toString().trim()
         val lastName = binding.lastNameEdt.text.toString().trim()
+
         if (firstName.isEmpty()) {
-            binding.firstNameEdt.error = "First Name cannot be empty"
-            binding.firstNameEdt.requestFocus()
+            binding.firstNameEdt.error = "First Name is required"
             return
         }
-
         if (lastName.isEmpty()) {
-            binding.lastNameEdt.error = "Last Name cannot be empty"
-            binding.lastNameEdt.requestFocus()
+            binding.lastNameEdt.error = "Last Name is required"
             return
         }
 
-        // --- Firebase Integration Starts Here ---
-        // Get the current user ID
         val userId = auth.currentUser?.uid
         if (userId == null) {
-            Toast.makeText(requireContext(), "User not logged in.", Toast.LENGTH_SHORT).show()
-            // Optionally, navigate back to login or handle this case
+            Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Check if an image is selected
         if (selectedImageUri != null) {
-            uploadImageToFirebaseStorage(userId, firstName, lastName, selectedImageUri!!)
+            uploadImageToFirebase(userId, firstName, lastName, selectedImageUri!!)
         } else {
-            // If no image is selected, just save the names to Realtime Database
-            saveProfileNamesToRealtimeDatabase(userId, firstName, lastName, null)
+            saveUserToDatabase(userId, firstName, lastName, null)
         }
-        // findNavController().navigate(R.id.action_profileSettingFragment_to_homeFragment) // This navigation should happen after successful save/upload
     }
 
-    private fun uploadImageToFirebaseStorage(userId: String, firstName: String, lastName: String, imageUri: Uri) {
-        val fileName = UUID.randomUUID().toString() + ".jpg" // Generate a unique filename
+    private fun uploadImageToFirebase(userId: String, firstName: String, lastName: String, imageUri: Uri) {
+        val fileName = UUID.randomUUID().toString() + ".jpg"
         val imageRef = storage.reference.child("profile_images/$userId/$fileName")
 
         imageRef.putFile(imageUri)
-            .addOnSuccessListener { taskSnapshot ->
-                // Image uploaded successfully, now get the download URL
-                taskSnapshot.storage.downloadUrl.addOnSuccessListener { downloadUri ->
-                    Toast.makeText(requireContext(), "Image uploaded successfully!", Toast.LENGTH_SHORT).show()
-                    // Save profile data including the image URL to Realtime Database
-                    saveProfileNamesToRealtimeDatabase(userId, firstName, lastName, downloadUri.toString())
-                }.addOnFailureListener {
-                    Toast.makeText(requireContext(), "Failed to get download URL: ${it.message}", Toast.LENGTH_LONG).show()
+            .addOnSuccessListener {
+                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    saveUserToDatabase(userId, firstName, lastName, downloadUri.toString())
                 }
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Image upload failed: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-            .addOnProgressListener { taskSnapshot ->
-                val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
-                // You could show a progress bar here
-                Toast.makeText(requireContext(), "Uploading: $progress%", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
-    // Changed function name and implementation to save to Firebase Realtime Database
-    private fun saveProfileNamesToRealtimeDatabase(userId: String, firstName: String, lastName: String, profileImageUrl: String?) {
-        val userProfile = hashMapOf(
+    private fun saveUserToDatabase(userId: String, firstName: String, lastName: String, imageUrl: String?) {
+        val userProfile = mapOf(
+            "uid" to userId,
             "firstName" to firstName,
             "lastName" to lastName,
-            "profileImageUrl" to profileImageUrl,
+            "profileImageUrl" to imageUrl,
             "timestamp" to System.currentTimeMillis()
         )
 
-        // Save data to Realtime Database under "users/userId" node
-        database.child("users").child(userId)
-            .setValue(userProfile)
+        database.child("users").child(userId).setValue(userProfile)
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Profile saved successfully to Realtime Database!", Toast.LENGTH_SHORT).show()
-                // Navigate only after successful profile save
+                Toast.makeText(requireContext(), "Profile saved!", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(R.id.action_profileSettingFragment_to_homeFragment)
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Failed to save profile to Realtime Database: ${e.message}", Toast.LENGTH_LONG).show()
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Error saving profile: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null // Clear the binding when the view is destroyed
+        _binding = null
     }
 }
