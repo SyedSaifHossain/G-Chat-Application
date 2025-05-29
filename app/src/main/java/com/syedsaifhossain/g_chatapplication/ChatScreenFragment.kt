@@ -191,15 +191,16 @@ class ChatScreenFragment : Fragment(){
 
 
         binding.chatAddButton.setOnClickListener { view ->
-            val wrapper = ContextThemeWrapper(requireContext(), R.style.CustomPopupMenuStyle)
-            val popupMenu = PopupMenu(wrapper, view)
+            val popupMenu = PopupMenu(view.context, view) // Ensure proper context and anchor view
+
+            // Inflate your menu resource
             popupMenu.menuInflater.inflate(R.menu.add_options_menu, popupMenu.menu)
 
-            // Force icons to show
+            // Force icons to show using reflection
             try {
                 val fields = popupMenu.javaClass.declaredFields
                 for (field in fields) {
-                    if ("mPopup" == field.name) {
+                    if (field.name == "mPopup") {
                         field.isAccessible = true
                         val menuPopupHelper = field.get(popupMenu)
                         val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
@@ -209,22 +210,22 @@ class ChatScreenFragment : Fragment(){
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                e.printStackTrace() // Or log it using Log.e(...)
             }
 
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.galleryId -> {
-                        // Handle Gallery
-                        checkAndRequestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                        // Example: Handle permission properly using new APIs if targeting Android 13+
+                        checkAndRequestPermission(Manifest.permission.READ_MEDIA_IMAGES)
                         true
                     }
                     R.id.documentId -> {
-                        // Handle Document
+                        // Handle Document action
                         true
                     }
                     R.id.contactId -> {
-                        // Handle Contact
+                        // Handle Contact action
                         true
                     }
                     else -> false
@@ -233,6 +234,7 @@ class ChatScreenFragment : Fragment(){
 
             popupMenu.show()
         }
+
 
         // Setup mic button listener (Original)
         binding.chatMicButton.setOnClickListener {
