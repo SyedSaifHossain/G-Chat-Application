@@ -40,7 +40,8 @@
             android:textColor="#81d8d0"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:fontFamily="@font/opensans_regular"/>
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/poppins_regular"/>
 
         <View
             android:id="@+id/moreOptionLine"
@@ -57,13 +58,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingVertical="5dp">
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/keyImg"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="30dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/keyicon" />
@@ -81,9 +81,9 @@
                     android:layout_height="wrap_content"
                     android:text="Account"
                     android:textColor="#81d8d0"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
 
                 <TextView
                     android:id="@+id/accountContentTxt"
@@ -91,9 +91,9 @@
                     android:layout_height="wrap_content"
                     android:text="Security notification, change number"
                     android:textColor="#81d8d0"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
 
         </LinearLayout>
@@ -104,13 +104,13 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingVertical="5dp"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="10dp"
+            >
 
             <ImageView
                 android:id="@+id/privacyImg"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="30dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/privacyicon" />
@@ -128,9 +128,9 @@
                     android:layout_height="wrap_content"
                     android:text="Privacy"
                     android:textColor="#81d8d0"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
 
                 <TextView
                     android:id="@+id/privacyContentTxt"
@@ -138,8 +138,9 @@
                     android:layout_height="wrap_content"
                     android:text="Block contact, disappearing messages"
                     android:textColor="#81d8d0"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -149,13 +150,12 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingVertical="5dp"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="10dp">
 
             <ImageView
                 android:id="@+id/chatImg"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="30dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/chatsicon" />
@@ -173,9 +173,9 @@
                     android:layout_height="wrap_content"
                     android:text="Chats"
                     android:textColor="#81d8d0"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
 
                 <TextView
                     android:id="@+id/chatContentTxt"
@@ -183,9 +183,9 @@
                     android:layout_height="wrap_content"
                     android:text="Theme, wallpappers, chats history"
                     android:textColor="#81d8d0"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -195,13 +195,12 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingVertical="5dp"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="10dp">
 
             <ImageView
                 android:id="@+id/notificationImg"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="30dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/notificationicon" />
@@ -219,9 +218,10 @@
                     android:layout_height="wrap_content"
                     android:text="Notificaitions"
                     android:textColor="#81d8d0"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+
+                    android:fontFamily="@font/poppins_regular"/>
 
                 <TextView
                     android:id="@+id/notificationContentTxt"
@@ -229,9 +229,9 @@
                     android:layout_height="wrap_content"
                     android:text="Message, wallpappers, chats history"
                     android:textColor="#81d8d0"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -241,13 +241,12 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingVertical="5dp"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="10dp">
 
             <ImageView
                 android:id="@+id/appLanguageImg"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="30dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/languageicon" />
@@ -265,9 +264,9 @@
                     android:layout_height="wrap_content"
                     android:text="App language"
                     android:textColor="#81d8d0"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
 
                 <TextView
                     android:id="@+id/appLanguageContentTxt"
@@ -275,9 +274,9 @@
                     android:layout_height="wrap_content"
                     android:text="English (device's language)"
                     android:textColor="#81d8d0"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -287,13 +286,12 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingVertical="5dp"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="10dp">
 
             <ImageView
                 android:id="@+id/helpImg"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="30dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/help" />
@@ -311,9 +309,9 @@
                     android:layout_height="wrap_content"
                     android:text="Help"
                     android:textColor="#81d8d0"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
 
                 <TextView
                     android:id="@+id/helpContentTxt"
@@ -321,9 +319,9 @@
                     android:layout_height="wrap_content"
                     android:text="Help centre, contact us, privacy policy"
                     android:textColor="#81d8d0"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -333,13 +331,12 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingVertical="5dp"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="10dp">
 
             <ImageView
                 android:id="@+id/appUpdateImg"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="30dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/appupdate" />
@@ -357,9 +354,9 @@
                     android:layout_height="wrap_content"
                     android:text="App updates"
                     android:textColor="#81d8d0"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -369,13 +366,12 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingVertical="5dp"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="10dp">
 
             <ImageView
                 android:id="@+id/inviteImg"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="30dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/friendsicon" />
@@ -393,9 +389,9 @@
                     android:layout_height="wrap_content"
                     android:text="Invite a friend"
                     android:textColor="#81d8d0"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:fontFamily="@font/opensans_regular"/>
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
         </LinearLayout>
 

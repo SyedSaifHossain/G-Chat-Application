@@ -37,6 +37,7 @@
             android:textColor="#6b6b6b"
             android:textStyle="bold"
             android:textSize="26sp"
+            android:fontFamily="@font/poppins_regular"
             android:layout_marginTop="50dp"
             android:gravity="center_horizontal"
             android:layout_below="@+id/gchatLogoSignInNext" />
@@ -91,13 +92,14 @@
             android:layout_below="@+id/passwordLoginEdt"
             android:layout_marginHorizontal="50dp"
             android:layout_marginTop="30dp"
-            android:backgroundTint="#0ABAb5"
-            android:padding="10dp"
+            android:backgroundTint="#81d8d0"
+            android:padding="15dp"
             android:text="Log In"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:textSize="24sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:fontFamily="@font/roboto_bold"/>
 
 
     <TextView

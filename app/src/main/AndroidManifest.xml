@@ -44,6 +44,9 @@ xmlns:tools="http://schemas.android.com/tools">
     tools:targetApi="31"> <meta-data
     android:name="io.agora.sdk.log.filter"
     android:value="debug" />
+    <meta-data
+        android:name="preloaded_fonts"
+        android:resource="@array/preloaded_fonts" />
 
     <activity
         android:name=".VouchersActivity"

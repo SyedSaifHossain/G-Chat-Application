@@ -36,10 +36,10 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:fontFamily="@font/opensans_regular"
-            android:padding="12dp"
+            android:padding="10dp"
             android:text="Top Up"
             android:textColor="#81d8d0"
-            android:textSize="20sp"
+            android:textSize="22sp"
             android:textStyle="bold" />
 
         <ImageView
@@ -57,7 +57,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="1dp"
         android:background="#81d8d0"
         android:layout_marginHorizontal="20dp"/>
 
@@ -81,7 +81,7 @@
             android:text="Top-up method"
             android:layout_marginStart="20dp"
             android:textColor="#81d8d0"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <ImageView
@@ -101,7 +101,7 @@
             android:fontFamily="@font/poppins_regular"
             android:text="visa"
             android:textColor="#81d8d0"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:layout_toEndOf="@+id/visaCardIcon"/>
 
@@ -134,7 +134,7 @@
         android:text="Top-up amount"
         android:textColor="#81d8d0"
         android:layout_marginStart="40dp"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <RelativeLayout
@@ -152,7 +152,7 @@
             android:fontFamily="@font/opensans_regular"
             android:text="A$"
             android:textColor="#81d8d0"
-            android:textSize="30sp"
+            android:textSize="28sp"
             android:textStyle="bold" />
 
         <EditText
@@ -165,9 +165,10 @@
             android:hint="Enter amount in USD"
             android:inputType="number"
             android:paddingLeft="50dp"
-            android:text="735"
+            android:text="35"
+            android:layout_marginTop="10dp"
             android:textColor="#81d8d0"
-            android:textSize="50sp"
+            android:textSize="48sp"
             android:textStyle="bold" />
 
     </RelativeLayout>
@@ -221,7 +222,8 @@
             android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_arrow_right"/>
+            android:src="@drawable/ic_arrow_right"
+            app:tint="#81d8d0" />
     </RelativeLayout>
 
 
