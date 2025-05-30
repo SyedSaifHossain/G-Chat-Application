@@ -218,8 +218,9 @@
             android:id="@+id/action_signupPageVerificationFragment_to_selectRegionFragment"
             app:destination="@id/selectRegionFragment" />
         <action
-            android:id="@+id/action_signupPageVerificationFragment_to_profileSettingFragment"
-            app:destination="@id/profileSettingFragment" />
+            android:id="@+id/action_signupPageVerificationFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+
         <!-- 新增的action，支持跳转到选择地区页面 -->
     </fragment>
     <fragment
@@ -286,9 +287,6 @@
         android:name="com.syedsaifhossain.g_chatapplication.ProfileSettingFragment"
         android:label="fragment_profile_setting"
         tools:layout="@layout/fragment_profile_setting" >
-        <action
-            android:id="@+id/action_profileSettingFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
     </fragment>
 
 </navigation>

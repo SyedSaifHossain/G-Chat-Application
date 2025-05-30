@@ -34,7 +34,7 @@
         android:layout_below="@+id/signupVerificationImg"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:fontFamily="@font/poppins_regular"
+        android:fontFamily="@font/roboto_bold"
         android:text="Create Account"
         android:textColor="#6b6b6b"
         android:textSize="28sp"
@@ -52,12 +52,12 @@
         android:alpha="0.7"
         android:drawableEnd="@drawable/arrowforward"
         android:drawableTint="#6b6b6b"
-        android:fontFamily="@font/poppins_regular"
+        android:fontFamily="@font/roboto_bold"
         android:hint="Country/Region"
-        android:padding="10dp"
+        android:padding="15dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#6b6b6b"
-        android:textSize="20sp" />
+        android:textSize="22dp" />
 
     <EditText
         android:id="@+id/singupVerificationEdtPhoneEmail"
@@ -71,13 +71,13 @@
         android:alpha="0.7"
         android:drawableEnd="@drawable/arrowforward"
         android:drawableTint="#6b6b6b"
-        android:fontFamily="@font/poppins_regular"
+        android:fontFamily="@font/roboto_bold"
         android:hint="Phone/Email"
         android:inputType="phone"
-        android:padding="10dp"
+        android:padding="15dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#6b6b6b"
-        android:textSize="20sp" />
+        android:textSize="22sp" />
 
     <EditText
         android:id="@+id/verificationEdt"
@@ -89,13 +89,13 @@
         android:layout_marginHorizontal="50dp"
         android:layout_marginTop="8dp"
         android:alpha="0.7"
-        android:fontFamily="@font/poppins_regular"
+        android:fontFamily="@font/roboto_bold"
         android:hint="Verification Code"
         android:inputType="number"
-        android:padding="10dp"
+        android:padding="15dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#6b6b6b"
-        android:textSize="20sp" />
+        android:textSize="22sp" />
 
     <Button
         android:id="@+id/sendCodeVerify"
@@ -160,11 +160,10 @@
         android:layout_marginBottom="50dp"
         android:backgroundTint="#81d8d0"
         android:fontFamily="@font/roboto_bold"
-        android:padding="15dp"
+        android:padding="10dp"
         android:text="Next"
         android:textAllCaps="false"
         android:textColor="#000000"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        android:textSize="26sp" />
 
 </RelativeLayout>
