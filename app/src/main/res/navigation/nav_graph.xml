@@ -79,11 +79,8 @@
         android:label="fragment_login_via_email"
         tools:layout="@layout/fragment_login_via_email" >
         <action
-            android:id="@+id/action_loginViaEmailFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
-        <action
-            android:id="@+id/action_loginViaEmailFragment_to_selectRegionFragment"
-            app:destination="@id/selectRegionFragment" />
+            android:id="@+id/action_loginViaEmailFragment_to_profileSettingFragment"
+            app:destination="@id/profileSettingFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginViaPhoneFragment"
@@ -218,8 +215,8 @@
             android:id="@+id/action_signupPageVerificationFragment_to_selectRegionFragment"
             app:destination="@id/selectRegionFragment" />
         <action
-            android:id="@+id/action_signupPageVerificationFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            android:id="@+id/action_signupPageVerificationFragment_to_profileSettingFragment"
+            app:destination="@id/profileSettingFragment" />
 
         <!-- 新增的action，支持跳转到选择地区页面 -->
     </fragment>
@@ -287,6 +284,9 @@
         android:name="com.syedsaifhossain.g_chatapplication.ProfileSettingFragment"
         android:label="fragment_profile_setting"
         tools:layout="@layout/fragment_profile_setting" >
+        <action
+            android:id="@+id/action_profileSettingFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
     </fragment>
 
 </navigation>
