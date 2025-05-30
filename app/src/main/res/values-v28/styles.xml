@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="BottomNavTextStyle" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:lineHeight">20sp</item> <!-- Adjust gap as needed -->
+        <item name="android:textSize">12sp</item>
+    </style>
+</resources>

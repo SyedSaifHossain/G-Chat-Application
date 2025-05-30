@@ -55,9 +55,6 @@
         android:name="com.syedsaifhossain.g_chatapplication.SignupNextFragment"
         android:label="fragment_signup_next"
         tools:layout="@layout/fragment_signup_next" >
-        <action
-            android:id="@+id/action_signupNextFragment_to_signupPageVerificationFragment"
-            app:destination="@id/signupPageVerificationFragment" />
     </fragment>
     <fragment
         android:id="@+id/signInNextFragment"
@@ -181,14 +178,14 @@
         android:label="fragment_signup_page"
         tools:layout="@layout/fragment_signup_page" >
         <action
-            android:id="@+id/action_signupPageFragment_to_selectRegionFragment"
-            app:destination="@id/selectRegionFragment" />
-        <action
             android:id="@+id/action_signupPageFragment_to_signupPageVerificationFragment"
             app:destination="@id/signupPageVerificationFragment" />
         <action
             android:id="@+id/action_signupPageFragment_to_loginViaEmailFragment"
             app:destination="@id/loginViaEmailFragment" />
+        <action
+            android:id="@+id/action_signupPageFragment_to_selectRegionFragment"
+            app:destination="@id/selectRegionFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatScreenFragment"
@@ -218,12 +215,12 @@
         android:label="fragment_signup_page_verification"
         tools:layout="@layout/fragment_signup_page_verification" >
         <action
-            android:id="@+id/action_signupPageVerificationFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
-        <!-- 新增的action，支持跳转到选择地区页面 -->
-        <action
             android:id="@+id/action_signupPageVerificationFragment_to_selectRegionFragment"
             app:destination="@id/selectRegionFragment" />
+        <action
+            android:id="@+id/action_signupPageVerificationFragment_to_profileSettingFragment"
+            app:destination="@id/profileSettingFragment" />
+        <!-- 新增的action，支持跳转到选择地区页面 -->
     </fragment>
     <fragment
         android:id="@+id/loginPage"
@@ -284,4 +281,14 @@
         android:name="com.syedsaifhossain.g_chatapplication.TopUpMoreOptionPageFragment"
         android:label="fragment_top_up_more_option_page"
         tools:layout="@layout/fragment_top_up_more_option_page" />
+    <fragment
+        android:id="@+id/profileSettingFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.ProfileSettingFragment"
+        android:label="fragment_profile_setting"
+        tools:layout="@layout/fragment_profile_setting" >
+        <action
+            android:id="@+id/action_profileSettingFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+
 </navigation>
