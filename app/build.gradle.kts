@@ -55,7 +55,7 @@ dependencies {
     implementation(libs.androidx.ui.text.android)
     implementation(libs.filament.android)
     implementation("androidx.activity:activity-ktx:1.8.0") // Specific version for activity-ktx
-
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
     // Image Loading
     implementation(libs.glide)
     annotationProcessor("com.github.bumptech.glide:compiler:4.13.0")
