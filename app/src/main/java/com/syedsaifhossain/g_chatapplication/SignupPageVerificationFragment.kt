@@ -106,6 +106,7 @@ class SignupPageVerificationFragment : Fragment() {
             } else {
                 Toast.makeText(requireContext(), "Verification ID not found", Toast.LENGTH_SHORT).show()
             }
+            navigateToHomePage()
         }
     }
 
@@ -231,7 +232,7 @@ class SignupPageVerificationFragment : Fragment() {
 
     private fun navigateToHomePage() {
 
-        findNavController().navigate(R.id.action_signupPageVerificationFragment_to_profileSettingFragment)
+        findNavController().navigate(R.id.action_signupPageVerificationFragment_to_homeFragment)
     }
 
     override fun onDestroyView() {
