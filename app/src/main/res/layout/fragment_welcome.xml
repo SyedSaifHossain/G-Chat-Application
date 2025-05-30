@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="15dp"
-        android:fontFamily="sans-serif"
+        android:fontFamily="@font/poppins_regular"
         android:text="Welcome to G-CHAT"
         android:textColor="#6b6b6b"
         android:textSize="28sp"
@@ -42,6 +42,7 @@
             android:backgroundTint="#81d8d0"
             android:padding="10dp"
             android:layout_gravity="center_horizontal"
+            android:fontFamily="@font/roboto_bold"
             android:textAllCaps="false"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>/> />
 
@@ -56,6 +57,7 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:backgroundTint="#81d8d0"
+            android:fontFamily="@font/roboto_bold"
             android:padding="10dp"
             android:layout_marginTop="8dp"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>

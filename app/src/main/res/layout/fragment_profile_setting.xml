@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/bg_gradient"
+    tools:context=".ProfileSettingFragment">
+
+    <ImageView
+        android:id="@+id/profileSettingBackArrow"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="30dp"
+        android:src="@drawable/leftarrow" />
+
+    <ImageView
+
+        android:id="@+id/profileImage"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="110dp"
+        android:src="@drawable/profileicon" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/addImageButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_below="@id/profileImage"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="-52dp"
+        android:layout_marginEnd="142dp"
+        android:src="@drawable/addcirclebutton"
+        app:civ_circle_background_color="#000000" />
+
+    <TextView
+        android:id="@+id/profileSettingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="33dp"
+        android:fontFamily="@font/roboto_bold"
+        android:text="Profile Setting"
+        android:textColor="#d7d6d4"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/uploadPictureTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/profileImage"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/roboto_bold"
+        android:text="Upload a picture"
+        android:textColor="#d7d6d4"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/firstNameTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/uploadPictureTxt"
+        android:layout_alignStart="@+id/firstNameEdt"
+        android:layout_marginTop="50dp"
+        android:fontFamily="@font/roboto_bold"
+        android:text="First Name"
+        android:textColor="#d7d6d4"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/firstNameEdt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/firstNameTxt"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="50dp"
+        android:alpha="0.7"
+        android:inputType="text"
+        android:fontFamily="@font/poppins_regular"
+        android:hint="Your first name"
+        android:padding="10dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6b6b6b"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/lastNameTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/firstNameEdt"
+        android:layout_alignStart="@+id/firstNameEdt"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/roboto_bold"
+        android:text="Last Name"
+        android:textColor="#d7d6d4"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/lastNameEdt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lastNameTxt"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="50dp"
+        android:alpha="0.7"
+        android:fontFamily="@font/poppins_regular"
+        android:hint="Your last name"
+        android:inputType="text"
+        android:padding="10dp"
+        android:paddingVertical="20dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#6b6b6b"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/profileSettingNextButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lastNameEdt"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="#81d8d0"
+        android:fontFamily="@font/roboto_bold"
+        android:padding="15dp"
+        android:text="Next"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>
