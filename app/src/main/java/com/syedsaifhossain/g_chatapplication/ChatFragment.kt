@@ -46,7 +46,7 @@ class ChatFragment : Fragment() {
 
         // Setup chat and user lists
         setupChatList()
-        setupUserList()
+      //  setupUserList()
 
         // Setup add button popup menu
         binding.addButton.setOnClickListener {
@@ -66,11 +66,52 @@ class ChatFragment : Fragment() {
         }
         recyclerView.adapter = chatAdapter
 
-        FirebaseManager.ChatManager.getUserChats { chats ->
-            messageList.clear()
-            messageList.addAll(chats)
-            chatAdapter.notifyDataSetChanged()
-        }
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        // 1. 获取当前用户的好友UID列表
+        database.getReference("users").child(currentUserId).child("friends")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(friendsSnapshot: DataSnapshot) {
+                    val friendUidSet = mutableSetOf<String>()
+                    for (friendSnap in friendsSnapshot.children) {
+                        val friendUid = friendSnap.key
+                        if (!friendUid.isNullOrBlank()) {
+                            friendUidSet.add(friendUid)
+                        }
+                    }
+                    if (friendUidSet.isEmpty()) {
+                        messageList.clear()
+                        chatAdapter.notifyDataSetChanged()
+                        return
+                    }
+                    // 2. 获取所有好友的详细信息
+                    database.getReference("users").addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(userSnapshot: DataSnapshot) {
+                            messageList.clear()
+                            for (userSnap in userSnapshot.children) {
+                                val user = userSnap.getValue(User::class.java)
+                                if (user != null && friendUidSet.contains(user.uid)) {
+                                    // 构造 Chats 对象，显示好友昵称和头像
+                                    val chat = Chats(
+                                        name = user.name,
+                                        message = user.status, // 可自定义为最近消息
+                                        otherUserId = user.uid,
+                                        otherUserAvatarUrl = user.avatarUrl,
+                                        senderId = currentUserId,
+                                        receiverId = user.uid,
+                                        lastMessageTime = user.lastSeen,
+                                        lastMessageSenderId = ""
+                                    )
+                                    messageList.add(chat)
+                                }
+                            }
+                            chatAdapter.notifyDataSetChanged()
+                        }
+                        override fun onCancelled(error: DatabaseError) {}
+                    })
+                }
+                override fun onCancelled(error: DatabaseError) {}
+            })
     }
 
     private fun setupUserList() {

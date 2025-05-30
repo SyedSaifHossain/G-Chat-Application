@@ -55,11 +55,11 @@ dependencies {
     implementation(libs.googleid)
     implementation(libs.androidx.ui.text.android)
     implementation(libs.filament.android)
-    implementation("androidx.activity:activity-ktx:1.8.0")
-
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
-
+    implementation("androidx.activity:activity-ktx:1.8.0") // Specific version for activity-ktx
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    // Image Loading
+    implementation(libs.glide)
+    annotationProcessor("com.github.bumptech.glide:compiler:4.13.0")
     // Custom Image Views
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("com.mikhaellopez:circularimageview:4.3.1")

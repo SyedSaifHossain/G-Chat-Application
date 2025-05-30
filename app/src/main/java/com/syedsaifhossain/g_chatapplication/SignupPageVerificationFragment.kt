@@ -74,7 +74,7 @@ class SignupPageVerificationFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            Toast.makeText(requireContext(), "Sending OTP to $country $phone", Toast.LENGTH_SHORT).show()
+           // Toast.makeText(requireContext(), "Sending OTP to $country $phone", Toast.LENGTH_SHORT).show()
             binding.resendCodeVerify.visibility = View.VISIBLE
             binding.resendCodeVerify.isEnabled = false
             startPhoneNumberVerification(phone)
@@ -151,11 +151,12 @@ class SignupPageVerificationFragment : Fragment() {
             binding.timeCount.text = ""
 
             val message = when (e) {
-                is FirebaseAuthInvalidCredentialsException -> "Invalid request: ${e.message}"
-                is FirebaseTooManyRequestsException -> "SMS quota exceeded."
-                else -> "Verification failed: ${e.message}"
+                is FirebaseAuthInvalidCredentialsException -> "请求无效: ${e.message}"
+                is FirebaseTooManyRequestsException -> "短信请求过于频繁，请稍后再试。"
+                else -> "验证码发送失败: ${e.message}"
             }
             Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+            Log.e("VERIFICATION", "onVerificationFailed: ${e.message}", e)
         }
 
         override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
@@ -164,7 +165,7 @@ class SignupPageVerificationFragment : Fragment() {
             binding.resendCodeVerify.isEnabled = false
             startTimer()
             Log.d("VERIFICATION", "onCodeSent called. VerificationId: $verificationId")
-            Toast.makeText(requireContext(), "OTP Sent", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "验证码已发送", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -177,56 +178,36 @@ class SignupPageVerificationFragment : Fragment() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
-                    // Login successful, write user info to database
                     val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
-                    val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
-                    val name = arguments?.getString("userName") ?: "G-Chat User"
-                    val password = arguments?.getString("password") ?: ""
-
-                    // Create user object
-                    val user = User(
-                        uid = uid,
-                        name = name,
-                        phone = phone,
-                        email = "",
-                        password = password,
-                        avatarUrl = "",
-                        status = "Hey there! I'm using G-Chat",
-                        isOnline = true,
-                        lastSeen = System.currentTimeMillis()
-                    )
-
-                    // Write user info to database
-                    val dbRef = FirebaseDatabase.getInstance().getReference()
-
-                    // Write basic user info
-                    dbRef.child("users").child(uid).setValue(user)
-                        .addOnSuccessListener {
-                            // Initialize user's chat data structure
-                            dbRef.child("user-chats").child(uid).setValue(true)
-                                .addOnSuccessListener {
-                                    // Initialize user's message data structure
-                                    dbRef.child("user-messages").child(uid).setValue(true)
-                                        .addOnSuccessListener {
-                                            Toast.makeText(requireContext(), "User registration successful", Toast.LENGTH_SHORT).show()
-                                            navigateToHomePage()
-                                        }
-                                        .addOnFailureListener { e ->
-                                            Toast.makeText(requireContext(), "Failed to initialize message structure: ${e.message}", Toast.LENGTH_LONG).show()
-                                            navigateToHomePage() // Continue navigation
-                                        }
-                                }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(requireContext(), "Failed to initialize chat structure: ${e.message}", Toast.LENGTH_LONG).show()
-                                    navigateToHomePage() // Continue navigation
-                                }
+                    val dbRef = FirebaseDatabase.getInstance().getReference("users").child(uid)
+                    dbRef.get().addOnSuccessListener { snapshot ->
+                        if (snapshot.exists()) {
+                            // 已注册用户，更新在线状态
+                            dbRef.child("isOnline").setValue(true)
+                            dbRef.child("lastSeen").setValue(System.currentTimeMillis())
+                            // TODO: 跳转到主界面
+                        } else {
+                            // 新用户注册，写入完整信息
+                            val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
+                            val name = arguments?.getString("userName") ?: "G-Chat User"
+                            val password = arguments?.getString("password") ?: ""
+                            val user = User(
+                                uid = uid,
+                                name = name,
+                                phone = phone,
+                                email = "",
+                                password = password,
+                                avatarUrl = "",
+                                status = "Hey there! I'm using G-Chat",
+                                isOnline = true,
+                                lastSeen = System.currentTimeMillis()
+                            )
+                            dbRef.setValue(user)
+                            // TODO: 跳转到主界面
                         }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(requireContext(), "Failed to save user information: ${e.message}", Toast.LENGTH_LONG).show()
-                            navigateToHomePage() // Continue navigation
-                        }
+                    }
                 } else {
-                    Toast.makeText(requireContext(), "Verification code is invalid", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "登录失败: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }

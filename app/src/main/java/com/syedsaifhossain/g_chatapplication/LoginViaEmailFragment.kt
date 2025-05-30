@@ -47,13 +47,13 @@ class LoginViaEmailFragment : Fragment() {
             if (validateInput(email, password)) {
                 // Consider showing a progress bar here
                 registerUser(email, password)
-                writeUserToDatabase()
+                writeUserToDatabase(password)
             }
         }
     }
 
     // 注册成功后写入数据库（请在注册成功的回调里调用此逻辑）
-    fun writeUserToDatabase() {
+    fun writeUserToDatabase(password: String) {
         val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val dbRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users")
@@ -63,6 +63,7 @@ class LoginViaEmailFragment : Fragment() {
                 name = nickname,
                 phone = user.phoneNumber ?: "",
                 email = user.email ?: "",
+                password = password,
                 avatarUrl = user.photoUrl?.toString() ?: "",
                 status = "Hey there! I'm using G-Chat",
                 isOnline = true,

@@ -42,15 +42,15 @@
 
 
         <TextView
-            android:id="@+id/videoCallTime"
+            android:id="@+id/callTimerText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0:00"
-            android:textColor="#8ad8d0"
-            android:layout_below="@+id/videoCallUserName"
-            android:layout_centerHorizontal="true"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="16dp"/>
 
         <ImageView
             android:id="@+id/videoCallAddContact"
