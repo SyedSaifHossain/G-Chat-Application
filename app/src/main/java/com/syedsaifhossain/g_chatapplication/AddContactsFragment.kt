@@ -32,7 +32,7 @@ class AddContactsFragment : Fragment() {
         binding.btnSaveContact.setOnClickListener {
             val phoneNumber = binding.etPhone.text.toString().trim()
             if (phoneNumber.isEmpty()) {
-                Toast.makeText(requireContext(), "请输入手机号码", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please enter a phone number", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -76,21 +76,21 @@ class AddContactsFragment : Fragment() {
                     // 找到用户，获取第一个匹配的用户ID
                     val userId = snapshot.children.firstOrNull()?.key
                     if (userId != null) {
-                        Log.d("AddContacts", "找到用户ID: $userId")
+                        Log.d("AddContacts", "Found user ID: $userId")
                         // 直接添加为好友
                         addFriend(userId)
                     } else {
-                        Log.d("AddContacts", "未找到用户ID")
-                        Toast.makeText(requireContext(), "未找到用户", Toast.LENGTH_SHORT).show()
+                        Log.d("AddContacts", "User ID not found")
+                        Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Log.d("AddContacts", "未找到匹配的用户")
-                    Toast.makeText(requireContext(), "未找到该手机号码的用户", Toast.LENGTH_SHORT).show()
+                    Log.d("AddContacts", "No matching user found")
+                    Toast.makeText(requireContext(), "No user found with this phone number", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener { error ->
-                Log.e("AddContacts", "查询失败", error)
-                Toast.makeText(requireContext(), "查询用户失败: ${error.message}", Toast.LENGTH_SHORT).show()
+                Log.e("AddContacts", "Query failed", error)
+                Toast.makeText(requireContext(), "Failed to query user: ${error.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -105,21 +105,21 @@ class AddContactsFragment : Fragment() {
             .addOnSuccessListener {
                 usersRef.child(userId).child("friends").child(currentUser.uid).setValue(true)
                     .addOnSuccessListener {
-                        Log.d("AddContacts", "添加好友成功")
-                        Toast.makeText(requireContext(), "添加好友成功", Toast.LENGTH_SHORT).show()
+                        Log.d("AddContacts", "Friend added successfully")
+                        Toast.makeText(requireContext(), "Friend added successfully", Toast.LENGTH_SHORT).show()
                         // 清空输入框
                         binding.etPhone.text?.clear()
                         binding.etFullName.text?.clear()
                         binding.etEmail.text?.clear()
                     }
                     .addOnFailureListener { error ->
-                        Log.e("AddContacts", "添加好友失败", error)
-                        Toast.makeText(requireContext(), "添加好友失败: ${error.message}", Toast.LENGTH_SHORT).show()
+                        Log.e("AddContacts", "Failed to add friend", error)
+                        Toast.makeText(requireContext(), "Failed to add friend: ${error.message}", Toast.LENGTH_SHORT).show()
                     }
             }
             .addOnFailureListener { error ->
-                Log.e("AddContacts", "添加好友失败", error)
-                Toast.makeText(requireContext(), "添加好友失败: ${error.message}", Toast.LENGTH_SHORT).show()
+                Log.e("AddContacts", "Failed to add friend", error)
+                Toast.makeText(requireContext(), "Failed to add friend: ${error.message}", Toast.LENGTH_SHORT).show()
             }
     }
 

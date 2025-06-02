@@ -41,6 +41,9 @@ class MeFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.apply {
+            layoutProfile.setOnClickListener {
+                findNavController().navigate(R.id.profileFragment)
+            }
             layoutVouchers.setOnClickListener {
                 startActivity(Intent(requireContext(), VouchersActivity::class.java))
             }

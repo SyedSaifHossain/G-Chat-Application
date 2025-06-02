@@ -137,6 +137,7 @@ class SignupPageVerificationFragment : Fragment() {
 
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+            // 自动验证成功
             if (!isAdded) return
             val code = credential.smsCode
             Log.d("VERIFICATION", "Auto OTP received: $code")
@@ -147,6 +148,7 @@ class SignupPageVerificationFragment : Fragment() {
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
+            // 验证失败（这里会有验证码过期、无效等所有错误）
             if (!isAdded) return
             binding.resendCodeVerify.isEnabled = true
             binding.timeCount.text = ""
@@ -183,12 +185,12 @@ class SignupPageVerificationFragment : Fragment() {
                     val dbRef = FirebaseDatabase.getInstance().getReference("users").child(uid)
                     dbRef.get().addOnSuccessListener { snapshot ->
                         if (snapshot.exists()) {
-                            // 已注册用户，更新在线状态
+                            // Existing user, update online status
                             dbRef.child("isOnline").setValue(true)
                             dbRef.child("lastSeen").setValue(System.currentTimeMillis())
-                            // TODO: 跳转到主界面
+                            findNavController().navigate(R.id.action_signupPageVerificationFragment_to_homeFragment)
                         } else {
-                            // 新用户注册，写入完整信息
+                            // New user registration, write full info
                             val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
                             val name = arguments?.getString("userName") ?: "G-Chat User"
                             val password = arguments?.getString("password") ?: ""
@@ -203,8 +205,8 @@ class SignupPageVerificationFragment : Fragment() {
                                 isOnline = true,
                                 lastSeen = System.currentTimeMillis()
                             )
-                            dbRef.setValue(user)
-                            // TODO: 跳转到主界面
+                            dbRef.updateChildren(user.toMap())
+                            findNavController().navigate(R.id.action_signupPageVerificationFragment_to_profileSettingFragment)
                         }
                     }
                 } else {
