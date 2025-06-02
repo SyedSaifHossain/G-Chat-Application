@@ -123,7 +123,7 @@ class SignInFragment : Fragment() {
         val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val dbRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users")
-            val nickname = "G-Chat User" // 你可以让用户输入昵称后再写入
+            val nickname = "G-Chat User"
             val userInfo = com.syedsaifhossain.g_chatapplication.models.User(
                 uid = user.uid,
                 name = nickname,
@@ -136,10 +136,10 @@ class SignInFragment : Fragment() {
             )
             dbRef.child(user.uid).setValue(userInfo)
                 .addOnSuccessListener {
-                    android.widget.Toast.makeText(requireContext(), "用户信息写入成功", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(requireContext(), "User info saved successfully", android.widget.Toast.LENGTH_SHORT).show()
                 }
                 .addOnFailureListener { e ->
-                    android.widget.Toast.makeText(requireContext(), "写入失败: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(requireContext(), "Failed to save user info: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
                 }
         }
     }

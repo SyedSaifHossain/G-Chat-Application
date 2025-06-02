@@ -139,10 +139,10 @@ class LoginViaPhoneFragment : Fragment() {
                             )
                             dbRef.child(user.uid).setValue(userInfo)
                                 .addOnSuccessListener {
-                                    Toast.makeText(requireContext(), "用户信息写入成功", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), "User info saved successfully", Toast.LENGTH_SHORT).show()
                                 }
                                 .addOnFailureListener { e ->
-                                    Toast.makeText(requireContext(), "写入失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(requireContext(), "Failed to save user info: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
                             Toast.makeText(requireContext(), "Logged in as $phoneNumber", Toast.LENGTH_SHORT).show()
                         }
