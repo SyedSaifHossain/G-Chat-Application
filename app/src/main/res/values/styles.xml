@@ -4,8 +4,10 @@
 
     <style name="UnifiedBottomNavStyle" parent="Widget.MaterialComponents.BottomNavigationView">
         <item name="itemBackground">@drawable/no_ripple</item>
-        <item name="itemTextAppearanceActive">@style/BottomNavTextStyle</item>
-        <item name="itemTextAppearanceInactive">@style/BottomNavTextStyle</item>
+    </style>
+
+    <style name="MyPopupMenuStyle" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@drawable/popup_menu_bg</item> <!-- Replace with your color -->
     </style>
 
 </resources>
