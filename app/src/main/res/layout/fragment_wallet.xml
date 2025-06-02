@@ -122,9 +122,10 @@
         android:text="Top Up"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textSize="26sp"
         android:textStyle="bold"
-        android:layout_marginTop="100dp"/>
+        android:layout_marginTop="100dp"
+        android:fontFamily="@font/roboto_bold"/>
 
     <Button
         android:id="@+id/withdrawBtn"
@@ -137,8 +138,9 @@
         android:text="Withdraw"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textSize="26sp"
         android:textStyle="bold"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/roboto_bold"/>
 
 </LinearLayout>

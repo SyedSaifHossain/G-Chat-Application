@@ -40,7 +40,9 @@
             android:text="Aaron Loeb"
             android:textColor="#81d8d0"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/poppins_regular"/>
 
         <LinearLayout
             android:id="@+id/contactLayout"
@@ -75,7 +77,8 @@
                     android:text="Audio"
                     android:textColor="#81d8d0"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
 
             <LinearLayout
@@ -99,7 +102,8 @@
                     android:text="Video"
                     android:textColor="#81d8d0"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
 
             <LinearLayout
@@ -124,7 +128,8 @@
                     android:text="Profile"
                     android:textColor="#81d8d0"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="@font/poppins_regular"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -143,13 +148,14 @@
             android:layout_marginTop="8dp"
             android:text="Customisation"
             android:textColor="#81d8d0"
-            android:textSize="18dp" />
+            android:textSize="18dp"
+            android:fontFamily="@font/poppins_regular"/>
 
         <LinearLayout
             android:id="@+id/themeLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <ImageView
@@ -169,7 +175,8 @@
                 android:text="Theme"
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>
 
         <LinearLayout
@@ -196,7 +203,8 @@
                 android:text="Nickname"
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>
 
         <TextView
@@ -207,13 +215,14 @@
             android:layout_marginTop="10dp"
             android:text="More actions"
             android:textColor="#81d8d0"
-            android:textSize="18dp" />
+            android:textSize="18dp"
+            android:fontFamily="@font/poppins_regular"/>
 
         <LinearLayout
             android:id="@+id/createGroupChatLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <ImageView
@@ -233,7 +242,8 @@
                 android:text="Create group chat with Aaron Loeb"
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>
 
         <LinearLayout
@@ -257,10 +267,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="15dp"
-                android:text="View media,files, and links"
+                android:text="View media, files, and links"
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>
 
         <LinearLayout
@@ -287,7 +298,8 @@
                 android:text="Search in conversation"
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>
 
         <LinearLayout
@@ -314,7 +326,8 @@
                 android:text="Share contact"
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>
 
         <TextView
@@ -325,13 +338,14 @@
             android:layout_marginTop="10dp"
             android:text="Privacy and support"
             android:textColor="#81d8d0"
-            android:textSize="18dp" />
+            android:textSize="18dp"
+            android:fontFamily="@font/poppins_regular"/>
 
         <LinearLayout
             android:id="@+id/blockLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
             <ImageView
@@ -378,7 +392,8 @@
                 android:text="Report"
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>
 
         <LinearLayout
@@ -405,7 +420,8 @@
                 android:text="Delete chat"
                 android:textColor="#81d8d0"
                 android:textSize="16dp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/poppins_regular"/>
         </LinearLayout>
 
     </LinearLayout>

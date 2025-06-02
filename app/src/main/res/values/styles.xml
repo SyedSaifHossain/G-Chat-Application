@@ -2,8 +2,10 @@
 
 <resources>
 
-    <style name="CustomPopupMenuStyle" parent="Widget.AppCompat.PopupMenu">
-        <item name="android:popupBackground">@drawable/custom_popup_background</item>
+    <style name="UnifiedBottomNavStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="itemBackground">@drawable/no_ripple</item>
+        <item name="itemTextAppearanceActive">@style/BottomNavTextStyle</item>
+        <item name="itemTextAppearanceInactive">@style/BottomNavTextStyle</item>
     </style>
 
 </resources>

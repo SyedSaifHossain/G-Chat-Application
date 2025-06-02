@@ -170,7 +170,7 @@ class LoginViaEmailFragment : Fragment() {
         // Check if fragment is still added and if current destination is correct before navigating
         if (isAdded && findNavController().currentDestination?.id == R.id.loginViaEmailFragment) {
             try {
-                findNavController().navigate(R.id.action_loginViaEmailFragment_to_homeFragment)
+                findNavController().navigate(R.id.action_loginViaEmailFragment_to_profileSettingFragment)
             } catch (e: Exception) {
                 Log.e("NavigationError", "Failed to navigate from LoginViaEmailFragment", e)
                 Toast.makeText(requireContext(), "Navigation error. Please try logging in.", Toast.LENGTH_SHORT).show()
