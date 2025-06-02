@@ -49,6 +49,7 @@
         android:layout_marginTop="30dp"
         android:hint="Country/Region"
         android:padding="15dp"
+        android:ems="10"
         android:textColor="#FFFFFF"
         android:textColorHint="#6b6b6b"
         android:fontFamily="@font/roboto_bold"
@@ -66,21 +67,20 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_marginHorizontal="50dp"
-        android:layout_marginTop="8dp"
+        android:ems="10"
         android:drawableTint="#6b6b6b"
         android:hint="Phone"
         android:padding="15dp"
         android:paddingVertical="22dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#6b6b6b"
-        android:fontFamily="@font/poppins_regular"
+        android:fontFamily="@font/roboto_bold"
         android:textSize="22sp"
         android:alpha="0.7"
         android:drawableEnd="@drawable/arrowforward"/>
 
     <TextView
         android:id="@+id/signupViaEmailTxt"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/signupPagePhoneEdt"
@@ -89,8 +89,9 @@
         android:textAllCaps="false"
         android:textColor="#6b6b6b"
         android:fontFamily="@font/roboto_bold"
-        android:textSize="18sp"
-        android:textStyle="bold"/>
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"/>
 
     <Button
         android:id="@+id/signupPageNextButton"
