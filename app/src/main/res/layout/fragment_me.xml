@@ -8,11 +8,15 @@
 
     <!-- 头像和用户名部分 -->
     <LinearLayout
+        android:id="@+id/layout_profile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_marginTop="40dp">
+        android:layout_marginTop="40dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
 
         <ImageView
             android:id="@+id/iv_avatar"

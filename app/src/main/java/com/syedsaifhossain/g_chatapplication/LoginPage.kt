@@ -39,10 +39,6 @@ class LoginPage : Fragment() {
             val password = binding.passwordLoginEdt.text.toString().trim()
 
             if (validateInput(phoneOrEmail, password)) {
-                // 显示加载状态
-                binding.loginButton.isEnabled = false
-                binding.loginButton.text = "Loging in..."
-
                 // 尝试登录
                 auth.signInWithEmailAndPassword(phoneOrEmail, password)
                     .addOnCompleteListener(requireActivity()) { task ->
@@ -50,6 +46,22 @@ class LoginPage : Fragment() {
                             // 登录成功
                             val user = auth.currentUser
                             if (user != null) {
+                                // 检查邮箱是否已验证
+                                if (!user.isEmailVerified) {
+                                    // 发送验证邮件
+                                    user.sendEmailVerification()
+                                        .addOnCompleteListener { verificationTask ->
+                                            if (verificationTask.isSuccessful) {
+                                                Toast.makeText(requireContext(), "Please check your email inbox and click the verification link before logging in.", Toast.LENGTH_LONG).show()
+                                            } else {
+                                                Toast.makeText(requireContext(), "Failed to send verification email: ${verificationTask.exception?.message}", Toast.LENGTH_LONG).show()
+                                            }
+                                        }
+                                    // 退出登录
+                                    auth.signOut()
+                                    return@addOnCompleteListener
+                                }
+                                
                                 // 更新用户在线状态
                                 updateUserStatus(user.uid, true)
                                 
@@ -57,30 +69,28 @@ class LoginPage : Fragment() {
                                 getUserInfo(user.uid) { userInfo ->
                                     if (userInfo != null) {
                                         Log.d("LoginPage", "User logged in successfully: ${userInfo.name}")
-                                        Toast.makeText(requireContext(), "Login successfully！", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(requireContext(), "登录成功！", Toast.LENGTH_SHORT).show()
                                         findNavController().navigate(R.id.action_loginPage_to_homeFragment)
                                     } else {
                                         Log.e("LoginPage", "Failed to get user info")
-                                        Toast.makeText(requireContext(), "Failed to obtain user information", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(requireContext(), "获取用户信息失败", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
                         } else {
                             // 登录失败
                             val errorMessage = when {
-                                task.exception?.message?.contains("no user record") == true -> "User does not exist"
-                                task.exception?.message?.contains("password is invalid") == true -> "Wrong password"
-                                task.exception?.message?.contains("badly formatted") == true -> "The email format is incorrect"
-                                task.exception?.message?.contains("malformed") == true -> "The login credentials are not in the correct format"
-                                else -> "Login Failed：${task.exception?.message}"
+                                task.exception?.message?.contains("no user record") == true -> "用户不存在"
+                                task.exception?.message?.contains("password is invalid") == true -> "密码错误"
+                                task.exception?.message?.contains("badly formatted") == true -> "邮箱格式不正确"
+                                task.exception?.message?.contains("malformed") == true -> "登录凭证格式不正确"
+                                else -> "登录失败：${task.exception?.message}"
                             }
                             Log.e("LoginPage", "Login failed: ${task.exception?.message}", task.exception)
                             Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
                         }
                         
-                        // 恢复按钮状态
-                        binding.loginButton.isEnabled = true
-                        binding.loginButton.text = "Login"
+                        binding.loginButton.text = "Log In"
                     }
             }
         }
@@ -96,31 +106,26 @@ class LoginPage : Fragment() {
 
     private fun validateInput(phoneOrEmail: String, password: String): Boolean {
         if (phoneOrEmail.isEmpty()) {
-            binding.phoneLoginEdt.error = "Please enter your phone number or email address"
+            binding.phoneLoginEdt.error = "请输入手机号或邮箱"
             return false
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(phoneOrEmail).matches() &&
             !phoneOrEmail.matches(Regex("^[+]?[0-9]{10,13}\$"))) {
-            binding.phoneLoginEdt.error = "Please enter a valid email address or phone number"
+            binding.phoneLoginEdt.error = "请输入有效的邮箱地址或手机号"
             return false
         }
 
         if (password.isEmpty()) {
-            binding.passwordLoginEdt.error = "Please enter your password"
+            binding.passwordLoginEdt.error = "请输入密码"
             return false
         }
 
         if (password.length < 6) {
-            binding.passwordLoginEdt.error = "The password must be at least 6 characters long."
+            binding.passwordLoginEdt.error = "密码长度至少为6位"
             return false
         }
 
-        val passwordPattern = Regex("^(?=.*[A-Za-z])(?=.*\\d).{6,}$")
-        if (!password.matches(passwordPattern)) {
-            binding.passwordLoginEdt.error = "Password must contain at least one letter and one number"
-            return false
-        }
         return true
     }
 

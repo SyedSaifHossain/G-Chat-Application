@@ -161,10 +161,10 @@ class ProfileSettingFragment : Fragment() {
             "timestamp" to System.currentTimeMillis()
         )
 
-        database.child("users").child(userId).setValue(userProfile)
+        database.child("users").child(userId).updateChildren(userProfile)
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Profile saved!", Toast.LENGTH_SHORT).show()
-                findNavController().navigate(R.id.action_profileSettingFragment_to_homeFragment)
+                findNavController().navigate(R.id.homeFragment)
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Error saving profile: ${it.message}", Toast.LENGTH_SHORT).show()
