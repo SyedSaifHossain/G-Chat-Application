@@ -12,7 +12,7 @@
     <RelativeLayout
         android:id="@+id/videoCallHeader"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="110dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true">
@@ -36,6 +36,7 @@
             android:text="User Name"
             android:textColor="#8ad8d0"
             android:padding="10dp"
+            android:fontFamily="@font/roboto_bold"
             android:layout_centerHorizontal="true"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -45,12 +46,12 @@
             android:id="@+id/callTimerText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0:00"
-            android:textColor="#FFFFFF"
+            android:text="0:30"
+            android:layout_centerHorizontal="true"
+            android:textColor="#81d8d0"
             android:textSize="18sp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="16dp"/>
+            android:fontFamily="@font/roboto_bold"
+            android:layout_below="@id/videoCallUserName"/>
 
         <ImageView
             android:id="@+id/videoCallAddContact"
