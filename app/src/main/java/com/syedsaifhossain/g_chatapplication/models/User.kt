@@ -18,4 +18,24 @@ data class User(
     val lastSeen: Long = 0,
     val isOnline: Boolean = false,
     val fcmToken: String = ""
-)
+) {
+    fun toMap(): Map<String, Any?> {
+        return mapOf(
+            "uid" to uid,
+            "name" to name,
+            "firstName" to firstName,
+            "lastName" to lastName,
+            "userId" to userId,
+            "profileImageUrl" to profileImageUrl,
+            "timestamp" to timestamp,
+            "email" to email,
+            "phone" to phone,
+            "password" to password,
+            "avatarUrl" to avatarUrl,
+            "status" to status,
+            "lastSeen" to lastSeen,
+            "isOnline" to isOnline,
+            "fcmToken" to fcmToken
+        )
+    }
+}

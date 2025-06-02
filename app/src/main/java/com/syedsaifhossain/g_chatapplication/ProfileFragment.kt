@@ -60,7 +60,8 @@ class ProfileFragment : Fragment() {
 
     private fun updatePhoneNumber(newPhone: String) {
         val dbRef = FirebaseDatabase.getInstance().getReference("users").child(userId ?: return)
-        dbRef.child("phone").setValue(newPhone)
+        val updates = mapOf("phone" to newPhone)
+        dbRef.updateChildren(updates)
             .addOnSuccessListener {
                 binding.tvProfilePhone.text = newPhone
                 Toast.makeText(requireContext(), "Phone updated", Toast.LENGTH_SHORT).show()
