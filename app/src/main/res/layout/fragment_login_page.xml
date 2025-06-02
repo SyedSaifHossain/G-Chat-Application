@@ -6,7 +6,7 @@
         android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         tools:context=".LoginPage"
-        android:background="#000000">
+        android:background="@drawable/bg_gradient">
 
     <ImageView
         android:id="@+id/loginBackArrow"

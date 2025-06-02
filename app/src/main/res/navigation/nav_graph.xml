@@ -74,15 +74,6 @@
         android:label="fragment_select_region"
         tools:layout="@layout/fragment_select_region" />
     <fragment
-        android:id="@+id/loginViaEmailFragment"
-        android:name="com.syedsaifhossain.g_chatapplication.LoginViaEmailFragment"
-        android:label="fragment_login_via_email"
-        tools:layout="@layout/fragment_login_via_email" >
-        <action
-            android:id="@+id/action_loginViaEmailFragment_to_profileSettingFragment"
-            app:destination="@id/profileSettingFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/loginViaPhoneFragment"
         android:name="com.syedsaifhossain.g_chatapplication.LoginViaPhoneFragment"
         android:label="fragment_login_via_phone"
@@ -178,11 +169,11 @@
             android:id="@+id/action_signupPageFragment_to_signupPageVerificationFragment"
             app:destination="@id/signupPageVerificationFragment" />
         <action
-            android:id="@+id/action_signupPageFragment_to_loginViaEmailFragment"
-            app:destination="@id/loginViaEmailFragment" />
-        <action
             android:id="@+id/action_signupPageFragment_to_selectRegionFragment"
             app:destination="@id/selectRegionFragment" />
+        <action
+            android:id="@+id/action_signupPageFragment_to_signupViaEmailFragment"
+            app:destination="@id/signupViaEmailFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatScreenFragment"
@@ -287,6 +278,15 @@
         <action
             android:id="@+id/action_profileSettingFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signupViaEmailFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SignupViaEmailFragment"
+        android:label="fragment_signup_via_email"
+        tools:layout="@layout/fragment_signup_via_email" >
+        <action
+            android:id="@+id/action_signupViaEmailFragment_to_profileSettingFragment"
+            app:destination="@id/profileSettingFragment" />
     </fragment>
 
 </navigation>
