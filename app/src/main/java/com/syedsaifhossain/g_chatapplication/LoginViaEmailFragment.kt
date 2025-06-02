@@ -48,22 +48,13 @@ class LoginViaEmailFragment : Fragment() {
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(requireActivity()) { task ->
                         if (task.isSuccessful) {
-                            val firebaseUser = auth.currentUser
-                            firebaseUser?.sendEmailVerification()
-                            Toast.makeText(
-                                requireContext(),
-                                "Please check your email inbox and click the verification link before logging in.",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            auth.signOut()
-                            findNavController().navigate(R.id.action_loginViaEmailFragment_to_loginPage)
+                            // 注册成功，写入数据库
+                            writeUserToDatabase(password)
+                            Toast.makeText(requireContext(), "Registration successful", Toast.LENGTH_SHORT).show()
+                            findNavController().navigate(R.id.action_loginViaEmailFragment_to_profileSettingFragment)
                         } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Registration failed: ${task.exception?.message}",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            Log.e("RegisterUser", "Registration failed", task.exception)
+                            // 注册失败，不写入数据库
+                            Toast.makeText(requireContext(), "Registration failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
             } else {
@@ -137,7 +128,6 @@ class LoginViaEmailFragment : Fragment() {
                         "Please check your email inbox and click the verification link before logging in.",
                         Toast.LENGTH_LONG
                     ).show()
-                    auth.signOut()
                     findNavController().navigate(R.id.action_loginViaEmailFragment_to_loginPage)
                 } else {
                     try {
@@ -170,7 +160,7 @@ class LoginViaEmailFragment : Fragment() {
         // Check if fragment is still added and if current destination is correct before navigating
         if (isAdded && findNavController().currentDestination?.id == R.id.loginViaEmailFragment) {
             try {
-                findNavController().navigate(R.id.action_loginViaEmailFragment_to_profileSettingFragment)
+                findNavController().navigate(R.id.action_loginViaEmailFragment_to_homeFragment)
             } catch (e: Exception) {
                 Log.e("NavigationError", "Failed to navigate from LoginViaEmailFragment", e)
                 Toast.makeText(requireContext(), "Navigation error. Please try logging in.", Toast.LENGTH_SHORT).show()

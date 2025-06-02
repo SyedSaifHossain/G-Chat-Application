@@ -90,6 +90,9 @@
         <action
             android:id="@+id/action_loginViaEmailFragment_to_loginPage"
             app:destination="@id/loginPage" />
+        <action
+            android:id="@+id/action_loginViaEmailFragment_to_profileSettingFragment"
+            app:destination="@id/profileSettingFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginViaPhoneFragment"
@@ -231,10 +234,12 @@
         <action
             android:id="@+id/action_signupPageVerificationFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
-        <!-- 新增的action，支持跳转到选择地区页面 -->
         <action
             android:id="@+id/action_signupPageVerificationFragment_to_selectRegionFragment"
             app:destination="@id/selectRegionFragment" />
+        <action
+            android:id="@+id/action_signupPageVerificationFragment_to_profileSettingFragment"
+            app:destination="@id/profileSettingFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginPage"
@@ -295,4 +300,9 @@
         android:name="com.syedsaifhossain.g_chatapplication.TopUpMoreOptionPageFragment"
         android:label="fragment_top_up_more_option_page"
         tools:layout="@layout/fragment_top_up_more_option_page" />
+    <fragment
+        android:id="@+id/profileSettingFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.ProfileSettingFragment"
+        android:label="fragment_profile_setting"
+        tools:layout="@layout/fragment_profile_setting" />
 </navigation>
