@@ -5,6 +5,8 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/splashScreenFragment">
 
+    <!-- ...前面内容保持不变... -->
+
     <fragment
         android:id="@+id/welcomeFragment"
         android:name="com.syedsaifhossain.g_chatapplication.WelcomeFragment"
@@ -203,6 +205,9 @@
         <action
             android:id="@+id/action_signupPageFragment_to_loginViaEmailFragment"
             app:destination="@id/loginViaEmailFragment" />
+        <action
+            android:id="@+id/action_signupPageFragment_to_signupViaEmailFragment"
+            app:destination="@id/signupViaEmailFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatScreenFragment"
@@ -219,13 +224,11 @@
             android:id="@+id/action_chatScreenFragment_to_chatScreenPageMoreOptionFragment"
             app:destination="@id/chatScreenPageMoreOptionFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/videoCallFragment5"
         android:name="com.syedsaifhossain.g_chatapplication.VideoCallFragment"
         android:label="fragment_video_call"
         tools:layout="@layout/fragment_video_call" />
-
     <fragment
         android:id="@+id/signupPageVerificationFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignupPageVerificationFragment"
@@ -305,4 +308,20 @@
         android:name="com.syedsaifhossain.g_chatapplication.ProfileSettingFragment"
         android:label="fragment_profile_setting"
         tools:layout="@layout/fragment_profile_setting" />
+    <!-- 新增 signupViaEmailFragment -->
+    <fragment
+        android:id="@+id/signupViaEmailFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SignupViaEmailFragment"
+        android:label="fragment_signup_via_email"
+        tools:layout="@layout/fragment_signup_via_email" >
+        <action
+            android:id="@+id/action_signupViaEmailFragment_to_profileSettingFragment"
+            app:destination="@id/profileSettingFragment" />
+        <action
+            android:id="@+id/action_signupViaEmailFragment_to_loginPage"
+            app:destination="@id/loginPage" />
+        <action
+            android:id="@+id/action_signupViaEmailFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 </navigation>

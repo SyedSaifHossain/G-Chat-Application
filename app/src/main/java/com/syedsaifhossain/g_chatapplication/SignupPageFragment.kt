@@ -37,7 +37,7 @@ class SignupPageFragment : Fragment() {
         setupCountryList()
 
         binding.signupViaEmailTxt.setOnClickListener {
-            findNavController().navigate(R.id.action_signupPageFragment_to_loginViaEmailFragment)
+            findNavController().navigate(R.id.action_signupPageFragment_to_signupViaEmailFragment)
         }
 
         binding.signupBackArrow.setOnClickListener {
