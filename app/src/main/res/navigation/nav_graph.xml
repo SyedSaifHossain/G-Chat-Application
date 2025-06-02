@@ -87,6 +87,9 @@
         <action
             android:id="@+id/action_loginViaEmailFragment_to_selectRegionFragment"
             app:destination="@id/selectRegionFragment" />
+        <action
+            android:id="@+id/action_loginViaEmailFragment_to_loginPage"
+            app:destination="@id/loginPage" />
     </fragment>
     <fragment
         android:id="@+id/loginViaPhoneFragment"
@@ -103,6 +106,11 @@
         android:label="fragment_chat"
         tools:layout="@layout/fragment_chat" />
     <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
+    <fragment
         android:id="@+id/meFragment3"
         android:name="com.syedsaifhossain.g_chatapplication.MeFragment"
         android:label="fragment_me"
@@ -110,6 +118,9 @@
         <action
             android:id="@+id/action_meFragment_to_walletFragment"
             app:destination="@id/walletFragment" />
+        <action
+            android:id="@+id/action_meFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
     <fragment
         android:id="@+id/contactFragment3"
@@ -272,7 +283,7 @@
     <fragment
         android:id="@+id/friendRequestsFragment"
         android:name="com.syedsaifhossain.g_chatapplication.FriendRequestsFragment"
-        android:label="好友请求"
+        android:label="FriendRequests"
         tools:layout="@layout/fragment_friend_requests" />
     <fragment
         android:id="@+id/chatScreenPageMoreOptionFragment"

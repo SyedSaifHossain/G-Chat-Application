@@ -136,6 +136,7 @@ class SignupPageVerificationFragment : Fragment() {
 
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
         override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+            // 自动验证成功
             if (!isAdded) return
             val code = credential.smsCode
             Log.d("VERIFICATION", "Auto OTP received: $code")
@@ -146,6 +147,7 @@ class SignupPageVerificationFragment : Fragment() {
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
+            // 验证失败（这里会有验证码过期、无效等所有错误）
             if (!isAdded) return
             binding.resendCodeVerify.isEnabled = true
             binding.timeCount.text = ""

@@ -59,24 +59,24 @@ class SignupNextFragment : Fragment() {
             if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(
                     requireContext(),
-                    "请填写所有必填项",
+                    "Please fill in all required fields",
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
             } else if (username.isEmpty()) {
-                Toast.makeText(requireContext(), "请输入您的姓名", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), "Please enter your name", Toast.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
             } else if (password.isEmpty()) {
-                Toast.makeText(requireContext(), "请输入密码", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), "Please enter your password", Toast.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
             } else if (confirmPassword.isEmpty()) {
-                Toast.makeText(requireContext(), "请确认密码", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), "Please confirm your password", Toast.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
             } else if (password != confirmPassword) {
-                Toast.makeText(requireContext(), "两次输入的密码不一致", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
             }
@@ -84,7 +84,7 @@ class SignupNextFragment : Fragment() {
             if (!isPasswordValid(password)) {
                 Toast.makeText(
                     requireContext(),
-                    "密码必须至少8个字符，并包含字母和数字",
+                    "Password must be at least 8 characters and contain both letters and numbers",
                     Toast.LENGTH_LONG
                 ).show()
                 return@setOnClickListener

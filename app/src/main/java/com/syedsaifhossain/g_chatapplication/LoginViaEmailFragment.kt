@@ -45,9 +45,29 @@ class LoginViaEmailFragment : Fragment() {
             val password = binding.loginViaEmailEdtPassword.text.toString().trim()
 
             if (validateInput(email, password)) {
-                // Consider showing a progress bar here
-                registerUser(email, password)
-                writeUserToDatabase(password)
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(requireActivity()) { task ->
+                        if (task.isSuccessful) {
+                            val firebaseUser = auth.currentUser
+                            firebaseUser?.sendEmailVerification()
+                            Toast.makeText(
+                                requireContext(),
+                                "Please check your email inbox and click the verification link before logging in.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            auth.signOut()
+                            findNavController().navigate(R.id.action_loginViaEmailFragment_to_loginPage)
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                "Registration failed: ${task.exception?.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            Log.e("RegisterUser", "Registration failed", task.exception)
+                        }
+                    }
+            } else {
+                Toast.makeText(requireContext(), "Please enter valid email and password.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -57,7 +77,7 @@ class LoginViaEmailFragment : Fragment() {
         val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         if (user != null) {
             val dbRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users")
-            val nickname = "G-Chat User" // 你可以让用户输入昵称后再写入
+            val nickname = "G-Chat User"
             val userInfo = com.syedsaifhossain.g_chatapplication.models.User(
                 uid = user.uid,
                 name = nickname,
@@ -71,10 +91,10 @@ class LoginViaEmailFragment : Fragment() {
             )
             dbRef.child(user.uid).setValue(userInfo)
                 .addOnSuccessListener {
-                    android.widget.Toast.makeText(requireContext(), "用户信息写入成功", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(requireContext(), "User info saved successfully", android.widget.Toast.LENGTH_SHORT).show()
                 }
                 .addOnFailureListener { e ->
-                    android.widget.Toast.makeText(requireContext(), "写入失败: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(requireContext(), "Failed to save user info: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
                 }
         }
     }
@@ -107,38 +127,19 @@ class LoginViaEmailFragment : Fragment() {
     }
 
     private fun registerUser(email: String, password: String) {
-        // binding.yourProgressBar.visibility = View.VISIBLE // Show progress
-
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(requireActivity()) { task ->
-                // binding.yourProgressBar.visibility = View.GONE // Hide progress
-
                 if (task.isSuccessful) {
                     val firebaseUser = auth.currentUser
                     firebaseUser?.sendEmailVerification()
-                        ?.addOnCompleteListener { verificationTask ->
-                            if (verificationTask.isSuccessful) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Registration successful. Please check your email for verification.",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                navigateToHomePage()
-                            } else {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Failed to send verification email: ${verificationTask.exception?.message}",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                Log.e(
-                                    "EmailVerification",
-                                    "sendEmailVerification failed",
-                                    verificationTask.exception
-                                )
-                            }
-                        }
+                    Toast.makeText(
+                        requireContext(),
+                        "Please check your email inbox and click the verification link before logging in.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    auth.signOut()
+                    findNavController().navigate(R.id.action_loginViaEmailFragment_to_loginPage)
                 } else {
-                    // Handle errors
                     try {
                         throw task.exception!!
                     } catch (e: FirebaseAuthWeakPasswordException) {
@@ -146,12 +147,11 @@ class LoginViaEmailFragment : Fragment() {
                         binding.loginViaEmailEdtPassword.requestFocus()
                         Log.w("RegisterUser", "Weak password", e)
                     } catch (e: FirebaseAuthInvalidCredentialsException) {
-                        // This can be for malformed email or if Firebase rejects the email format
-                        binding.loginViaEmailEdtEmail.error = "Invalid email format or other credential issue."
+                        binding.loginViaEmailEdtEmail.error = "Invalid email format"
                         binding.loginViaEmailEdtEmail.requestFocus()
                         Log.w("RegisterUser", "Invalid credentials", e)
                     } catch (e: FirebaseAuthUserCollisionException) {
-                        binding.loginViaEmailEdtEmail.error = "This email address is already in use."
+                        binding.loginViaEmailEdtEmail.error = "This email is already registered"
                         binding.loginViaEmailEdtEmail.requestFocus()
                         Log.w("RegisterUser", "User collision", e)
                     } catch (e: Exception) {
