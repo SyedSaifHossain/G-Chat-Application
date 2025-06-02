@@ -44,7 +44,8 @@ class SelectRegionFragment : Fragment() {
         val displayList = countryInfoList.map { "${it.name} (${it.phoneCode})" }
 
         // Setup adapter for ListView
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, displayList)
+        val adapter = ArrayAdapter(requireContext(), R.layout.list_item_country, R.id.countryText, displayList)
+
         binding.listView.adapter = adapter
 
         // Handle item selection
