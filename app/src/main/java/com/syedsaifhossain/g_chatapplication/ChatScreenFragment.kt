@@ -40,6 +40,7 @@ import android.os.Environment
 import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.Gravity
+import android.view.MotionEvent
 import android.widget.PopupMenu
 import com.bumptech.glide.Glide // Keep Glide import for later use in RecyclerView
 
@@ -59,7 +60,6 @@ class ChatScreenFragment : Fragment(){
     private var currentPhotoPath: String? = null
     private var selectedCameraPhotoUri: Uri? = null
     // Variables from original code for audio (kept)
-    private var mediaRecorder: MediaRecorder? = null
     private var audioFile: File? = null
 
     // --- ADDED Member Variables for Arguments (Nullable) ---
@@ -68,6 +68,9 @@ class ChatScreenFragment : Fragment(){
     private var otherUserAvatarUrl: String? = null // Still needed for RecyclerView later
     private var myAvatarUrl: String? = null // Still needed for RecyclerView later
     // --- END Member Variables ---
+    private var mediaRecorder: MediaRecorder? = null
+    private var audioFilePath: String? = null
+    private var isRecording = false
 
     // Original ActivityResultLaunchers (kept)
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -244,11 +247,23 @@ class ChatScreenFragment : Fragment(){
 
 
         // Setup mic button listener (Original)
-        binding.chatMicButton.setOnClickListener {
-            if (checkAudioPermission()) {
-                startRecording()
-            } else {
-                requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 101)
+        binding.chatMicButton.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    if (checkAudioPermission()) {
+                        startRecording()
+                    } else {
+                        requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 101)
+                    }
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    if (isRecording) {
+                        stopRecording()
+                    }
+                    true
+                }
+                else -> false
             }
         }
 
@@ -527,24 +542,45 @@ class ChatScreenFragment : Fragment(){
         return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir).apply { currentPhotoPath = absolutePath }
     }
 
-    private fun checkAudioPermission(): Boolean { return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED }
+
+    private fun checkAudioPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+    }
 
     private fun startRecording() {
-        try {
-            val cacheDir = requireContext().cacheDir; cacheDir.mkdirs()
-            audioFile = File(cacheDir, "voice_message_${UUID.randomUUID()}.3gp")
-            mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(requireContext()) else @Suppress("DEPRECATION") MediaRecorder()
-            mediaRecorder?.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC); setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP); setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB); setOutputFile(audioFile!!.absolutePath); prepare(); start()
-                Toast.makeText(context, "Recording started...", Toast.LENGTH_SHORT).show(); Log.d("ChatScreenFragment", "Recording started to ${audioFile!!.absolutePath}")
-            } ?: run { Log.e("ChatScreenFragment", "MediaRecorder initialization failed."); Toast.makeText(context, "Failed to start recording", Toast.LENGTH_SHORT).show() }
-        } catch (e: Exception) { Log.e("ChatScreenFragment", "Error starting recording", e); Toast.makeText(context, "Error starting recording: ${e.message}", Toast.LENGTH_SHORT).show(); mediaRecorder?.release(); mediaRecorder = null; audioFile?.delete(); audioFile = null }
+        val outputDir = requireContext().cacheDir
+        val outputFile = File.createTempFile("voice_", ".m4a", outputDir)
+        audioFilePath = outputFile.absolutePath
+
+        mediaRecorder = MediaRecorder().apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            setOutputFile(audioFilePath)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            prepare()
+            start()
+        }
+
+        isRecording = true
+        Toast.makeText(requireContext(), "Recording started", Toast.LENGTH_SHORT).show()
     }
 
     private fun stopRecording() {
-        try { mediaRecorder?.apply { stop(); release(); Log.d("ChatScreenFragment", "Recording stopped.") } }
-        catch (e: RuntimeException) { Log.e("ChatScreenFragment", "Error stopping recording", e); audioFile?.delete() }
-        finally { mediaRecorder = null; Toast.makeText(context, if (audioFile?.exists() == true) "Recording stopped" else "Recording failed", Toast.LENGTH_SHORT).show() }
+        try {
+            mediaRecorder?.apply {
+                stop()
+                release()
+            }
+            Toast.makeText(requireContext(), "Voice recorded", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Recording failed", Toast.LENGTH_SHORT).show()
+        } finally {
+            mediaRecorder = null
+            isRecording = false
+        }
     }
 
     // --- MODIFIED: Send audio message with specific chat node ---
@@ -575,6 +611,20 @@ class ChatScreenFragment : Fragment(){
                 .addOnFailureListener { e -> Toast.makeText(requireContext(), "Failed to upload voice message: ${e.message}", Toast.LENGTH_SHORT).show(); _binding?.progressBar?.visibility = View.GONE; Log.e("ChatScreenFragment", "Failed to upload voice message", e) }
         } else { Toast.makeText(context, "No valid recording found", Toast.LENGTH_SHORT).show(); Log.w("ChatScreenFragment", "sendAudioMessage called but audioFile invalid.") }
         audioFile = null // Reset after attempt
+    }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 101 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startRecording()
+        } else {
+            Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+        }
     }
 
 
