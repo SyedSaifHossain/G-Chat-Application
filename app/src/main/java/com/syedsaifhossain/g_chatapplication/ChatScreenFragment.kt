@@ -39,6 +39,7 @@ import android.os.Environment
 // Added Imports
 import android.util.Log
 import android.view.ContextThemeWrapper
+import android.view.Gravity
 import android.widget.PopupMenu
 import com.bumptech.glide.Glide // Keep Glide import for later use in RecyclerView
 
@@ -190,11 +191,17 @@ class ChatScreenFragment : Fragment(){
         }
 
 
-        binding.chatAddButton.setOnClickListener { view ->
-            val popupMenu = PopupMenu(view.context, view) // Ensure proper context and anchor view
 
-            // Inflate your menu resource
-            popupMenu.menuInflater.inflate(R.menu.add_options_menu, popupMenu.menu)
+        binding.chatAddButton.setOnClickListener { view ->
+            val popupMenu = PopupMenu(
+                requireContext(),
+                view,
+                Gravity.NO_GRAVITY,
+                0,
+                R.style.PopupMenuStyle
+            )
+
+            popupMenu.inflate(R.menu.add_options_menu)
 
             // Force icons to show using reflection
             try {
