@@ -90,6 +90,7 @@
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:src="@drawable/visacard"
+            android:layout_marginLeft="5dp"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@+id/withdrawTxt"
             android:layout_gravity="center_horizontal" />
@@ -100,7 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:fontFamily="@font/poppins_regular"
-            android:text="visa"
+            android:text="VISA"
             android:textColor="#81d8d0"
             android:textSize="16sp"
             android:textStyle="bold"
