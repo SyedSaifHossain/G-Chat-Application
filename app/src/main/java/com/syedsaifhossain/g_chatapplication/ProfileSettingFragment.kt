@@ -153,10 +153,12 @@ class ProfileSettingFragment : Fragment() {
     }
 
     private fun saveUserToDatabase(userId: String, firstName: String, lastName: String, imageUrl: String?) {
+        val name = "$firstName $lastName"
         val userProfile = mapOf(
             "uid" to userId,
             "firstName" to firstName,
             "lastName" to lastName,
+            "name" to name,
             "profileImageUrl" to imageUrl,
             "timestamp" to System.currentTimeMillis()
         )
