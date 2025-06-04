@@ -1,6 +1,8 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.Manifest
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -48,6 +50,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.Timer
+import java.util.TimerTask
 
 // Ensure the class declaration includes the interface implementation from your original
 class ChatScreenFragment : Fragment(){
@@ -77,6 +81,8 @@ class ChatScreenFragment : Fragment(){
     private var outputFile: String = ""
     private var isRecording = false
     private var recordStartTime = 0L
+    private var recordingTimer: Timer? = null
+    private var elapsedTime: Long = 0
 
 
     private val requestPermissionsLauncher = registerForActivityResult(
@@ -582,6 +588,7 @@ class ChatScreenFragment : Fragment(){
 
     private fun startRecording() {
         try {
+            // Prepare recording file
             val dirPath = "${requireContext().externalCacheDir?.absolutePath}/voiceMessages"
             val dir = File(dirPath)
             if (!dir.exists()) dir.mkdirs()
@@ -597,8 +604,18 @@ class ChatScreenFragment : Fragment(){
                 prepare()
                 start()
             }
+
             isRecording = true
             recordStartTime = System.currentTimeMillis()
+
+            // Show the recording indicator (text and mic icon)
+            binding.recordingIndicatorLayout.visibility = View.VISIBLE
+            binding.recordingStatusText.visibility = View.VISIBLE
+            binding.recordingMicIcon.visibility = View.VISIBLE
+
+            // Start a timer to update the recording time
+            startTimer()
+
             Toast.makeText(requireContext(), "Recording Started", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -606,14 +623,30 @@ class ChatScreenFragment : Fragment(){
         }
     }
 
+    private fun startTimer() {
+        recordingTimer = Timer()
+        recordingTimer?.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                elapsedTime = System.currentTimeMillis() - recordStartTime
+                val seconds = (elapsedTime / 1000).toInt()
+                // Update the UI with the elapsed time
+                activity?.runOnUiThread {
+                    binding.recordingStatusText.text = "Recording... $seconds sec"
+                }
+            }
+        }, 0, 1000) // Update every second
+    }
+
     private fun stopRecording() {
         try {
             val elapsed = System.currentTimeMillis() - recordStartTime
-            if (elapsed < 1000) {
+            if (elapsed < 1000) { // If recording was too short
                 Toast.makeText(requireContext(), "Recording too short", Toast.LENGTH_SHORT).show()
                 mediaRecorder?.release()
                 mediaRecorder = null
                 isRecording = false
+                // Hide the recording indicator
+                binding.recordingIndicatorLayout.visibility = View.GONE
                 return
             }
 
@@ -622,6 +655,11 @@ class ChatScreenFragment : Fragment(){
                 release()
             }
             isRecording = false
+
+            // Hide the recording indicator and stop timer
+            binding.recordingIndicatorLayout.visibility = View.GONE
+            recordingTimer?.cancel()
+
             Toast.makeText(requireContext(), "Recording Stopped", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
