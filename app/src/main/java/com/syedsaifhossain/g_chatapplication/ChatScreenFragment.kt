@@ -42,7 +42,12 @@ import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.MotionEvent
 import android.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide // Keep Glide import for later use in RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 // Ensure the class declaration includes the interface implementation from your original
 class ChatScreenFragment : Fragment(){
@@ -69,8 +74,19 @@ class ChatScreenFragment : Fragment(){
     private var myAvatarUrl: String? = null // Still needed for RecyclerView later
     // --- END Member Variables ---
     private var mediaRecorder: MediaRecorder? = null
-    private var audioFilePath: String? = null
+    private var outputFile: String = ""
     private var isRecording = false
+    private var recordStartTime = 0L
+
+
+    private val requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[Manifest.permission.RECORD_AUDIO] != true) {
+            Toast.makeText(requireContext(), "Audio permission is required", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     // Original ActivityResultLaunchers (kept)
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -245,15 +261,17 @@ class ChatScreenFragment : Fragment(){
             popupMenu.show()
         }
 
+        requestPermissionsIfNeeded()
 
-        // Setup mic button listener (Original)
-        binding.chatMicButton.setOnTouchListener { v, event ->
+        requestPermissionsIfNeeded()
+
+        binding.chatMicButton.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     if (checkAudioPermission()) {
                         startRecording()
                     } else {
-                        requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 101)
+                        requestPermissionsIfNeeded()
                     }
                     true
                 }
@@ -267,14 +285,19 @@ class ChatScreenFragment : Fragment(){
             }
         }
 
-        // 添加发送按钮点击监听器
         binding.chatSendButton.setOnClickListener {
             val message = binding.chatMessageInput.text.toString().trim()
             if (message.isNotEmpty()) {
-                sendMessageToFirebase(message)
+                sendVoiceTextMessageToFirebase(message)
                 binding.chatMessageInput.setText("")
+            } else if (outputFile.isNotEmpty() && File(outputFile).exists()) {
+                sendVoiceMessageWithCoroutine(outputFile)
+                outputFile = ""
+            } else {
+                Toast.makeText(requireContext(), "Type a message or record voice first", Toast.LENGTH_SHORT).show()
             }
         }
+
 
 
         binding.tvToolbarUserName.text = otherUserName
@@ -300,13 +323,14 @@ class ChatScreenFragment : Fragment(){
             if (actionId == EditorInfo.IME_ACTION_DONE ||
                 (event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
             ) {
-                // Check if we're recording audio first
-                if (mediaRecorder != null) {
-                    stopRecording()
-                    sendAudioMessage()
-                    return@setOnEditorActionListener true
+                //Voice messagge
+                if (outputFile.isNotEmpty() && File(outputFile).exists()) {
+                    sendVoiceMessageWithCoroutine(outputFile)
+                    // Optional: reset outputFile after sending
+                    outputFile = ""
+                } else {
+                    Toast.makeText(requireContext(), "No voice message recorded", Toast.LENGTH_SHORT).show()
                 }
-
                 // Handle photo/image sending
                 if (selectedCameraPhotoUri != null) {
                     uploadImageToFirebase(selectedCameraPhotoUri!!)
@@ -543,88 +567,115 @@ class ChatScreenFragment : Fragment(){
     }
 
 
+    private fun requestPermissionsIfNeeded() {
+        val neededPermissions = mutableListOf<String>()
+        if (!checkAudioPermission()) neededPermissions.add(Manifest.permission.RECORD_AUDIO)
+        if (neededPermissions.isNotEmpty()) {
+            requestPermissionsLauncher.launch(neededPermissions.toTypedArray())
+        }
+    }
+
     private fun checkAudioPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
+        return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) ==
+                PackageManager.PERMISSION_GRANTED
     }
 
     private fun startRecording() {
-        val outputDir = requireContext().cacheDir
-        val outputFile = File.createTempFile("voice_", ".m4a", outputDir)
-        audioFilePath = outputFile.absolutePath
+        try {
+            val dirPath = "${requireContext().externalCacheDir?.absolutePath}/voiceMessages"
+            val dir = File(dirPath)
+            if (!dir.exists()) dir.mkdirs()
 
-        mediaRecorder = MediaRecorder().apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            setOutputFile(audioFilePath)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            prepare()
-            start()
+            val fileName = "voice_${System.currentTimeMillis()}.m4a"
+            outputFile = "$dirPath/$fileName"
+
+            mediaRecorder = MediaRecorder().apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setOutputFile(outputFile)
+                prepare()
+                start()
+            }
+            isRecording = true
+            recordStartTime = System.currentTimeMillis()
+            Toast.makeText(requireContext(), "Recording Started", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Failed to start recording: ${e.message}", Toast.LENGTH_LONG).show()
         }
-
-        isRecording = true
-        Toast.makeText(requireContext(), "Recording started", Toast.LENGTH_SHORT).show()
     }
 
     private fun stopRecording() {
         try {
+            val elapsed = System.currentTimeMillis() - recordStartTime
+            if (elapsed < 1000) {
+                Toast.makeText(requireContext(), "Recording too short", Toast.LENGTH_SHORT).show()
+                mediaRecorder?.release()
+                mediaRecorder = null
+                isRecording = false
+                return
+            }
+
             mediaRecorder?.apply {
                 stop()
                 release()
             }
-            Toast.makeText(requireContext(), "Voice recorded", Toast.LENGTH_SHORT).show()
+            isRecording = false
+            Toast.makeText(requireContext(), "Recording Stopped", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Recording failed", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Failed to stop recording: ${e.message}", Toast.LENGTH_LONG).show()
         } finally {
             mediaRecorder = null
-            isRecording = false
         }
     }
 
-    // --- MODIFIED: Send audio message with specific chat node ---
-    private fun sendAudioMessage() {
-        val fileToSend = audioFile
-        if (fileToSend?.exists() == true && fileToSend.length() > 0) {
-            val storageRef = FirebaseStorage.getInstance().reference; val audioRef = storageRef.child("chat_audio/${UUID.randomUUID()}.3gp"); val fileUri = Uri.fromFile(fileToSend)
-            _binding?.progressBar?.visibility = View.VISIBLE
-            audioRef.putFile(fileUri)
-                .addOnProgressListener { taskSnapshot -> val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt(); _binding?.progressBar?.progress = progress }
-                .addOnSuccessListener {
-                    audioRef.downloadUrl.addOnSuccessListener { downloadUrl ->
-                        if (otherUserId == null) { Log.e("ChatScreenFragment", "Cannot send audio message, otherUserId is null."); _binding?.progressBar?.visibility = View.GONE; return@addOnSuccessListener }
+    private fun sendVoiceMessageWithCoroutine(filePath: String) {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val audioRef = storageRef.child("voiceMessages/${File(filePath).name}")
 
-                        // Create a specific chat node ID based on the two users involved
-                        val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
-
-                        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
-                        val messageId = chatRef.push().key ?: return@addOnSuccessListener
-                        val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
-                        val message = ChatModel(senderId = senderId, message = "🎤 Voice Message", imageUrl = downloadUrl.toString(), timestamp = System.currentTimeMillis()) // Reusing imageUrl for audio URL? Consider dedicated field.
-                        chatRef.child(messageId).setValue(message)
-                            .addOnSuccessListener { Toast.makeText(requireContext(), "Voice message sent", Toast.LENGTH_SHORT).show(); Log.d("ChatScreenFragment", "Voice message sent") }
-                            .addOnFailureListener { e -> Toast.makeText(requireContext(), "Failed to send voice message: ${e.message}", Toast.LENGTH_SHORT).show(); Log.e("ChatScreenFragment", "Failed to send voice message", e) }
-                        _binding?.progressBar?.visibility = View.GONE; audioFile?.delete(); audioFile = null
-                    }.addOnFailureListener { e -> Toast.makeText(requireContext(), "Failed to get audio URL: ${e.message}", Toast.LENGTH_SHORT).show(); _binding?.progressBar?.visibility = View.GONE; Log.e("ChatScreenFragment", "Failed to get audio URL", e)}
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                audioRef.putFile(Uri.fromFile(File(filePath))).await()
+                val downloadUrl = audioRef.downloadUrl.await()
+                withContext(Dispatchers.Main) {
+                    sendVoiceMessageToFirebase(downloadUrl.toString())
+                    Toast.makeText(requireContext(), "Voice message sent!", Toast.LENGTH_SHORT).show()
                 }
-                .addOnFailureListener { e -> Toast.makeText(requireContext(), "Failed to upload voice message: ${e.message}", Toast.LENGTH_SHORT).show(); _binding?.progressBar?.visibility = View.GONE; Log.e("ChatScreenFragment", "Failed to upload voice message", e) }
-        } else { Toast.makeText(context, "No valid recording found", Toast.LENGTH_SHORT).show(); Log.w("ChatScreenFragment", "sendAudioMessage called but audioFile invalid.") }
-        audioFile = null // Reset after attempt
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
+    private fun sendVoiceMessageToFirebase(audioUrl: String) {
+        val database = FirebaseDatabase.getInstance()
+        val chatId = "your_chat_id" // Replace with your chat id
+        val messagesRef = database.getReference("chats").child(chatId).child("messages")
+        val messageId = messagesRef.push().key ?: return
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 101 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startRecording()
-        } else {
-            Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
-        }
+        val messageData = mapOf(
+            "type" to "voice",
+            "content" to audioUrl,
+            "senderId" to FirebaseAuth.getInstance().currentUser?.uid,
+            "timestamp" to System.currentTimeMillis()
+        )
+
+        messagesRef.child(messageId).setValue(messageData)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Voice message saved to database", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to save voice message: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun sendVoiceTextMessageToFirebase(text: String) {
+        // Your existing text message sending code here
+        Toast.makeText(requireContext(), "Text message sent: $text", Toast.LENGTH_SHORT).show()
     }
 
 
