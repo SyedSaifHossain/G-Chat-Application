@@ -209,13 +209,31 @@ class ChatFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun showPopupMenu(view: View) {
-        val popupMenu = PopupMenu(requireContext(), view)
+        val popupMenu = PopupMenu(
+            requireContext(),
+            view,
+            Gravity.NO_GRAVITY,
+            0,
+            R.style.MyPopupMenuStyle
+        )
         popupMenu.inflate(R.menu.popup_menu)
+
         try {
-            popupMenu.setForceShowIcon(true)
+            val fields = popupMenu.javaClass.declaredFields
+            for (field in fields) {
+                if ("mPopup" == field.name) {
+                    field.isAccessible = true
+                    val menuPopupHelper = field.get(popupMenu)
+                    val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
+                    val setForceIcons = classPopupHelper.getMethod("setForceShowIcon", Boolean::class.javaPrimitiveType)
+                    setForceIcons.invoke(menuPopupHelper, true)
+                    break
+                }
+            }
         } catch (e: Exception) {
             Log.w("ChatFragment", "Failed to force show popup menu icons", e)
         }
+
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.newChats -> {
@@ -232,7 +250,9 @@ class ChatFragment : Fragment() {
                 }
                 else -> false
             }
+
         }
+
         popupMenu.show()
     }
 
@@ -240,5 +260,4 @@ class ChatFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
 }

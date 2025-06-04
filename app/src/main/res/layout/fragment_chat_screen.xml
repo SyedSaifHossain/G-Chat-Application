@@ -144,7 +144,7 @@
             android:inputType="text"
             android:paddingLeft="60dp"
             android:textColorHint="#6b6b6b"
-            android:textSize="28sp"
+            android:textSize="24sp"
             android:fontFamily="@font/poppins_regular"/>
 
         <ImageView
