@@ -46,6 +46,8 @@ import android.view.MotionEvent
 import android.widget.PopupMenu
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide // Keep Glide import for later use in RecyclerView
+import com.syedsaifhossain.g_chatapplication.adapter.ChatAdapter
+import com.syedsaifhossain.g_chatapplication.models.Chats
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -83,6 +85,9 @@ class ChatScreenFragment : Fragment(){
     private var recordStartTime = 0L
     private var recordingTimer: Timer? = null
     private var elapsedTime: Long = 0
+
+    private val messages = mutableListOf<Chats>()
+    private lateinit var chatAdapter: ChatAdapter
 
 
     private val requestPermissionsLauncher = registerForActivityResult(
@@ -313,6 +318,53 @@ class ChatScreenFragment : Fragment(){
         }
 
     } // End of onViewCreated
+
+
+    private fun sendTextMessage(messageText: String) {
+        val chatMessage = Chats(
+            type = "text",                  // Set type to "text"
+            content = messageText,          // Save the text message
+            senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+            receiverId = "receiverId",
+            lastMessageTime = System.currentTimeMillis(),
+            lastMessageSenderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        )
+
+        // Add message to the list
+        messages.add(chatMessage)
+        chatAdapter.notifyItemInserted(messages.size - 1)
+
+        // Save the message to Firebase Realtime DB (or Firestore)
+        FirebaseDatabase.getInstance().reference.child("chats")
+            .child("your_chat_id")
+            .child("messages")
+            .push()
+            .setValue(chatMessage)
+    }
+
+    private fun sendVoiceMessage(audioUrl: String) {
+        val chatMessage = Chats(
+            type = "voice",         // Set type to "voice"
+            content = audioUrl,     // Save the audio URL in content
+            senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+            receiverId = "receiverId",
+            lastMessageTime = System.currentTimeMillis(),
+            lastMessageSenderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        )
+
+        // Add the voice message to the list
+        messages.add(chatMessage)
+        chatAdapter.notifyItemInserted(messages.size - 1)
+
+        // Save the voice message URL to Firebase Realtime DB (or Firestore)
+        FirebaseDatabase.getInstance().reference.child("chats")
+            .child("your_chat_id")
+            .child("messages")
+            .push()
+            .setValue(chatMessage)
+    }
+
+
 
     // --- NEW METHOD: Create a unique chat node ID ---
     private fun getChatNodeId(userId1: String, userId2: String): String {
@@ -668,6 +720,7 @@ class ChatScreenFragment : Fragment(){
             mediaRecorder = null
         }
     }
+
 
     private fun sendVoiceMessageWithCoroutine(filePath: String) {
         val storageRef = FirebaseStorage.getInstance().reference
