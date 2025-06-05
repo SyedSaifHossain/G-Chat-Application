@@ -10,6 +10,7 @@ data class Chats(
     val name: String = "",                   // Other user's name
     val message: String = "",                // Last message preview
     val type: String = "text",               // 新增，消息类型：text/voice
+    val duration: Int = 0, // 新增，语音时长，单位秒
     val otherUserId: String = "",            // ID of the other user
     val otherUserAvatarUrl: String? = null,  // URL string for the other user's avatar
     val isGroup: Boolean = false,             // 新增

@@ -62,24 +62,43 @@ class ChatMessageAdapter(
         private val messageText: TextView = itemView.findViewById(R.id.tv_message)
         private val timeText: TextView = itemView.findViewById(R.id.tv_timestamp)
         private val avatarImage: ImageView = itemView.findViewById(R.id.iv_avatar)
-        // TODO: Add handling for image messages if needed later (find ImageView for message content)
+        private val voiceLayout: View? = itemView.findViewById(R.id.voice_layout)
+        private val voiceIcon: ImageView? = itemView.findViewById(R.id.voice_icon)
+        private val voiceDuration: TextView? = itemView.findViewById(R.id.voice_duration)
 
         // --- Modified bind method to accept avatar URL ---
         fun bind(message: ChatModel, avatarUrl: String?) {
-            // TODO: Handle image messages (message.imageUrl) if needed
-            // For now, assuming only text messages
-            messageText.text = message.message
-            timeText.text = formatTime(message.timestamp) // Ensure timestamp is Long
-
-            // Load avatar
+            timeText.text = formatTime(message.timestamp)
+            if (message.type == "voice") {
+                messageText.visibility = View.GONE
+                voiceLayout?.visibility = View.VISIBLE
+                voiceDuration?.text = "${message.duration}\""
+                val playListener = View.OnClickListener {
+                    try {
+                        val mediaPlayer = android.media.MediaPlayer()
+                        mediaPlayer.setDataSource(message.message)
+                        mediaPlayer.prepare()
+                        mediaPlayer.start()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                voiceLayout?.setOnClickListener(playListener)
+                voiceIcon?.setOnClickListener(playListener)
+                voiceDuration?.setOnClickListener(playListener)
+            } else {
+                messageText.visibility = View.VISIBLE
+                voiceLayout?.visibility = View.GONE
+                messageText.text = message.message
+            }
             if (avatarUrl != null) {
                 Glide.with(itemView.context)
                     .load(avatarUrl)
-                    .placeholder(R.drawable.profile) // Your placeholder
-                    .error(R.drawable.profile)       // Your error placeholder
+                    .placeholder(R.drawable.profile)
+                    .error(R.drawable.profile)
                     .into(avatarImage)
             } else {
-                avatarImage.setImageResource(R.drawable.profile) // Fallback to placeholder
+                avatarImage.setImageResource(R.drawable.profile)
             }
         }
     }
@@ -90,23 +109,44 @@ class ChatMessageAdapter(
         private val messageText: TextView = itemView.findViewById(R.id.tv_message)
         private val timeText: TextView = itemView.findViewById(R.id.tv_timestamp)
         private val avatarImage: ImageView = itemView.findViewById(R.id.iv_avatar)
+        private val voiceLayout: View? = itemView.findViewById(R.id.voice_layout)
+        private val voiceIcon: ImageView? = itemView.findViewById(R.id.voice_icon)
+        private val voiceDuration: TextView? = itemView.findViewById(R.id.voice_duration)
         // TODO: Add handling for image messages if needed later
 
         // --- Modified bind method to accept avatar URL ---
         fun bind(message: ChatModel, avatarUrl: String?) {
-            // TODO: Handle image messages (message.imageUrl) if needed
-            messageText.text = message.message
-            timeText.text = formatTime(message.timestamp) // Ensure timestamp is Long
-
-            // Load avatar
+            timeText.text = formatTime(message.timestamp)
+            if (message.type == "voice") {
+                messageText.visibility = View.GONE
+                voiceLayout?.visibility = View.VISIBLE
+                voiceDuration?.text = "${message.duration}\""
+                val playListener = View.OnClickListener {
+                    try {
+                        val mediaPlayer = android.media.MediaPlayer()
+                        mediaPlayer.setDataSource(message.message)
+                        mediaPlayer.prepare()
+                        mediaPlayer.start()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                voiceLayout?.setOnClickListener(playListener)
+                voiceIcon?.setOnClickListener(playListener)
+                voiceDuration?.setOnClickListener(playListener)
+            } else {
+                messageText.visibility = View.VISIBLE
+                voiceLayout?.visibility = View.GONE
+                messageText.text = message.message
+            }
             if (avatarUrl != null) {
                 Glide.with(itemView.context)
                     .load(avatarUrl)
-                    .placeholder(R.drawable.profile) // Your placeholder
-                    .error(R.drawable.profile)       // Your error placeholder
+                    .placeholder(R.drawable.profile)
+                    .error(R.drawable.profile)
                     .into(avatarImage)
             } else {
-                avatarImage.setImageResource(R.drawable.profile) // Fallback to placeholder
+                avatarImage.setImageResource(R.drawable.profile)
             }
         }
     }

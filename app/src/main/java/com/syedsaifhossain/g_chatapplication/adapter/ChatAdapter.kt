@@ -30,7 +30,28 @@ class ChatAdapter(
                 }
             }
             binding.nameId.text = chat.name
-            binding.messageId.text = chat.message
+
+            // 语音消息显示逻辑
+            if (chat.type == "voice") {
+                binding.messageId.visibility = android.view.View.GONE
+                binding.voiceLayout.visibility = android.view.View.VISIBLE
+                binding.voiceDuration.text = "${chat.duration}\""
+                binding.voiceLayout.setOnClickListener {
+                    // 播放语音
+                    try {
+                        val mediaPlayer = android.media.MediaPlayer()
+                        mediaPlayer.setDataSource(chat.message)
+                        mediaPlayer.prepare()
+                        mediaPlayer.start()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            } else {
+                binding.messageId.visibility = android.view.View.VISIBLE
+                binding.voiceLayout.visibility = android.view.View.GONE
+                binding.messageId.text = chat.message
+            }
 
             binding.root.setOnClickListener {
                 onItemClick(chat)
