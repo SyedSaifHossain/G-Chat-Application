@@ -62,7 +62,12 @@ class ChatFragment : Fragment() {
         messageList = arrayListOf()
 
         chatAdapter = ChatAdapter(messageList) { clickedChatItem ->
-            navigateToChatScreen(clickedChatItem)
+            if (clickedChatItem.isGroup) {
+                val bundle = Bundle().apply { putString("groupId", clickedChatItem.otherUserId) }
+                findNavController().navigate(R.id.groupChatFragment, bundle)
+            } else {
+                navigateToChatScreen(clickedChatItem)
+            }
         }
         recyclerView.adapter = chatAdapter
 
@@ -79,11 +84,6 @@ class ChatFragment : Fragment() {
                             friendUidSet.add(friendUid)
                         }
                     }
-                    if (friendUidSet.isEmpty()) {
-                        messageList.clear()
-                        chatAdapter.notifyDataSetChanged()
-                        return
-                    }
                     // 2. 获取所有好友的详细信息
                     database.getReference("users").addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(userSnapshot: DataSnapshot) {
@@ -93,10 +93,12 @@ class ChatFragment : Fragment() {
                                 if (user != null && friendUidSet.contains(user.uid)) {
                                     // 构造 Chats 对象，显示好友昵称和头像
                                     val chat = Chats(
+                                        imageRes = if (user.avatarUrl.isNullOrBlank()) R.drawable.default_avatar else 0,
                                         name = user.name,
-                                        message = user.status, // 可自定义为最近消息
+                                        message = user.status,
                                         otherUserId = user.uid,
                                         otherUserAvatarUrl = user.avatarUrl,
+                                        isGroup = false,
                                         senderId = currentUserId,
                                         receiverId = user.uid,
                                         lastMessageTime = user.lastSeen,
@@ -105,13 +107,45 @@ class ChatFragment : Fragment() {
                                     messageList.add(chat)
                                 }
                             }
-                            chatAdapter.notifyDataSetChanged()
+                            // 加载群聊
+                            loadGroupChats(currentUserId)
                         }
                         override fun onCancelled(error: DatabaseError) {}
                     })
                 }
                 override fun onCancelled(error: DatabaseError) {}
             })
+    }
+
+    // 新增：加载群聊
+    private fun loadGroupChats(currentUserId: String) {
+        database.getReference("groups").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (groupSnap in snapshot.children) {
+                    val members = groupSnap.child("members").value as? Map<String, Boolean>
+                    if (members?.containsKey(currentUserId) == true) {
+                        val groupId = groupSnap.key ?: continue
+                        val groupName = groupSnap.child("name").getValue(String::class.java) ?: "Group"
+                        // 用 Chats 数据类展示群聊，otherUserId 用 groupId 并加前缀区分
+                        val chat = Chats(
+                            imageRes = R.drawable.addcontacticon,
+                            name = groupName,
+                            message = "Group Chat",
+                            otherUserId = groupId,
+                            otherUserAvatarUrl = "",
+                            isGroup = true,
+                            senderId = currentUserId,
+                            receiverId = groupId,
+                            lastMessageTime = 0L,
+                            lastMessageSenderId = ""
+                        )
+                        messageList.add(chat)
+                    }
+                }
+                chatAdapter.notifyDataSetChanged()
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 
     private fun setupUserList() {

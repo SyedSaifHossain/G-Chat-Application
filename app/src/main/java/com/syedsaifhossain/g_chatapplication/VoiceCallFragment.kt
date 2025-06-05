@@ -324,4 +324,9 @@ class VoiceCallFragment : Fragment() {
         _binding = null
         Log.d("VoiceCallFragment", "onDestroyView called. Agora engine destroyed.")
     }
+
+    // 兼容 xml onClick 的 joinChannel 方法
+    fun joinChannel(view: View) {
+        fetchTokenAndJoinChannel()
+    }
 }
