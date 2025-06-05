@@ -299,10 +299,10 @@ class ChatScreenFragment : Fragment(){
         binding.chatSendButton.setOnClickListener {
             val message = binding.chatMessageInput.text.toString().trim()
             if (message.isNotEmpty()) {
-                sendVoiceTextMessageToFirebase(message)
+                sendTextMessage(message)
                 binding.chatMessageInput.setText("")
             } else if (outputFile.isNotEmpty() && File(outputFile).exists()) {
-                sendVoiceMessageWithCoroutine(outputFile)
+                sendVoiceMessage(outputFile)
                 outputFile = ""
             } else {
                 Toast.makeText(requireContext(), "Type a message or record voice first", Toast.LENGTH_SHORT).show()
@@ -321,47 +321,35 @@ class ChatScreenFragment : Fragment(){
 
 
     private fun sendTextMessage(messageText: String) {
-        val chatMessage = Chats(
-            type = "text",                  // Set type to "text"
-            content = messageText,          // Save the text message
+        val message = ChatModel(
             senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-            receiverId = "receiverId",
-            lastMessageTime = System.currentTimeMillis(),
-            lastMessageSenderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            message = messageText,
+            timestamp = System.currentTimeMillis()
         )
-
-        // Add message to the list
-        messages.add(chatMessage)
-        chatAdapter.notifyItemInserted(messages.size - 1)
-
-        // Save the message to Firebase Realtime DB (or Firestore)
-        FirebaseDatabase.getInstance().reference.child("chats")
-            .child("your_chat_id")
-            .child("messages")
-            .push()
-            .setValue(chatMessage)
+        chatList.add(message)
+        chatMessageAdapter.notifyItemInserted(chatList.size - 1)
+        // 保存到Firebase
+        val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val chatNodeId = getChatNodeId(senderId, otherUserId!!)
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+        val messageId = chatRef.push().key ?: return
+        chatRef.child(messageId).setValue(message)
     }
 
     private fun sendVoiceMessage(audioUrl: String) {
-        val chatMessage = Chats(
-            type = "voice",         // Set type to "voice"
-            content = audioUrl,     // Save the audio URL in content
+        val message = ChatModel(
             senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-            receiverId = "receiverId",
-            lastMessageTime = System.currentTimeMillis(),
-            lastMessageSenderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            message = audioUrl, // 语音URL
+            timestamp = System.currentTimeMillis()
         )
-
-        // Add the voice message to the list
-        messages.add(chatMessage)
-        chatAdapter.notifyItemInserted(messages.size - 1)
-
-        // Save the voice message URL to Firebase Realtime DB (or Firestore)
-        FirebaseDatabase.getInstance().reference.child("chats")
-            .child("your_chat_id")
-            .child("messages")
-            .push()
-            .setValue(chatMessage)
+        chatList.add(message)
+        chatMessageAdapter.notifyItemInserted(chatList.size - 1)
+        // 保存到Firebase
+        val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val chatNodeId = getChatNodeId(senderId, otherUserId!!)
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+        val messageId = chatRef.push().key ?: return
+        chatRef.child(messageId).setValue(message)
     }
 
 

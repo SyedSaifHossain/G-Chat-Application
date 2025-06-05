@@ -42,6 +42,7 @@ class LoginPage : Fragment() {
                 // 尝试登录
                 auth.signInWithEmailAndPassword(phoneOrEmail, password)
                     .addOnCompleteListener(requireActivity()) { task ->
+                        if (_binding == null) return@addOnCompleteListener
                         if (task.isSuccessful) {
                             // 登录成功
                             val user = auth.currentUser
@@ -51,6 +52,7 @@ class LoginPage : Fragment() {
                                     // 发送验证邮件
                                     user.sendEmailVerification()
                                         .addOnCompleteListener { verificationTask ->
+                                            if (_binding == null) return@addOnCompleteListener
                                             if (verificationTask.isSuccessful) {
                                                 Toast.makeText(requireContext(), "Please check your email inbox and click the verification link before logging in.", Toast.LENGTH_LONG).show()
                                             } else {
@@ -67,6 +69,7 @@ class LoginPage : Fragment() {
                                 
                                 // 获取用户信息
                                 getUserInfo(user.uid) { userInfo ->
+                                    if (_binding == null) return@getUserInfo
                                     if (userInfo != null) {
                                         Log.d("LoginPage", "User logged in successfully: ${userInfo.name}")
                                         Toast.makeText(requireContext(), "登录成功！", Toast.LENGTH_SHORT).show()
@@ -137,9 +140,11 @@ class LoginPage : Fragment() {
         )
         userStatusRef.updateChildren(updates)
             .addOnSuccessListener {
+                if (_binding == null) return@addOnSuccessListener
                 Log.d("LoginPage", "User status updated successfully")
             }
             .addOnFailureListener { e ->
+                if (_binding == null) return@addOnFailureListener
                 Log.e("LoginPage", "Failed to update user status", e)
             }
     }
@@ -148,10 +153,12 @@ class LoginPage : Fragment() {
         database.getReference("users").child(userId)
             .get()
             .addOnSuccessListener { snapshot ->
+                if (_binding == null) return@addOnSuccessListener
                 val user = snapshot.getValue(User::class.java)
                 callback(user)
             }
             .addOnFailureListener { e ->
+                if (_binding == null) return@addOnFailureListener
                 Log.e("LoginPage", "Failed to get user info", e)
                 callback(null)
             }
