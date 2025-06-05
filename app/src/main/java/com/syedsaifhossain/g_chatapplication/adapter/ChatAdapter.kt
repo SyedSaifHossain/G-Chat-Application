@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.databinding.ChatItemListBinding // Correct ViewBinding import
 import com.syedsaifhossain.g_chatapplication.models.Chats
+import com.bumptech.glide.Glide
+import com.syedsaifhossain.g_chatapplication.R
 
 class ChatAdapter(
     private val messageList: ArrayList<Chats>,
@@ -15,7 +17,18 @@ class ChatAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(chat: Chats) {
-            binding.chatsImg.setImageResource(chat.imageRes)
+            if (chat.isGroup) {
+                binding.chatsImg.setImageResource(R.drawable.addcontacticon)
+            } else {
+                if (!chat.otherUserAvatarUrl.isNullOrBlank()) {
+                    Glide.with(binding.chatsImg.context)
+                        .load(chat.otherUserAvatarUrl)
+                        .placeholder(R.drawable.default_avatar)
+                        .into(binding.chatsImg)
+                } else {
+                    binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                }
+            }
             binding.nameId.text = chat.name
             binding.messageId.text = chat.message
 

@@ -11,6 +11,7 @@ data class Chats(
     val message: String = "",                // Last message preview
     val otherUserId: String = "",            // ID of the other user
     val otherUserAvatarUrl: String? = null,  // URL string for the other user's avatar
+    val isGroup: Boolean = false,             // 新增
 
     // --- Add these fields for FirebaseManager compatibility ---
     val senderId: String = "",               // Who sent the last message
