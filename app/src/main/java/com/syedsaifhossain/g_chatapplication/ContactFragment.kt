@@ -1,6 +1,8 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,17 +32,35 @@ class ContactFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         loadContactsFromFirebase()
+        // 搜索框监听
+        binding.contactSearchbar.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                contactAdapter.filterContacts(s?.toString() ?: "")
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     private fun setupRecyclerView() {
         binding.contactRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         contactAdapter = ContactAdapter(requireContext(), emptyList()) { contact ->
-            // 点击联系人后跳转到ChatScreenFragment
-            val bundle = Bundle().apply {
-                putString("otherUserId", contact.id)
-                putString("otherUserName", contact.name)
+            when (contact.type) {
+                Contact.TYPE_NEW_FRIENDS -> {
+                    findNavController().navigate(R.id.friendRequestsFragment)
+                }
+                Contact.TYPE_GROUP_CHATS -> {
+                    findNavController().navigate(R.id.groupChatsFragment)
+                }
+                else -> {
+                    // 点击联系人后跳转到ChatScreenFragment
+                    val bundle = Bundle().apply {
+                        putString("otherUserId", contact.id)
+                        putString("otherUserName", contact.name)
+                    }
+                    findNavController().navigate(R.id.chatScreenFragment, bundle)
+                }
             }
-            findNavController().navigate(R.id.chatScreenFragment, bundle)
         }
         binding.contactRecyclerView.adapter = contactAdapter
     }
@@ -52,8 +72,12 @@ class ContactFragment : Fragment() {
 
         friendsRef.get().addOnSuccessListener { snapshot ->
             val friendIds = snapshot.children.mapNotNull { it.key }
+            val displayList = mutableListOf<Contact>()
+            // 插入分组入口
+            displayList.add(Contact(id = "new_friends", name = "New Friends", type = Contact.TYPE_NEW_FRIENDS))
+            displayList.add(Contact(id = "group_chats", name = "Group Chats", type = Contact.TYPE_GROUP_CHATS))
             if (friendIds.isEmpty()) {
-                contactAdapter.updateData(emptyList())
+                contactAdapter.updateData(displayList)
                 return@addOnSuccessListener
             }
 
@@ -64,7 +88,8 @@ class ContactFragment : Fragment() {
                     val phone = userSnap.child("phone").getValue(String::class.java) ?: ""
                     Contact(id = fid, name = name, phone = phone)
                 }
-                contactAdapter.updateData(contacts)
+                displayList.addAll(contacts)
+                contactAdapter.updateData(displayList)
             }
         }
     }
