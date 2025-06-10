@@ -77,11 +77,10 @@ class GroupChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         android.util.Log.d("GroupChatFragment", "onViewCreated 执行了")
         auth = FirebaseAuth.getInstance()
-        chatRef = FirebaseDatabase.getInstance().getReference("group_chats")
-
-        // 动态设置群聊标题
         val groupId = arguments?.getString("groupId")
         if (groupId != null) {
+            chatRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId).child("messages")
+            // 设置群聊标题
             val groupRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId)
             groupRef.child("name").get().addOnSuccessListener { snapshot ->
                 val groupName = snapshot.getValue(String::class.java)
@@ -89,6 +88,9 @@ class GroupChatFragment : Fragment() {
                     binding.groupchatTxt.text = groupName
                 }
             }
+        } else {
+            Toast.makeText(requireContext(), "Group ID is missing", Toast.LENGTH_SHORT).show()
+            return
         }
 
         adapter = GroupMessageAdapter(groupMessages, auth.uid.orEmpty())

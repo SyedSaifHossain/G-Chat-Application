@@ -324,4 +324,9 @@
             android:id="@+id/action_signupViaEmailFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/groupChatsFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.GroupChatsFragment"
+        android:label="Group Chats"
+        tools:layout="@layout/fragment_group_chats" />
 </navigation>

@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ContactFragment"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:background="@drawable/bg_gradient">
 
     <RelativeLayout
         android:id="@+id/contactsLayout"
@@ -14,7 +15,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:background="#E0D9D9">
+        android:background="#000000">
 
         <TextView
             android:id="@+id/contactsTitle"
@@ -27,9 +28,10 @@
             android:gravity="center"
             android:padding="12dp"
             android:text="Contacts"
-            android:textColor="#312D2D"
+            android:textColor="#81d8d0"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:fontFamily="@font/poppins_regular"
+            android:textStyle="normal" />
 
         <ImageView
             android:layout_width="40dp"
@@ -50,33 +52,37 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@id/contactsLayout">
 
-        <ImageView
-            android:id="@+id/searchIcon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="140dp"
-            android:layout_marginTop="24dp"
-            android:src="@drawable/search" />
-
-        <EditText
-            android:id="@+id/contactSearchbar"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="8dp"
-            android:backgroundTint="@android:color/darker_gray"
-            android:drawablePadding="16dp"
-            android:gravity="center_vertical|center"
-            android:hint="Search"
-            android:textColorHint="#AFA9A9"
-            android:textSize="20dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:theme="@android:style/Theme.DeviceDefault"/>
+            android:layout_height="48dp"
+            android:layout_margin="16dp"
+            android:orientation="horizontal"
+            android:background="@drawable/searchbar_bg"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:src="@drawable/search"
+                android:tint="#312D2D" />
+
+            <EditText
+                android:id="@+id/contactSearchbar"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="Search"
+                android:textColorHint="#312D2D"
+                android:textColor="#312D2D"
+                android:textSize="18sp"
+                android:fontFamily="@font/poppins_regular"
+                android:paddingStart="12dp"
+                android:paddingEnd="20dp"
+                android:gravity="center_vertical"
+                android:singleLine="true" />
+        </LinearLayout>
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -36,15 +36,15 @@ class AddContactsFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // 判断输入内容类型
+            // Determine input type
             if (android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()) {
-                // 按邮箱查找
+                // Search by email
                 findUserByEmail(input)
             } else if (android.util.Patterns.PHONE.matcher(input).matches()) {
-                // 规范化手机号码格式
+                // Normalize phone number format
                 val formattedPhone = formatPhoneNumber(input)
-                Log.d("AddContacts", "原始手机号: $input")
-                Log.d("AddContacts", "格式化后手机号: $formattedPhone")
+                Log.d("AddContacts", "Original phone: $input")
+                Log.d("AddContacts", "Formatted phone: $formattedPhone")
                 findUserByPhone(formattedPhone)
             } else {
                 Toast.makeText(requireContext(), "Please enter a valid phone number or email", Toast.LENGTH_SHORT).show()
@@ -54,14 +54,14 @@ class AddContactsFragment : Fragment() {
     }
 
     private fun formatPhoneNumber(phone: String): String {
-        // 移除所有非数字字符
+        // Remove all non-digit characters
         val digitsOnly = phone.replace(Regex("[^0-9+]"), "")
         
-        // 如果号码以+开头，保留+号
+        // If the number starts with +, keep it
         return if (digitsOnly.startsWith("+")) {
             digitsOnly
         } else {
-            // 如果没有+号，添加+号
+            // If no +, add it
             "+$digitsOnly"
         }
     }
@@ -70,21 +70,21 @@ class AddContactsFragment : Fragment() {
         val usersRef = database.getReference("users")
         val currentUser = auth.currentUser ?: return
 
-        Log.d("AddContacts", "开始查询用户，手机号: $phoneNumber")
+        Log.d("AddContacts", "Start querying user, phone: $phoneNumber")
 
-        // 查询用户
+        // Query user
         usersRef.orderByChild("phone").equalTo(phoneNumber)
             .get()
             .addOnSuccessListener { snapshot ->
-                Log.d("AddContacts", "查询结果: ${snapshot.exists()}")
-                Log.d("AddContacts", "查询到的数据: ${snapshot.value}")
+                Log.d("AddContacts", "Query result: ${snapshot.exists()}")
+                Log.d("AddContacts", "Data retrieved: ${snapshot.value}")
                 
                 if (snapshot.exists()) {
-                    // 找到用户，获取第一个匹配的用户ID
+                    // User found, get the first matching user ID
                     val userId = snapshot.children.firstOrNull()?.key
                     if (userId != null) {
                         Log.d("AddContacts", "Found user ID: $userId")
-                        // 直接添加为好友
+                        // Add as friend directly
                         addFriend(userId)
                     } else {
                         Log.d("AddContacts", "User ID not found")
@@ -105,13 +105,13 @@ class AddContactsFragment : Fragment() {
         val usersRef = database.getReference("users")
         val currentUser = auth.currentUser ?: return
 
-        Log.d("AddContacts", "开始查询用户，邮箱: $email")
+        Log.d("AddContacts", "Start querying user, email: $email")
 
         usersRef.orderByChild("email").equalTo(email)
             .get()
             .addOnSuccessListener { snapshot ->
-                Log.d("AddContacts", "查询结果: "+snapshot.exists())
-                Log.d("AddContacts", "查询到的数据: "+snapshot.value)
+                Log.d("AddContacts", "Query result: "+snapshot.exists())
+                Log.d("AddContacts", "Data retrieved: "+snapshot.value)
                 if (snapshot.exists()) {
                     val userId = snapshot.children.firstOrNull()?.key
                     if (userId != null) {
@@ -136,16 +136,16 @@ class AddContactsFragment : Fragment() {
         val currentUser = auth.currentUser ?: return
         val usersRef = database.getReference("users")
 
-        Log.d("AddContacts", "开始添加好友，目标用户ID: $userId")
+        Log.d("AddContacts", "Start adding friend, target user ID: $userId")
 
-        // 在双方的好友列表中添加对方
+        // Add each other to each other's friend list
         usersRef.child(currentUser.uid).child("friends").child(userId).setValue(true)
             .addOnSuccessListener {
                 usersRef.child(userId).child("friends").child(currentUser.uid).setValue(true)
                     .addOnSuccessListener {
                         Log.d("AddContacts", "Friend added successfully")
                         Toast.makeText(requireContext(), "Friend added successfully", Toast.LENGTH_SHORT).show()
-                        // 清空输入框
+                        // Clear input field
                         binding.etContact.text?.clear()
                     }
                     .addOnFailureListener { error ->

@@ -49,8 +49,8 @@ class SignupPageVerificationFragment : Fragment() {
             
             binding.singupPageCountryEdit.setText(countryName)
             binding.singupVerificationEdtPhoneEmail.setText(phoneNumber)
-            binding.singupVerificationEdtPhoneEmail.tag = userName // 存储用户名
-            binding.singupVerificationEdtPhoneEmail.tag = password // 存储密码
+            binding.singupVerificationEdtPhoneEmail.tag = userName // Store username
+            binding.singupVerificationEdtPhoneEmail.tag = password // Store password
         }
 
         binding.singupPageCountryEdit.setOnClickListener {
@@ -148,15 +148,15 @@ class SignupPageVerificationFragment : Fragment() {
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
-            // 验证失败（这里会有验证码过期、无效等所有错误）
+            // Verification failed (includes all errors such as code expired, invalid, etc.)
             if (!isAdded) return
             binding.resendCodeVerify.isEnabled = true
             binding.timeCount.text = ""
 
             val message = when (e) {
-                is FirebaseAuthInvalidCredentialsException -> "请求无效: ${e.message}"
-                is FirebaseTooManyRequestsException -> "短信请求过于频繁，请稍后再试。"
-                else -> "验证码发送失败: ${e.message}"
+                is FirebaseAuthInvalidCredentialsException -> "Invalid request: ${e.message}"
+                is FirebaseTooManyRequestsException -> "SMS requests are too frequent, please try again later."
+                else -> "Failed to send verification code: ${e.message}"
             }
             Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
             Log.e("VERIFICATION", "onVerificationFailed: ${e.message}", e)
@@ -168,7 +168,7 @@ class SignupPageVerificationFragment : Fragment() {
             binding.resendCodeVerify.isEnabled = false
             startTimer()
             Log.d("VERIFICATION", "onCodeSent called. VerificationId: $verificationId")
-            Toast.makeText(requireContext(), "验证码已发送", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Verification code sent", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -210,7 +210,7 @@ class SignupPageVerificationFragment : Fragment() {
                         }
                     }
                 } else {
-                    Toast.makeText(requireContext(), "登录失败: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Login failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }

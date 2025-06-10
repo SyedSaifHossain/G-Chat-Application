@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.syedsaifhossain.g_chatapplication.R
@@ -65,6 +66,7 @@ class ChatMessageAdapter(
         private val voiceLayout: View? = itemView.findViewById(R.id.voice_layout)
         private val voiceIcon: ImageView? = itemView.findViewById(R.id.voice_icon)
         private val voiceDuration: TextView? = itemView.findViewById(R.id.voice_duration)
+        private val imageView: ImageView? = itemView.findViewById(R.id.iv_image)
 
         // --- Modified bind method to accept avatar URL ---
         fun bind(message: ChatModel, avatarUrl: String?) {
@@ -72,6 +74,7 @@ class ChatMessageAdapter(
             if (message.type == "voice") {
                 messageText.visibility = View.GONE
                 voiceLayout?.visibility = View.VISIBLE
+                imageView?.visibility = View.GONE
                 voiceDuration?.text = "${message.duration}\""
                 val playListener = View.OnClickListener {
                     try {
@@ -86,9 +89,25 @@ class ChatMessageAdapter(
                 voiceLayout?.setOnClickListener(playListener)
                 voiceIcon?.setOnClickListener(playListener)
                 voiceDuration?.setOnClickListener(playListener)
+            } else if (message.type == "image" || (!message.imageUrl.isNullOrEmpty())) {
+                // 图片消息
+                messageText.visibility = View.GONE
+                voiceLayout?.visibility = View.GONE
+                imageView?.visibility = View.VISIBLE
+                Glide.with(itemView.context)
+                    .load(message.imageUrl)
+                    .placeholder(R.drawable.bg_gradient)
+                    .error(R.drawable.bg_gradient)
+                    .into(imageView!!)
+                imageView.setOnClickListener {
+                    // 可选：放大预览
+                    // 这里只弹出 Toast，实际可用 Dialog 或新页面展示大图
+                    Toast.makeText(itemView.context, "Preview image", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 messageText.visibility = View.VISIBLE
                 voiceLayout?.visibility = View.GONE
+                imageView?.visibility = View.GONE
                 messageText.text = message.message
             }
             if (avatarUrl != null) {
@@ -112,7 +131,7 @@ class ChatMessageAdapter(
         private val voiceLayout: View? = itemView.findViewById(R.id.voice_layout)
         private val voiceIcon: ImageView? = itemView.findViewById(R.id.voice_icon)
         private val voiceDuration: TextView? = itemView.findViewById(R.id.voice_duration)
-        // TODO: Add handling for image messages if needed later
+        private val imageView: ImageView? = itemView.findViewById(R.id.iv_image)
 
         // --- Modified bind method to accept avatar URL ---
         fun bind(message: ChatModel, avatarUrl: String?) {
@@ -120,6 +139,7 @@ class ChatMessageAdapter(
             if (message.type == "voice") {
                 messageText.visibility = View.GONE
                 voiceLayout?.visibility = View.VISIBLE
+                imageView?.visibility = View.GONE
                 voiceDuration?.text = "${message.duration}\""
                 val playListener = View.OnClickListener {
                     try {
@@ -134,9 +154,25 @@ class ChatMessageAdapter(
                 voiceLayout?.setOnClickListener(playListener)
                 voiceIcon?.setOnClickListener(playListener)
                 voiceDuration?.setOnClickListener(playListener)
+            } else if (message.type == "image" || (!message.imageUrl.isNullOrEmpty())) {
+                // 图片消息
+                messageText.visibility = View.GONE
+                voiceLayout?.visibility = View.GONE
+                imageView?.visibility = View.VISIBLE
+                Glide.with(itemView.context)
+                    .load(message.imageUrl)
+                    .placeholder(R.drawable.bg_gradient)
+                    .error(R.drawable.bg_gradient)
+                    .into(imageView!!)
+                imageView.setOnClickListener {
+                    // 可选：放大预览
+                    // 这里只弹出 Toast，实际可用 Dialog 或新页面展示大图
+                    Toast.makeText(itemView.context, "Preview image", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 messageText.visibility = View.VISIBLE
                 voiceLayout?.visibility = View.GONE
+                imageView?.visibility = View.GONE
                 messageText.text = message.message
             }
             if (avatarUrl != null) {

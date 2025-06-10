@@ -220,7 +220,14 @@ class ChatScreenFragment : Fragment(){
             findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment)
         }
 
-
+        // 绑定下方相机按钮点击事件
+        binding.cameraIcon.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                openCamera()
+            } else {
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
 
         binding.chatAddButton.setOnClickListener { view ->
             val popupMenu = PopupMenu(
@@ -545,7 +552,11 @@ class ChatScreenFragment : Fragment(){
                         val messageId = chatRef.push().key ?: return@addOnSuccessListener
                         val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
                         val message = ChatModel(
-                            senderId = senderId, message = "📷 Image", imageUrl = downloadUrl.toString(), timestamp = System.currentTimeMillis()
+                            senderId = senderId,
+                            message = "📷 Image",
+                            imageUrl = downloadUrl.toString(),
+                            type = "image",
+                            timestamp = System.currentTimeMillis()
                         )
                         chatRef.child(messageId).setValue(message)
                             .addOnSuccessListener { Toast.makeText(requireContext(), "Image sent", Toast.LENGTH_SHORT).show(); Log.d("ChatScreenFragment", "Image message sent") }
