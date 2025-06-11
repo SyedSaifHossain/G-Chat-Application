@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient"
+    tools:context=".MePageFragment">
+
+    <RelativeLayout
+        android:id="@+id/mePageHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="70dp">
+
+
+        <!-- Profile Image -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/meProfileImg"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="40dp"
+            android:src="@drawable/profileimage"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
+
+
+        <!-- Username -->
+        <TextView
+            android:id="@+id/meUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@id/meProfileImg"
+            android:fontFamily="@font/poppins_regular"
+            android:text="Aaron Loeb"
+            android:textColor="#81d8d0"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"/>
+
+        <!-- QR Code Image -->
+        <ImageView
+            android:id="@+id/qcodeImg"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignTop="@id/meProfileImg"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/qcode" />
+
+        <!-- Right Arrow Image -->
+        <ImageView
+            android:id="@+id/merightArrow"
+            android:layout_width="18dp"
+            android:layout_height="40dp"
+            android:layout_below="@id/qcodeImg"
+            android:layout_alignEnd="@id/qcodeImg"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0" />
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/mePageLine"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#81d8d0"
+        android:layout_below="@+id/mePageHeader"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+    <RelativeLayout
+        android:id="@+id/payServiceLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_below="@+id/mePageLine"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true">
+
+        <ImageView
+            android:id="@+id/payServiceImg"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="40dp"
+            android:src="@drawable/payservice"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
+
+        <TextView
+            android:id="@+id/payServiceTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@id/payServiceImg"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Pay and Services"
+            android:textColor="#81d8d0"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"/>
+
+        <ImageView
+            android:id="@+id/payServiceArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignTop="@id/payServiceTxt"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/payServiceImg"
+            android:layout_marginTop="25dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginHorizontal="40dp"
+            android:alpha="0.5"/>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/momentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/payServiceLayout">
+
+
+        <ImageView
+            android:id="@+id/momentImg"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="40dp"
+            android:src="@drawable/moment"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
+
+        <!-- Username -->
+        <TextView
+            android:id="@+id/momentTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@id/momentImg"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Moments"
+            android:textColor="#81d8d0"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"/>
+
+
+        <ImageView
+            android:id="@+id/momentArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignTop="@id/momentTxt"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/momentImg"
+            android:layout_marginTop="25dp"
+            android:alpha="0.5"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginHorizontal="40dp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/channelLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/momentLayout">
+
+        <ImageView
+            android:id="@+id/channelImg"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="40dp"
+            android:src="@drawable/channel"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
+
+        <TextView
+            android:id="@+id/channelTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@id/channelImg"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Channels"
+            android:textColor="#81d8d0"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"/>
+
+
+        <ImageView
+            android:id="@+id/chennelArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignTop="@id/channelTxt"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/channelImg"
+            android:layout_marginTop="25dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginHorizontal="40dp"
+            android:alpha="0.5"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/cardOfferLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/channelLayout">
+
+
+        <!-- Profile Image -->
+        <ImageView
+            android:id="@+id/cardOfferImg"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="40dp"
+            android:src="@drawable/cardoffer"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
+
+        <TextView
+            android:id="@+id/cardOfferTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@id/cardOfferImg"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Cards &amp; Offers"
+            android:textColor="#81d8d0"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"/>
+
+        <ImageView
+            android:id="@+id/cardOfferArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignTop="@id/cardOfferTxt"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/cardOfferImg"
+            android:layout_marginTop="25dp"
+            android:alpha="0.5"
+            android:layout_marginHorizontal="40dp"/>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/favoriteLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cardOfferLayout">
+
+        <!-- Profile Image -->
+        <ImageView
+            android:id="@+id/favoriteImg"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="40dp"
+            android:src="@drawable/favorite"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
+
+        <!-- Username -->
+        <TextView
+            android:id="@+id/favoriteTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@id/favoriteImg"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Favorites"
+            android:textColor="#81d8d0"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"/>
+
+
+        <ImageView
+            android:id="@+id/favoiriteArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignTop="@id/favoriteTxt"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/favoriteImg"
+
+            android:layout_marginTop="15dp"
+            android:layout_marginHorizontal="40dp"
+            android:alpha="0.5"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/stickerGalleryLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/favoriteLayout">
+
+
+        <ImageView
+            android:id="@+id/stickerGalleryImg"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="40dp"
+            android:src="@drawable/menewicon"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
+
+        <!-- Username -->
+        <TextView
+            android:id="@+id/stickerGalleryTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@id/stickerGalleryImg"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Sticker Gallery"
+            android:textColor="#81d8d0"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"/>
+
+        <ImageView
+            android:id="@+id/stickerGalleryArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignTop="@id/stickerGalleryTxt"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/stickerGalleryImg"
+            android:layout_maginTop="25dp"
+            android:layout_marginHorizontal="40dp"
+            android:alpha="0.5"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/settingsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stickerGalleryLayout">
+
+
+        <ImageView
+            android:id="@+id/settingsImg"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="40dp"
+            android:src="@drawable/settings"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
+
+        <TextView
+            android:id="@+id/settingsTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@id/settingsImg"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Settings"
+            android:textColor="#81d8d0"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"/>
+
+        <ImageView
+            android:id="@+id/settingsArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignTop="@id/settingsTxt"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/settingsImg"
+            android:layout_marginTop="30dp"
+            android:alpha="0.5"
+            android:layout_marginHorizontal="40dp"/>
+    </RelativeLayout>
+
+</RelativeLayout>
