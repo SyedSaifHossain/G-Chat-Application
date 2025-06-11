@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">G-Chat Uygulaması</string>
+    <!-- === 添加这些阿尔巴尼亚语翻译 === -->
+    <string name="settings_title">Cilësimet</string>
+    <string name="select_language_title">Zgjidh gjuhën</string>
+    <string name="privacy_clicked">U klikua cilësimet e privatësisë</string>
+    <string name="about_clicked">U klikua Rreth</string>
+    <string name="cannot_open_notification_settings">Nuk mund të hapen cilësimet e njoftimeve</string>
+    <string name="setting_language">Gjuha</string>
+    <string name="setting_notifications">Njoftimet</string>
+    <string name="setting_privacy">Privatësia</string>
+    <string name="setting_about">Rreth</string>
+    <string name="favorites_title">Të preferuarat</string>
+</resources>

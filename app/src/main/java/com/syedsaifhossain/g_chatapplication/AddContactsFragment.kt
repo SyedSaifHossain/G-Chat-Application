@@ -1,59 +1,166 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.syedsaifhossain.g_chatapplication.databinding.FragmentAddContactsBinding
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [AddContactsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class AddContactsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private var _binding: FragmentAddContactsBinding? = null
+    private val binding get() = _binding!!
+    private val database = FirebaseDatabase.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAddContactsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.btnSaveContact.setOnClickListener {
+            val input = binding.etContact.text.toString().trim()
+            if (input.isEmpty()) {
+                Toast.makeText(requireContext(), "Please enter a phone number or email", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Determine input type
+            if (android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()) {
+                // Search by email
+                findUserByEmail(input)
+            } else if (android.util.Patterns.PHONE.matcher(input).matches()) {
+                // Normalize phone number format
+                val formattedPhone = formatPhoneNumber(input)
+                Log.d("AddContacts", "Original phone: $input")
+                Log.d("AddContacts", "Formatted phone: $formattedPhone")
+                findUserByPhone(formattedPhone)
+            } else {
+                Toast.makeText(requireContext(), "Please enter a valid phone number or email", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_add_contacts, container, false)
+    private fun formatPhoneNumber(phone: String): String {
+        // Remove all non-digit characters
+        val digitsOnly = phone.replace(Regex("[^0-9+]"), "")
+        
+        // If the number starts with +, keep it
+        return if (digitsOnly.startsWith("+")) {
+            digitsOnly
+        } else {
+            // If no +, add it
+            "+$digitsOnly"
+        }
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment AddContactsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            AddContactsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun findUserByPhone(phoneNumber: String) {
+        val usersRef = database.getReference("users")
+        val currentUser = auth.currentUser ?: return
+
+        Log.d("AddContacts", "Start querying user, phone: $phoneNumber")
+
+        // Query user
+        usersRef.orderByChild("phone").equalTo(phoneNumber)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                Log.d("AddContacts", "Query result: ${snapshot.exists()}")
+                Log.d("AddContacts", "Data retrieved: ${snapshot.value}")
+                
+                if (snapshot.exists()) {
+                    // User found, get the first matching user ID
+                    val userId = snapshot.children.firstOrNull()?.key
+                    if (userId != null) {
+                        Log.d("AddContacts", "Found user ID: $userId")
+                        // Add as friend directly
+                        addFriend(userId)
+                    } else {
+                        Log.d("AddContacts", "User ID not found")
+                        Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.d("AddContacts", "No matching user found")
+                    Toast.makeText(requireContext(), "No user found with this phone number", Toast.LENGTH_SHORT).show()
                 }
             }
+            .addOnFailureListener { error ->
+                Log.e("AddContacts", "Query failed", error)
+                Toast.makeText(requireContext(), "Failed to query user: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun findUserByEmail(email: String) {
+        val usersRef = database.getReference("users")
+        val currentUser = auth.currentUser ?: return
+
+        Log.d("AddContacts", "Start querying user, email: $email")
+
+        usersRef.orderByChild("email").equalTo(email)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                Log.d("AddContacts", "Query result: "+snapshot.exists())
+                Log.d("AddContacts", "Data retrieved: "+snapshot.value)
+                if (snapshot.exists()) {
+                    val userId = snapshot.children.firstOrNull()?.key
+                    if (userId != null) {
+                        Log.d("AddContacts", "Found user ID: $userId")
+                        addFriend(userId)
+                    } else {
+                        Log.d("AddContacts", "User ID not found")
+                        Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.d("AddContacts", "No matching user found")
+                    Toast.makeText(requireContext(), "No user found with this email", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { error ->
+                Log.e("AddContacts", "Query failed", error)
+                Toast.makeText(requireContext(), "Failed to query user: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun addFriend(userId: String) {
+        val currentUser = auth.currentUser ?: return
+        val usersRef = database.getReference("users")
+
+        Log.d("AddContacts", "Start adding friend, target user ID: $userId")
+
+        // Add each other to each other's friend list
+        usersRef.child(currentUser.uid).child("friends").child(userId).setValue(true)
+            .addOnSuccessListener {
+                usersRef.child(userId).child("friends").child(currentUser.uid).setValue(true)
+                    .addOnSuccessListener {
+                        Log.d("AddContacts", "Friend added successfully")
+                        Toast.makeText(requireContext(), "Friend added successfully", Toast.LENGTH_SHORT).show()
+                        // Clear input field
+                        binding.etContact.text?.clear()
+                    }
+                    .addOnFailureListener { error ->
+                        Log.e("AddContacts", "Failed to add friend", error)
+                        Toast.makeText(requireContext(), "Failed to add friend: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .addOnFailureListener { error ->
+                Log.e("AddContacts", "Failed to add friend", error)
+                Toast.makeText(requireContext(), "Failed to add friend: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

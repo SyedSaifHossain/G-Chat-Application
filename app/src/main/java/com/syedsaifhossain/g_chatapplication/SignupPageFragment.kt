@@ -1,59 +1,132 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.syedsaifhossain.g_chatapplication.databinding.FragmentSignupPageBinding
+import com.google.i18n.phonenumbers.NumberParseException
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SignupPageFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SignupPageFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var binding: FragmentSignupPageBinding
+    private lateinit var auth: FirebaseAuth
+    private var selectedCountryName: String? = null
+    private var phoneNumberWithCode: String? = null
+    private val countryRegionMap = mutableMapOf<String, String>()
+    private val countryCodeMap = mutableMapOf<String, String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_signup_page, container, false)
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentSignupPageBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SignupPageFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SignupPageFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        auth = FirebaseAuth.getInstance()
+        initializeViews()
+        setupClickListeners()
+        setupCountryList()
+
+        binding.signupViaEmailTxt.setOnClickListener {
+            findNavController().navigate(R.id.action_signupPageFragment_to_signupViaEmailFragment)
+        }
+
+        binding.signupBackArrow.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
     }
+
+    private fun initializeViews() {
+        binding.signupPageNextButton.text = "Next"
+    }
+
+    private fun setupClickListeners() {
+        binding.signupPageCountryEdit.setOnClickListener {
+            findNavController().navigate(R.id.action_signupPageFragment_to_selectRegionFragment)
+        }
+
+        parentFragmentManager.setFragmentResultListener("regionSelection", viewLifecycleOwner) { _, bundle ->
+            selectedCountryName = bundle.getString("selectedCountry", "")
+            binding.signupPageCountryEdit.setText(selectedCountryName)
+
+            val code = getCountryCode(selectedCountryName!!)
+
+            val currentPhoneNumber = binding.signupPagePhoneEdt.text.toString()
+            if (!currentPhoneNumber.startsWith(code)) {
+                binding.signupPagePhoneEdt.setText(code)
+                binding.signupPagePhoneEdt.setSelection(code.length)
+            }
+        }
+
+        binding.signupPageNextButton.setOnClickListener {
+            phoneNumberWithCode = binding.signupPagePhoneEdt.text.toString().trim()
+
+            if (selectedCountryName.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), "Please select a country/region", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (isValidPhoneNumber(phoneNumberWithCode!!)) {
+                val bundle = Bundle()
+                bundle.putString("countryName", selectedCountryName)
+                bundle.putString("phoneNumberWithCode", phoneNumberWithCode)
+                findNavController().navigate(R.id.action_signupPageFragment_to_signupPageVerificationFragment, bundle)
+            } else {
+                Toast.makeText(requireContext(), "Please enter a valid phone number with country code", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun isValidPhoneNumber(phone: String): Boolean {
+        return try {
+            val phoneNumberUtil = PhoneNumberUtil.getInstance()
+            val number: PhoneNumber = phoneNumberUtil.parse(phone, null)
+            phoneNumberUtil.isValidNumber(number)
+        } catch (e: NumberParseException) {
+            false
+        }
+    }
+
+    private fun getCountryCode(countryName: String): String {
+        return countryCodeMap[countryName] ?: "+1"
+    }
+
+    private fun setupCountryList() {
+        val phoneUtil = PhoneNumberUtil.getInstance()
+
+        val countryList = phoneUtil.supportedRegions.map { regionCode ->
+            val countryName = java.util.Locale("", regionCode).displayCountry
+
+            val countryCode = if (countryName == "Bangladesh") {
+                "+880"
+            } else {
+                "+${phoneUtil.getCountryCodeForRegion(regionCode)}"
+            }
+
+            countryRegionMap[countryName] = regionCode
+            countryCodeMap[countryName] = countryCode
+            countryName
+        }.sorted()
+
+        val adapter = android.widget.ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, countryList)
+        binding.signupPageCountryEdit.setAdapter(adapter)
+
+        binding.signupPageCountryEdit.setOnItemClickListener { _, _, position, _ ->
+            selectedCountryName = countryList[position]
+            val code = countryCodeMap[selectedCountryName] ?: "+1"
+            binding.signupPagePhoneEdt.setText(code)
+            binding.signupPagePhoneEdt.setSelection(code.length)
+        }
+    }
+
 }

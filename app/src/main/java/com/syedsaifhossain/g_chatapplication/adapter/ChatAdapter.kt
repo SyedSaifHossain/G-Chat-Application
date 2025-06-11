@@ -5,34 +5,68 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.databinding.ChatItemListBinding // Correct ViewBinding import
 import com.syedsaifhossain.g_chatapplication.models.Chats
+import com.bumptech.glide.Glide
+import com.syedsaifhossain.g_chatapplication.R
 
-class ChatAdapter(private val messageList: ArrayList<Chats>) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
+class ChatAdapter(
+    private val messageList: ArrayList<Chats>,
+    private val onItemClick: (Chats) -> Unit // Now passes chat info if needed
+) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
-    // ViewHolder to bind each chat item view using ViewBinding
-    inner class ChatViewHolder(private val binding: ChatItemListBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ChatViewHolder(private val binding: ChatItemListBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        // You can now access your views via the 'binding' object directly
         fun bind(chat: Chats) {
-            binding.chatsImg.setImageResource(chat.imageRes)
+            if (chat.isGroup) {
+                binding.chatsImg.setImageResource(R.drawable.addcontacticon)
+            } else {
+                if (!chat.otherUserAvatarUrl.isNullOrBlank()) {
+                    Glide.with(binding.chatsImg.context)
+                        .load(chat.otherUserAvatarUrl)
+                        .placeholder(R.drawable.default_avatar)
+                        .into(binding.chatsImg)
+                } else {
+                    binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                }
+            }
             binding.nameId.text = chat.name
-            binding.messageId.text = chat.message
+
+            // 语音消息显示逻辑
+            if (chat.type == "voice") {
+                binding.messageId.visibility = android.view.View.GONE
+                binding.voiceLayout.visibility = android.view.View.VISIBLE
+                binding.voiceDuration.text = "${chat.duration}\""
+                binding.voiceLayout.setOnClickListener {
+                    // 播放语音
+                    try {
+                        val mediaPlayer = android.media.MediaPlayer()
+                        mediaPlayer.setDataSource(chat.message)
+                        mediaPlayer.prepare()
+                        mediaPlayer.start()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            } else {
+                binding.messageId.visibility = android.view.View.VISIBLE
+                binding.voiceLayout.visibility = android.view.View.GONE
+                binding.messageId.text = chat.message
+            }
+
+            binding.root.setOnClickListener {
+                onItemClick(chat)
+            }
         }
     }
 
-    // Create and return the view holder for each item
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
         val binding = ChatItemListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ChatViewHolder(binding)
     }
 
-    // Bind the data for each item to the view holder
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-        val message = messageList[position]
-        holder.bind(message) // Bind data using the bind method
+        holder.bind(messageList[position])
     }
 
-    // Return the total number of items
-    override fun getItemCount(): Int {
-        return messageList.size
-    }
+    override fun getItemCount(): Int = messageList.size
 }

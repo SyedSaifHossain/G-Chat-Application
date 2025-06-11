@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">تطبيق G-Chat</string>
+    <string name="settings_title">الإعدادات</string>
+    <string name="select_language_title">اختر اللغة</string>
+    <string name="privacy_clicked">تم النقر فوق إعدادات الخصوصية</string>
+    <string name="about_clicked">تم النقر فوق حول</string>
+    <string name="cannot_open_notification_settings">لا يمكن فتح إعدادات الإشعار</string>
+    <string name="setting_language">اللغة</string>
+    <string name="setting_notifications">الإشعارات</string>
+    <string name="setting_privacy">الخصوصية</string>
+    <string name="setting_about">حول</string>
+    <string name="favorites_title">المفضلة</string>
+    <!-- ^ ^ ^ ADD THIS LINE ^ ^ ^ -->
+
+</resources> <!-- <<< 确保这一行存在于文件末尾 -->

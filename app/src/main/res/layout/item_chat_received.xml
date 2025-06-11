@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="60dp"
+    android:background="@android:color/transparent">
+    <!-- Add paddingEnd to prevent bubble touching edge -->
+
+    <ImageView
+        android:id="@+id/iv_avatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="8dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/profile" />
+
+    <LinearLayout
+        android:id="@+id/layout_message_bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/iv_avatar"
+        android:layout_alignTop="@id/iv_avatar"
+        android:orientation="vertical"
+        android:background="@drawable/bg_chat_received"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:layout_marginLeft="15dp"
+            android:text="Received message text" />
+
+        <!-- Optional: TextView for timestamp -->
+        <TextView
+            android:id="@+id/tv_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:layout_marginTop="4dp"
+            android:layout_gravity="end"
+            android:textColor="@android:color/black"
+            android:text="10:00 AM"/>
+
+        <!-- 语音消息气泡（微信风格） -->
+        <LinearLayout
+            android:id="@+id/voice_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone"
+            android:layout_marginTop="4dp">
+            <ImageView
+                android:id="@+id/voice_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_voice_msg"
+                android:contentDescription="voice icon" />
+            <TextView
+                android:id="@+id/voice_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text='4"'
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- 图片消息显示 -->
+        <ImageView
+            android:id="@+id/iv_image"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="6dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</RelativeLayout>
