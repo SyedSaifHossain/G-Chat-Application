@@ -6,7 +6,8 @@
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
     android:paddingStart="16dp"
-    android:paddingEnd="60dp">
+    android:paddingEnd="60dp"
+    android:background="@android:color/transparent">
     <!-- Add paddingEnd to prevent bubble touching edge -->
 
     <ImageView
@@ -48,6 +49,40 @@
             android:layout_gravity="end"
             android:textColor="@android:color/black"
             android:text="10:00 AM"/>
+
+        <!-- 语音消息气泡（微信风格） -->
+        <LinearLayout
+            android:id="@+id/voice_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone"
+            android:layout_marginTop="4dp">
+            <ImageView
+                android:id="@+id/voice_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_voice_msg"
+                android:contentDescription="voice icon" />
+            <TextView
+                android:id="@+id/voice_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text='4"'
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- 图片消息显示 -->
+        <ImageView
+            android:id="@+id/iv_image"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="6dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
 
     </LinearLayout>
 

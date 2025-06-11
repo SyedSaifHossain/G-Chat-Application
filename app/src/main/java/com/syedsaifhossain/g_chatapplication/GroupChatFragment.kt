@@ -60,17 +60,38 @@ class GroupChatFragment : Fragment() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        android.util.Log.d("GroupChatFragment", "onCreate 执行了")
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        android.util.Log.d("GroupChatFragment", "onCreateView 执行了")
         _binding = FragmentGroupChatBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        android.util.Log.d("GroupChatFragment", "onViewCreated 执行了")
         auth = FirebaseAuth.getInstance()
-        chatRef = FirebaseDatabase.getInstance().getReference("group_chats")
+        val groupId = arguments?.getString("groupId")
+        if (groupId != null) {
+            chatRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId).child("messages")
+            // 设置群聊标题
+            val groupRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId)
+            groupRef.child("name").get().addOnSuccessListener { snapshot ->
+                val groupName = snapshot.getValue(String::class.java)
+                if (!groupName.isNullOrEmpty()) {
+                    binding.groupchatTxt.text = groupName
+                }
+            }
+        } else {
+            Toast.makeText(requireContext(), "Group ID is missing", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         adapter = GroupMessageAdapter(groupMessages, auth.uid.orEmpty())
         binding.groupChatRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -111,6 +132,10 @@ class GroupChatFragment : Fragment() {
         binding.groupchatBackImg.setOnClickListener {
             findNavController().popBackStack()
         }
+
+        // 设置群聊默认头像并加日志
+        android.util.Log.d("GroupChatFragment", "设置群聊头像")
+        binding.groupchatAvatar.setImageResource(R.drawable.addcontacticon)
     }
 
     private fun sendMessage() {

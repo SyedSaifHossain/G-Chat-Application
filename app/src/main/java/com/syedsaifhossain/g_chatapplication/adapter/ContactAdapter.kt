@@ -11,43 +11,122 @@ import com.syedsaifhossain.g_chatapplication.models.Contact
 
 class ContactAdapter(
     private val context: Context,
-    private var contactsList: List<Contact>,
+    contactsList: List<Contact>,
     private val onItemClick: (Contact) -> Unit
-) : RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private var allContactsList: List<Contact> = contactsList // 全量数据
     private var filteredContactsList: List<Contact> = contactsList
 
+    companion object {
+        private const val VIEW_TYPE_GROUP = 1
+        private const val VIEW_TYPE_NORMAL = 0
+        private const val VIEW_TYPE_SECTION = 2
+    }
+
+    // 普通联系人ViewHolder
     class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val contactName: TextView = itemView.findViewById(R.id.contactName)
     }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.contact_item, parent, false)
-        return ContactViewHolder(view)
+    // 分组入口ViewHolder
+    class GroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val groupIcon: android.widget.ImageView = itemView.findViewById(R.id.groupIcon)
+        val groupName: TextView = itemView.findViewById(R.id.groupName)
     }
 
-    override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
-        val contact = filteredContactsList[position]
-        holder.contactName.text = contact.name
+    // Section Header ViewHolder
+    class SectionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val sectionTitle: TextView = itemView.findViewById(R.id.sectionTitle)
+    }
 
-        holder.itemView.setOnClickListener {
-            onItemClick(contact)
+    override fun getItemViewType(position: Int): Int {
+        return when (filteredContactsList[position].type) {
+            Contact.TYPE_NEW_FRIENDS, Contact.TYPE_GROUP_CHATS -> VIEW_TYPE_GROUP
+            Contact.TYPE_SECTION -> VIEW_TYPE_SECTION
+            else -> VIEW_TYPE_NORMAL
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            VIEW_TYPE_GROUP -> {
+                val view = LayoutInflater.from(context).inflate(R.layout.item_contact_group, parent, false)
+                GroupViewHolder(view)
+            }
+            VIEW_TYPE_SECTION -> {
+                val view = LayoutInflater.from(context).inflate(R.layout.item_contact_section, parent, false)
+                SectionViewHolder(view)
+            }
+            else -> {
+                val view = LayoutInflater.from(context).inflate(R.layout.contact_item, parent, false)
+                ContactViewHolder(view)
+            }
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val contact = filteredContactsList[position]
+        when (holder) {
+            is GroupViewHolder -> {
+                holder.groupName.text = contact.name
+                when (contact.type) {
+                    Contact.TYPE_NEW_FRIENDS -> holder.groupIcon.setImageResource(R.drawable.friendsicon)
+                    Contact.TYPE_GROUP_CHATS -> holder.groupIcon.setImageResource(R.drawable.addcontacticon)
+                }
+                holder.itemView.setOnClickListener { onItemClick(contact) }
+            }
+            is SectionViewHolder -> {
+                holder.sectionTitle.text = contact.name
+            }
+            is ContactViewHolder -> {
+                holder.contactName.text = contact.name
+                holder.itemView.setOnClickListener { onItemClick(contact) }
+            }
         }
     }
 
     override fun getItemCount(): Int = filteredContactsList.size
 
     fun updateData(newContactsList: List<Contact>) {
-        contactsList = newContactsList
-        filteredContactsList = newContactsList
+        allContactsList = newContactsList
+        filteredContactsList = groupAndSortContacts(newContactsList)
         notifyDataSetChanged()
     }
 
-    fun filterContacts(query: String): List<Contact> {
-        return if (query.isEmpty()) {
-            contactsList
+    fun filterContacts(query: String) {
+        val filtered = if (query.isEmpty()) {
+            allContactsList
         } else {
-            contactsList.filter { it.name.contains(query, ignoreCase = true) }
+            allContactsList.filter { it.name.contains(query, ignoreCase = true) || it.type != Contact.TYPE_NORMAL }
         }
+        filteredContactsList = groupAndSortContacts(filtered)
+        notifyDataSetChanged()
+    }
+
+    // 分组排序并插入Section Header
+    private fun groupAndSortContacts(list: List<Contact>): List<Contact> {
+        val result = mutableListOf<Contact>()
+        // 保留前面的分组入口
+        val special = list.filter { it.type != Contact.TYPE_NORMAL }
+        result.addAll(special)
+        // 普通联系人分组
+        val normalContacts = list.filter { it.type == Contact.TYPE_NORMAL }
+        val grouped = normalContacts.groupBy {
+            val c = it.name.firstOrNull()?.uppercaseChar() ?: '#'
+            if (c in 'A'..'Z') c else '#'
+        }
+        val azKeys = grouped.keys.filter { it != '#' }.sorted()
+        val otherKey = grouped.keys.filter { it == '#' }
+        // 先A-Z分组
+        for (key in azKeys) {
+            result.add(Contact(name = key.toString(), type = Contact.TYPE_SECTION))
+            result.addAll(grouped[key]!!.sortedBy { it.name.uppercase() })
+        }
+        // 最后特殊符号分组
+        for (key in otherKey) {
+            result.add(Contact(name = key.toString(), type = Contact.TYPE_SECTION))
+            result.addAll(grouped[key]!!.sortedBy { it.name.uppercase() })
+        }
+        return result
     }
 }
