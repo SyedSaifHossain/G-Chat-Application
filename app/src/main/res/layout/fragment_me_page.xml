@@ -135,6 +135,8 @@
         android:id="@+id/momentLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/payServiceLayout">
 
 
@@ -148,7 +150,6 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true" />
 
-        <!-- Username -->
         <TextView
             android:id="@+id/momentTxt"
             android:layout_width="wrap_content"
@@ -183,12 +184,15 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="40dp"/>
+
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/channelLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/momentLayout">
 
         <ImageView
@@ -230,21 +234,23 @@
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/channelImg"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="25dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="40dp"
             android:alpha="0.5"/>
+
+
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/cardOfferLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/channelLayout">
 
-
-        <!-- Profile Image -->
         <ImageView
             android:id="@+id/cardOfferImg"
             android:layout_width="35dp"
@@ -283,18 +289,23 @@
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/cardOfferImg"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="25dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
             android:alpha="0.5"
             android:layout_marginHorizontal="40dp"/>
+
+
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/favoriteLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/cardOfferLayout">
 
-        <!-- Profile Image -->
         <ImageView
             android:id="@+id/favoriteImg"
             android:layout_width="35dp"
@@ -305,7 +316,6 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true" />
 
-        <!-- Username -->
         <TextView
             android:id="@+id/favoriteTxt"
             android:layout_width="wrap_content"
@@ -318,7 +328,6 @@
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_centerVertical="true"/>
-
 
         <ImageView
             android:id="@+id/favoiriteArrow"
@@ -335,17 +344,22 @@
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/favoriteImg"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="25dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="40dp"
             android:alpha="0.5"/>
+
+
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/stickerGalleryLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/favoriteLayout">
-
 
         <ImageView
             android:id="@+id/stickerGalleryImg"
@@ -386,7 +400,9 @@
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/stickerGalleryImg"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="25dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="40dp"
             android:alpha="0.5"/>
     </RelativeLayout>
@@ -395,8 +411,9 @@
         android:id="@+id/settingsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/stickerGalleryLayout">
-
 
         <ImageView
             android:id="@+id/settingsImg"
@@ -436,7 +453,9 @@
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/settingsImg"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="25dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
             android:alpha="0.5"
             android:layout_marginHorizontal="40dp"/>
     </RelativeLayout>
