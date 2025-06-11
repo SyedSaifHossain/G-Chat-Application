@@ -31,14 +31,15 @@
             android:src="@drawable/leftarrow"
             app:tint="#81d8d0" />
 
-        <ImageView
+
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/toolbarUserImage"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/chatMessage_back_img"
-            android:src="@drawable/default_avatar"
-            app:tint="#81d8d0" />
+            android:src="@drawable/profileimage"
+            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
         <TextView
             android:id="@+id/tvToolbarUserName"
@@ -195,7 +196,8 @@
             android:background="@drawable/round_shape_bg"
             android:backgroundTint="#81d8d0"
             android:padding="8dp"
-            android:src="@drawable/send" />
+            android:src="@drawable/send"
+            app:tint="#000000" />
     </RelativeLayout>
 
     <!-- Recording Indicator Layout (hidden initially) -->
