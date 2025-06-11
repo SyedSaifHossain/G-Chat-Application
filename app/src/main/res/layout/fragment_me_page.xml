@@ -112,7 +112,6 @@
             android:id="@+id/payServiceArrow"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_alignTop="@id/payServiceTxt"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="40dp"
             android:layout_centerVertical="true"
@@ -168,7 +167,6 @@
             android:id="@+id/momentArrow"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_alignTop="@id/momentTxt"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="40dp"
             android:layout_centerVertical="true"
@@ -221,7 +219,6 @@
             android:id="@+id/chennelArrow"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_alignTop="@id/channelTxt"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="40dp"
             android:layout_centerVertical="true"
@@ -233,7 +230,7 @@
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/channelImg"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="30dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="40dp"
@@ -275,7 +272,6 @@
             android:id="@+id/cardOfferArrow"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_alignTop="@id/cardOfferTxt"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="40dp"
             android:layout_centerVertical="true"
@@ -287,11 +283,10 @@
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/cardOfferImg"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="30dp"
             android:alpha="0.5"
             android:layout_marginHorizontal="40dp"/>
     </RelativeLayout>
-
 
     <RelativeLayout
         android:id="@+id/favoriteLayout"
@@ -329,7 +324,6 @@
             android:id="@+id/favoiriteArrow"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_alignTop="@id/favoriteTxt"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="40dp"
             android:layout_centerVertical="true"
@@ -341,8 +335,7 @@
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/favoriteImg"
-
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="30dp"
             android:layout_marginHorizontal="40dp"
             android:alpha="0.5"/>
     </RelativeLayout>
@@ -364,7 +357,6 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true" />
 
-        <!-- Username -->
         <TextView
             android:id="@+id/stickerGalleryTxt"
             android:layout_width="wrap_content"
@@ -378,11 +370,11 @@
             android:textStyle="bold"
             android:layout_centerVertical="true"/>
 
+
         <ImageView
             android:id="@+id/stickerGalleryArrow"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_alignTop="@id/stickerGalleryTxt"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="40dp"
             android:layout_centerVertical="true"
@@ -394,7 +386,7 @@
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/stickerGalleryImg"
-            android:layout_maginTop="25dp"
+            android:layout_marginTop="30dp"
             android:layout_marginHorizontal="40dp"
             android:alpha="0.5"/>
     </RelativeLayout>
@@ -433,7 +425,6 @@
             android:id="@+id/settingsArrow"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_alignTop="@id/settingsTxt"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="40dp"
             android:layout_centerVertical="true"
