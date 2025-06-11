@@ -2,16 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/newChats"
-        android:icon="@drawable/chatsfilledicon"
+        android:icon="@drawable/chaticon"
         android:title="New Chats" />
 
     <item
         android:id="@+id/addContacts"
-        android:icon="@drawable/addfriendsfilledicon"
+        android:icon="@drawable/addcontact"
         android:title="Add Contacts"/>
 
     <item
         android:id="@+id/scan"
-        android:icon="@drawable/scanfilledicon"
+        android:icon="@drawable/scannericon"
         android:title="Scan"/>
 </menu>

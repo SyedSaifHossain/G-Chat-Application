@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/galleryGroup">
+        <item
+            android:id="@+id/galleryId"
+            android:icon="@drawable/galleryicon"
+            android:title="Gallery" />
+    </group>
+
+    <group android:id="@+id/documentyGroup">
+        <item
+            android:id="@+id/documentId"
+            android:icon="@drawable/document"
+            android:title="Documents" />
+    </group>
+
+    <group android:id="@+id/contactGroup">
+        <item
+            android:id="@+id/contactId"
+            android:icon="@drawable/addcontact"
+            android:title="Contact" />
+    </group>
+
+</menu>

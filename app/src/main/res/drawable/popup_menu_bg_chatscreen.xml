@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Arrow triangle (rotated square) -->
+    <item
+        android:left="50dp"
+        android:bottom="20dp"
+        android:gravity="left|bottom">
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="50%"
+            android:pivotY="50%">
+            <shape android:shape="rectangle">
+                <solid android:color="#81d8d0" />
+                <size android:width="15dp" android:height="15dp" />
+            </shape>
+        </rotate>
+    </item>
+
+    <!-- Main popup background (moved up so arrow appears below it) -->
+    <item android:bottom="25dp"
+        android:right="15dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#81d8d0" />
+            <corners android:radius="8dp" />
+            <size android:width="80dp"
+                android:height="200dp"/>
+            <padding android:bottom="25dp"/>
+        </shape>
+    </item>
+
+</layer-list>

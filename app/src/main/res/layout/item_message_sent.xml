@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="end"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <com.vanniktech.emoji.EmojiTextView
+        android:id="@+id/sentMessageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_chat_sent"
+        android:padding="10dp"
+        android:textColor="#000" />
+
+    <ImageView
+        android:id="@+id/sentMessageImage"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        android:adjustViewBounds="true"
+        android:maxHeight="300dp"
+        android:maxWidth="200dp"/>
+
+    <TextView
+        android:id="@+id/sentTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:textColor="#AAA"/>
+
+</LinearLayout>

@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
     <item
-        android:id="@+id/navigation_chat"
-        android:icon="@drawable/chaticonnew"
+        android:id="@+id/nav_chats"
+        android:icon="@drawable/gchaticon"
         android:title="Chats" />
 
     <item
-        android:id="@+id/navigation_contact"
-        android:icon="@drawable/contacticonnew"
+        android:id="@+id/nav_contacts"
+        android:icon="@drawable/personicon"
         android:title="Contacts" />
 
     <item
-        android:id="@+id/navigation_discover"
-        android:icon="@drawable/discovericonnew"
+        android:id="@+id/nav_discover"
+        android:icon="@drawable/discoverbottomnav"
         android:title="Discover" />
-    <item
-        android:id="@+id/navigation_me"
-        android:icon="@drawable/meiconnew"
-        android:title="Me" />
 
+    <item
+        android:id="@+id/nav_me"
+        android:icon="@drawable/meicon"
+        android:title="Me" />
 </menu>

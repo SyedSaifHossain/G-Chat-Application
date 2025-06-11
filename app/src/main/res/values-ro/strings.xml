@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aplicația G-Chat</string>
+    <!-- === 添加这些罗马尼亚语翻译 === -->
+    <string name="settings_title">Setări</string>
+    <string name="select_language_title">Selectați limba</string>
+    <string name="privacy_clicked">S-a făcut clic pe setările de confidențialitate</string>
+    <string name="about_clicked">S-a făcut clic pe Despre</string>
+    <string name="cannot_open_notification_settings">Nu s-au putut deschide setările de notificare</string>
+    <string name="setting_language">Limbă</string>
+    <string name="setting_notifications">Notificări</string>
+    <string name="setting_privacy">Confidențialitate</string>
+    <string name="setting_about">Despre</string>
+
+    <!-- 下面这一行是修正后的 favorites_title -->
+    <string name="favorites_title">Favorite</string>
+    <!-- === 添加结束 === (这个注释可以保留，也可以删除) -->
+
+</resources>

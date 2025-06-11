@@ -12,6 +12,7 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.database.FirebaseDatabase
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentLoginViaPhoneBinding
 import java.util.concurrent.TimeUnit
 
@@ -123,10 +124,28 @@ class LoginViaPhoneFragment : Fragment() {
                         // Login success
                         val user = auth.currentUser
                         if (user != null) {
-                            val phoneNumber = user.phoneNumber
+                            val phoneNumber = user.phoneNumber ?: ""
+                            // 写入用户信息到Realtime Database
+                            val dbRef = FirebaseDatabase.getInstance().getReference("users")
+                            val userInfo = com.syedsaifhossain.g_chatapplication.models.User(
+                                uid = user.uid,
+                                name = "G-Chat User", // 你可以让用户输入昵称后再写入
+                                phone = phoneNumber,
+                                email = user.email ?: "",
+                                avatarUrl = user.photoUrl?.toString() ?: "",
+                                status = "Hey there! I'm using G-Chat",
+                                isOnline = true,
+                                lastSeen = System.currentTimeMillis()
+                            )
+                            dbRef.child(user.uid).setValue(userInfo)
+                                .addOnSuccessListener {
+                                    Toast.makeText(requireContext(), "User info saved successfully", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(requireContext(), "Failed to save user info: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
                             Toast.makeText(requireContext(), "Logged in as $phoneNumber", Toast.LENGTH_SHORT).show()
                         }
-
                         // Navigate to the home screen after successful login
                         findNavController().navigate(R.id.action_loginViaPhoneFragment_to_homeFragment)
                     } else {

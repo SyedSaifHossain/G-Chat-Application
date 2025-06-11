@@ -1,7 +1,13 @@
 package com.syedsaifhossain.g_chatapplication.models
 
 data class Message(
-    val groupName: String,
-    val sender: String,
-    val content: String
+    val messageId: String = "",
+    val senderId: String = "",
+    val receiverId: String = "",
+    val content: String = "",
+    val timestamp: Long = 0,
+    val type: String = "text", // text, image, voice, video
+    val status: String = "sent", // sent, delivered, read
+    val mediaUrl: String = "",
+    val isDeleted: Boolean = false
 )

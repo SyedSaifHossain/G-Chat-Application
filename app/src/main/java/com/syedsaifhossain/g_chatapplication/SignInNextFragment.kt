@@ -26,7 +26,7 @@ class SignInNextFragment : Fragment() {
             binding.signInPagePhoneEdt.setText(fullPhoneNumber)
         }
 
-        binding.signPageeLoginButton.setOnClickListener {
+        binding.signPageeLoginButton.setOnClickListener {//TODO 有漏洞需要补全
             val phoneNumber = binding.signInPagePhoneEdt.text.toString().trim()
             val password = binding.passwordEdtSignInNext.text.toString().trim()
 
@@ -56,10 +56,6 @@ class SignInNextFragment : Fragment() {
             binding.passwordEdtSignInNext.text.clear()
 
             findNavController().navigate(R.id.signInNextFragment_to_homeFragment)
-        }
-
-        binding.smsVerifyCodeTxt.setOnClickListener{
-            findNavController().navigate(R.id.action_signInNextFragment_to_loginViaPhoneFragment)
         }
 
         return binding.root
