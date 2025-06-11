@@ -14,4 +14,10 @@
         <item name="android:popupBackground">@drawable/popup_menu_bg_chatscreen</item>
     </style>
 
+    <style name="RoundedImageViewStyle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">10%</item> <!-- Makes it circular -->
+    </style>
+
+
 </resources>

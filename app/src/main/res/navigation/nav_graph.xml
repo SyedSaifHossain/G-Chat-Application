@@ -329,4 +329,9 @@
         android:name="com.syedsaifhossain.g_chatapplication.GroupChatsFragment"
         android:label="Group Chats"
         tools:layout="@layout/fragment_group_chats" />
+    <fragment
+        android:id="@+id/mePageFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.MePageFragment"
+        android:label="fragment_me_page"
+        tools:layout="@layout/fragment_me_page" />
 </navigation>

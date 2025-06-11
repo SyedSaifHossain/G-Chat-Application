@@ -94,6 +94,7 @@ dependencies {
     implementation("com.vanniktech:emoji-google:0.8.0")
     implementation("com.journeyapps:zxing-android-embedded:4.1.0")
     implementation("com.stripe:stripe-android:20.45.0")
+    implementation ("com.google.android.material:material:1.12.0")
 
     // Test dependencies
     testImplementation(libs.junit)

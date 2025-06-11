@@ -47,7 +47,7 @@ class HomeFragment : Fragment() {
                     true
                 }
                 R.id.nav_me -> {
-                    replaceFragment(MeFragment()) // Replace with MeFragment
+                    replaceFragment(MePageFragment()) // Replace with MeFragment
                     true
                 }
                 else -> false
