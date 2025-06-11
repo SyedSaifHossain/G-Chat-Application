@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.gms.google.services) // This must be at the very top
     id("androidx.navigation.safeargs.kotlin")
     id("kotlin-parcelize")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -58,8 +59,8 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.8.0") // Specific version for activity-ktx
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     // Image Loading
-    implementation(libs.glide)
-    annotationProcessor("com.github.bumptech.glide:compiler:4.13.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
     // Custom Image Views
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("com.mikhaellopez:circularimageview:4.3.1")

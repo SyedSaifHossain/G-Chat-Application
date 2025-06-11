@@ -220,7 +220,14 @@ class ChatScreenFragment : Fragment(){
             findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment)
         }
 
-
+        // 绑定下方相机按钮点击事件
+        binding.cameraIcon.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                openCamera()
+            } else {
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
 
         binding.chatAddButton.setOnClickListener { view ->
             val popupMenu = PopupMenu(
@@ -299,7 +306,7 @@ class ChatScreenFragment : Fragment(){
         binding.chatSendButton.setOnClickListener {
             val message = binding.chatMessageInput.text.toString().trim()
             if (message.isNotEmpty()) {
-                sendVoiceTextMessageToFirebase(message)
+                sendTextMessage(message)
                 binding.chatMessageInput.setText("")
             } else if (outputFile.isNotEmpty() && File(outputFile).exists()) {
                 sendVoiceMessageWithCoroutine(outputFile)
@@ -321,47 +328,37 @@ class ChatScreenFragment : Fragment(){
 
 
     private fun sendTextMessage(messageText: String) {
-        val chatMessage = Chats(
-            type = "text",                  // Set type to "text"
-            content = messageText,          // Save the text message
+        val message = ChatModel(
             senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-            receiverId = "receiverId",
-            lastMessageTime = System.currentTimeMillis(),
-            lastMessageSenderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            message = messageText,
+            timestamp = System.currentTimeMillis()
         )
-
-        // Add message to the list
-        messages.add(chatMessage)
-        chatAdapter.notifyItemInserted(messages.size - 1)
-
-        // Save the message to Firebase Realtime DB (or Firestore)
-        FirebaseDatabase.getInstance().reference.child("chats")
-            .child("your_chat_id")
-            .child("messages")
-            .push()
-            .setValue(chatMessage)
+        chatList.add(message)
+        chatMessageAdapter.notifyItemInserted(chatList.size - 1)
+        // 保存到Firebase
+        val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val chatNodeId = getChatNodeId(senderId, otherUserId!!)
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+        val messageId = chatRef.push().key ?: return
+        chatRef.child(messageId).setValue(message)
     }
 
-    private fun sendVoiceMessage(audioUrl: String) {
-        val chatMessage = Chats(
-            type = "voice",         // Set type to "voice"
-            content = audioUrl,     // Save the audio URL in content
+    private fun sendVoiceMessage(audioUrl: String, duration: Int) {
+        val message = ChatModel(
             senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-            receiverId = "receiverId",
-            lastMessageTime = System.currentTimeMillis(),
-            lastMessageSenderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            message = audioUrl, // 语音URL
+            timestamp = System.currentTimeMillis(),
+            type = "voice",     // 指定为语音消息
+            duration = duration  // 录音时长
         )
-
-        // Add the voice message to the list
-        messages.add(chatMessage)
-        chatAdapter.notifyItemInserted(messages.size - 1)
-
-        // Save the voice message URL to Firebase Realtime DB (or Firestore)
-        FirebaseDatabase.getInstance().reference.child("chats")
-            .child("your_chat_id")
-            .child("messages")
-            .push()
-            .setValue(chatMessage)
+        chatList.add(message)
+        chatMessageAdapter.notifyItemInserted(chatList.size - 1)
+        // 保存到Firebase
+        val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val chatNodeId = getChatNodeId(senderId, otherUserId!!)
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+        val messageId = chatRef.push().key ?: return
+        chatRef.child(messageId).setValue(message)
     }
 
 
@@ -555,7 +552,11 @@ class ChatScreenFragment : Fragment(){
                         val messageId = chatRef.push().key ?: return@addOnSuccessListener
                         val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
                         val message = ChatModel(
-                            senderId = senderId, message = "📷 Image", imageUrl = downloadUrl.toString(), timestamp = System.currentTimeMillis()
+                            senderId = senderId,
+                            message = "📷 Image",
+                            imageUrl = downloadUrl.toString(),
+                            type = "image",
+                            timestamp = System.currentTimeMillis()
                         )
                         chatRef.child(messageId).setValue(message)
                             .addOnSuccessListener { Toast.makeText(requireContext(), "Image sent", Toast.LENGTH_SHORT).show(); Log.d("ChatScreenFragment", "Image message sent") }
@@ -640,18 +641,20 @@ class ChatScreenFragment : Fragment(){
 
     private fun startRecording() {
         try {
+            Log.d("VoiceDebug", "准备开始录音，准备文件路径...")
             // Prepare recording file
             val dirPath = "${requireContext().externalCacheDir?.absolutePath}/voiceMessages"
             val dir = File(dirPath)
             if (!dir.exists()) dir.mkdirs()
 
-            val fileName = "voice_${System.currentTimeMillis()}.m4a"
+            val fileName = "voice_${System.currentTimeMillis()}.3gp"
             outputFile = "$dirPath/$fileName"
+            Log.d("VoiceDebug", "录音文件路径: $outputFile")
 
             mediaRecorder = MediaRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
                 setOutputFile(outputFile)
                 prepare()
                 start()
@@ -659,6 +662,7 @@ class ChatScreenFragment : Fragment(){
 
             isRecording = true
             recordStartTime = System.currentTimeMillis()
+            Log.d("VoiceDebug", "录音已开始，时间戳: $recordStartTime")
 
             // Show the recording indicator (text and mic icon)
             binding.recordingIndicatorLayout.visibility = View.VISIBLE
@@ -671,6 +675,7 @@ class ChatScreenFragment : Fragment(){
             Toast.makeText(requireContext(), "Recording Started", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e("VoiceDebug", "录音启动失败: ${e.message}")
             Toast.makeText(requireContext(), "Failed to start recording: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
@@ -692,19 +697,36 @@ class ChatScreenFragment : Fragment(){
     private fun stopRecording() {
         try {
             val elapsed = System.currentTimeMillis() - recordStartTime
+            Log.d("VoiceDebug", "准备停止录音，录音时长: ${elapsed}ms")
             if (elapsed < 1000) { // If recording was too short
                 Toast.makeText(requireContext(), "Recording too short", Toast.LENGTH_SHORT).show()
-                mediaRecorder?.release()
+                try {
+                    Log.d("VoiceDebug", "调用 release() 释放 MediaRecorder（录音过短）")
+                    mediaRecorder?.release()
+                } catch (e: Exception) {
+                    Log.e("VoiceDebug", "录音过短时 release() 异常: ${e.message}")
+                }
                 mediaRecorder = null
                 isRecording = false
                 // Hide the recording indicator
                 binding.recordingIndicatorLayout.visibility = View.GONE
+                Log.d("VoiceDebug", "录音过短，已取消")
                 return
             }
 
-            mediaRecorder?.apply {
-                stop()
-                release()
+            try {
+                Log.d("VoiceDebug", "调用 stop() 停止 MediaRecorder")
+                mediaRecorder?.stop()
+                Log.d("VoiceDebug", "stop() 调用成功")
+            } catch (e: Exception) {
+                Log.e("VoiceDebug", "stop() 调用异常: ${e.message}")
+            }
+            try {
+                Log.d("VoiceDebug", "调用 release() 释放 MediaRecorder")
+                mediaRecorder?.release()
+                Log.d("VoiceDebug", "release() 调用成功")
+            } catch (e: Exception) {
+                Log.e("VoiceDebug", "release() 调用异常: ${e.message}")
             }
             isRecording = false
 
@@ -712,9 +734,14 @@ class ChatScreenFragment : Fragment(){
             binding.recordingIndicatorLayout.visibility = View.GONE
             recordingTimer?.cancel()
 
+            // 打印录音文件大小
+            val file = File(outputFile)
+            Log.d("VoiceDebug", "录音结束，文件路径: $outputFile, 文件大小: ${file.length()} 字节")
+
             Toast.makeText(requireContext(), "Recording Stopped", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
+            Log.e("VoiceDebug", "录音停止失败: ${e.message}")
             Toast.makeText(requireContext(), "Failed to stop recording: ${e.message}", Toast.LENGTH_LONG).show()
         } finally {
             mediaRecorder = null
@@ -725,50 +752,26 @@ class ChatScreenFragment : Fragment(){
     private fun sendVoiceMessageWithCoroutine(filePath: String) {
         val storageRef = FirebaseStorage.getInstance().reference
         val audioRef = storageRef.child("voiceMessages/${File(filePath).name}")
-
+        val duration = ((System.currentTimeMillis() - recordStartTime) / 1000).toInt()
+        val file = File(filePath)
+        Log.d("VoiceDebug", "准备上传录音文件: $filePath, 文件大小: ${file.length()} 字节, 时长: ${duration}s")
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 audioRef.putFile(Uri.fromFile(File(filePath))).await()
                 val downloadUrl = audioRef.downloadUrl.await()
                 withContext(Dispatchers.Main) {
-                    sendVoiceMessageToFirebase(downloadUrl.toString())
+                    Log.d("VoiceDebug", "录音文件上传成功，downloadUrl: $downloadUrl")
+                    sendVoiceMessage(downloadUrl.toString(), duration)
                     Toast.makeText(requireContext(), "Voice message sent!", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+                    Log.e("VoiceDebug", "录音文件上传失败: ${e.message}")
                     Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
-
-    private fun sendVoiceMessageToFirebase(audioUrl: String) {
-        val database = FirebaseDatabase.getInstance()
-        val chatId = "your_chat_id" // Replace with your chat id
-        val messagesRef = database.getReference("chats").child(chatId).child("messages")
-        val messageId = messagesRef.push().key ?: return
-
-        val messageData = mapOf(
-            "type" to "voice",
-            "content" to audioUrl,
-            "senderId" to FirebaseAuth.getInstance().currentUser?.uid,
-            "timestamp" to System.currentTimeMillis()
-        )
-
-        messagesRef.child(messageId).setValue(messageData)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Voice message saved to database", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to save voice message: ${it.message}", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun sendVoiceTextMessageToFirebase(text: String) {
-        // Your existing text message sending code here
-        Toast.makeText(requireContext(), "Text message sent: $text", Toast.LENGTH_SHORT).show()
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
