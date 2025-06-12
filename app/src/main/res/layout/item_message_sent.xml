@@ -14,7 +14,8 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_chat_sent"
         android:padding="10dp"
-        android:textColor="#000" />
+        android:textColor="#000"
+        android:maxWidth="240dp" />
 
     <ImageView
         android:id="@+id/sentMessageImage"

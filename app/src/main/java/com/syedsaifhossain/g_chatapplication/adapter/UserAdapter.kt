@@ -7,6 +7,10 @@ import com.bumptech.glide.Glide
 import com.syedsaifhossain.g_chatapplication.R
 import com.syedsaifhossain.g_chatapplication.databinding.UserLayoutBinding
 import com.syedsaifhossain.g_chatapplication.models.User
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 
 class UserAdapter(
     private val userList: ArrayList<User>,
@@ -17,15 +21,23 @@ class UserAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(user: User) {
-            binding.userName.text = if (user.name.isNotBlank()) user.name else "Unknown"
+            // 实时从users节点获取头像和名字
+            val usersRef = FirebaseDatabase.getInstance().getReference("users")
+            usersRef.child(user.uid).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val name = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
+                    val avatarUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
+                        ?: snapshot.child("avatarUrl").getValue(String::class.java)
+                        ?: ""
+                    binding.userName.text = name
+                    Glide.with(binding.userImage.context)
+                        .load(avatarUrl)
+                        .placeholder(R.drawable.default_avatar)
+                        .into(binding.userImage)
+                }
+                override fun onCancelled(error: DatabaseError) {}
+            })
             binding.tvLastMessage.text = "" // User模型没有lastMessage字段，可以留空或自定义
-
-            // Load profile image with Glide
-            Glide.with(binding.userImage.context)
-                .load(user.avatarUrl)
-                .placeholder(R.drawable.default_avatar)
-                .into(binding.userImage)
-
             binding.root.setOnClickListener {
                 onUserClicked(user)
             }

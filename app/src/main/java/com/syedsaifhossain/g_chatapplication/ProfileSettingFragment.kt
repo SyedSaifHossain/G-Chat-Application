@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +21,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentProfileSettingBinding
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 class ProfileSettingFragment : Fragment() {
@@ -138,10 +142,28 @@ class ProfileSettingFragment : Fragment() {
     }
 
     private fun uploadImageToFirebase(userId: String, firstName: String, lastName: String, imageUri: Uri) {
+        val context = requireContext()
+        val inputStream = context.contentResolver.openInputStream(imageUri)
+        val originalBitmap = BitmapFactory.decodeStream(inputStream)
+        inputStream?.close()
+        if (originalBitmap == null) {
+            Toast.makeText(context, "图片读取失败", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val size = minOf(originalBitmap.width, originalBitmap.height, 512)
+        val x = (originalBitmap.width - size) / 2
+        val y = (originalBitmap.height - size) / 2
+        val croppedBitmap = Bitmap.createBitmap(originalBitmap, x, y, size, size)
+        originalBitmap.recycle()
+        val tempFile = File.createTempFile("avatar_compress_", ".jpg", context.cacheDir)
+        val fos = FileOutputStream(tempFile)
+        croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos)
+        fos.flush(); fos.close()
+        croppedBitmap.recycle()
+        val compressedUri = Uri.fromFile(tempFile)
         val fileName = UUID.randomUUID().toString() + ".jpg"
         val imageRef = storage.reference.child("profile_images/$userId/$fileName")
-
-        imageRef.putFile(imageUri)
+        imageRef.putFile(compressedUri)
             .addOnSuccessListener {
                 imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
                     saveUserToDatabase(userId, firstName, lastName, downloadUri.toString())

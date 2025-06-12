@@ -7,43 +7,56 @@ import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.R
 import com.syedsaifhossain.g_chatapplication.databinding.ItemMessageBinding
+import com.syedsaifhossain.g_chatapplication.databinding.ItemMessageSentBinding
+import com.syedsaifhossain.g_chatapplication.databinding.ItemMessageReceivedBinding
 import com.syedsaifhossain.g_chatapplication.models.GroupMessage
 
 
 class GroupMessageAdapter(
     private val messages: List<GroupMessage>,
     private val currentUserId: String
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-) : RecyclerView.Adapter<GroupMessageAdapter.ChatViewHolder>() {
+    companion object {
+        private const val VIEW_TYPE_SENT = 1
+        private const val VIEW_TYPE_RECEIVED = 2
+    }
 
-    inner class ChatViewHolder(val binding: ItemMessageBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    override fun getItemViewType(position: Int): Int {
+        return if (messages[position].senderId == currentUserId) VIEW_TYPE_SENT else VIEW_TYPE_RECEIVED
+    }
 
+    inner class SentMessageViewHolder(val binding: ItemMessageSentBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(message: GroupMessage) {
-            binding.messageText.text = message.text
-
-            val layoutParams = binding.messageText.layoutParams as LinearLayout.LayoutParams
-            layoutParams.gravity =
-                if (message.senderId == currentUserId) Gravity.END else Gravity.START
-            binding.messageText.layoutParams = layoutParams
-
-            // Optional: Different background per sender
-            if (message.senderId == currentUserId) {
-                binding.messageText.setBackgroundResource(R.drawable.bg_chat_sent)
-            } else {
-                binding.messageText.setBackgroundResource(R.drawable.bg_chat_received)
-            }
+            binding.sentMessageText.text = message.text
+            // 你可以在这里绑定图片、时间等
         }
-
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val binding = ItemMessageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ChatViewHolder(binding)
+    inner class ReceivedMessageViewHolder(val binding: ItemMessageReceivedBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(message: GroupMessage) {
+            binding.receivedMessageText.text = message.text
+            // 你可以在这里绑定图片、时间等
+        }
     }
 
-    override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-        holder.bind(messages[position])
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == VIEW_TYPE_SENT) {
+            val binding = ItemMessageSentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            SentMessageViewHolder(binding)
+        } else {
+            val binding = ItemMessageReceivedBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ReceivedMessageViewHolder(binding)
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val message = messages[position]
+        if (holder is SentMessageViewHolder) {
+            holder.bind(message)
+        } else if (holder is ReceivedMessageViewHolder) {
+            holder.bind(message)
+        }
     }
 
     override fun getItemCount(): Int = messages.size

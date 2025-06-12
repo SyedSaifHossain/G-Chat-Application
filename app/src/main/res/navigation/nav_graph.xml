@@ -80,9 +80,9 @@
         tools:layout="@layout/fragment_select_region" />
     <fragment
         android:id="@+id/loginViaEmailFragment"
-        android:name="com.syedsaifhossain.g_chatapplication.LoginViaEmailFragment"
-        android:label="fragment_login_via_email"
-        tools:layout="@layout/fragment_login_via_email" >
+        android:name="com.syedsaifhossain.g_chatapplication.SignupViaEmailFragment"
+        android:label="fragment_signup_via_email"
+        tools:layout="@layout/fragment_signup_via_email" >
         <action
             android:id="@+id/action_loginViaEmailFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -114,7 +114,11 @@
         android:id="@+id/profileFragment"
         android:name="com.syedsaifhossain.g_chatapplication.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profileFragment_to_profileSettingFragment"
+            app:destination="@id/profileSettingFragment" />
+    </fragment>
     <fragment
         android:id="@+id/meFragment3"
         android:name="com.syedsaifhossain.g_chatapplication.MeFragment"
