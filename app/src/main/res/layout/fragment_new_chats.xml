@@ -5,111 +5,123 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
+    android:background="@drawable/bg_gradient"
+    android:padding="10dp"
     tools:context=".NewChatsFragment">
 
+    <!-- Top Bar -->
     <RelativeLayout
-        android:id="@+id/top_bar"
+        android:id="@+id/newChatTopBar"
         android:layout_width="match_parent"
-        android:layout_height="58dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:padding="8dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="40dp"
-        android:background="@android:color/white"
-        android:padding="8dp">
+        android:layout_alignParentEnd="true">
 
-        <TextView
-            android:id="@+id/cancel_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageView
+            android:id="@+id/backIcon"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            android:text="Cancel"
-            android:textColor="#000000"
-            android:textSize="18sp" />
+            android:src="@drawable/cancelicon" />
 
         <TextView
-            android:id="@+id/title_text"
+            android:id="@+id/newChatTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Friends"
-            android:textSize="18sp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/roboto_regular"
+            android:text="New Chat"
+            android:textColor="#81d8d0"
+            android:textSize="26sp"
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/done_button"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
+            android:id="@+id/doneButton"
+            android:layout_width="85dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="10dp"
-            android:backgroundTint="#D0C9C9"
-            android:text="Create Group"
-            android:textAllCaps="false"
-            android:textColor="#EFDEDE"
-            android:textSize="18sp"
-            app:cornerRadius="5dp" />
+            android:backgroundTint="#81d8d0"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Done"
+            android:textColor="#2f4e4b"
+            android:textSize="14dp"
+            android:textStyle="bold" />
     </RelativeLayout>
 
-    <ImageView
-        android:id="@+id/searchIcon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_below="@+id/top_bar"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="140dp"
-        android:layout_marginTop="24dp"
-        android:src="@drawable/search" />
-
+    <!-- Search Field -->
     <EditText
-        android:id="@+id/search_bar"
+        android:id="@+id/searchBar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_below="@id/top_bar"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="8dp"
-        android:backgroundTint="@android:color/darker_gray"
-        android:drawablePadding="16dp"
-        android:gravity="center_vertical|center"
+        android:layout_height="38dp"
+        android:layout_below="@id/newChatTopBar"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/searchbar_bg"
+        android:drawableStart="@drawable/searchicon"
+        android:drawablePadding="10dp"
+        android:fontFamily="@font/roboto_regular"
         android:hint="Search"
-        android:textSize="20dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp" />
+        android:paddingLeft="20dp"
+        android:textColor="#000000"
+        android:textColorHint="#2f4e4b"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"/>
 
-    <TextView
-        android:id="@+id/select_group_text"
+    <!-- Select a group -->
+    <LinearLayout
+        android:id="@+id/selectGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/search_bar"
-        android:padding="12dp"
-        android:text="Select a Group"
+        android:layout_below="@id/searchBar"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:textColor="#312D2D"
-        android:textSize="18sp"
-        android:drawableEnd="@drawable/arrowforward"/>
+        android:layout_alignParentEnd="true">
+
+        <ImageView
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:src="@drawable/friendsicon"
+            app:tint="#81d8d0" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Select a group"
+            android:textColor="#81d8d0"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
     <View
-        android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_below="@id/select_group_text"
-        android:background="@android:color/darker_gray" />
+        android:background="#81d8d0"
+        android:layout_below="@id/selectGroup"
+        android:layout_marginHorizontal="15dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
 
+    <!-- RecyclerView for Contact List -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/friends_list"
+        android:id="@+id/friendsList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/divider"
+        android:layout_below="@id/selectGroup"
+        android:layout_marginTop="15dp"
+        android:scrollbars="vertical"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:padding="8dp"
         tools:listitem="@layout/new_chats_list"/>
-
 </RelativeLayout>
