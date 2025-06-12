@@ -1,69 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:padding="16dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".AddContactsFragment">
+    tools:context=".AddContactsFragment"
+    android:background="@drawable/bg_gradient">
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/addContactTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:text="Add contact"
+            android:textColor="#81d8d0"
+            android:textSize="26dp"
+            android:layout_marginTop="35dp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_regular"/>
+<View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="#81d8d0"
+    android:alpha="0.5"
+    android:layout_marginTop="15dp"/>
+        <!-- Profile Image Placeholder -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/profileImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="35dp"
+            android:src="@drawable/addcontactimg"
+            android:background="#81d8d0"
+            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle"/>
 
-            <!-- Profile Image Placeholder -->
-            <ImageView
-                android:id="@+id/profileImage"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/default_avatar"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="35dp" />
+        <!-- 合并后的输入框 -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginHorizontal="30dp"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxStrokeColor="#81d8d0"
+            android:textColorHint="#6b6b6b">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Full Name"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etFullName"
-                    android:visibility="gone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- 合并后的输入框 -->
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etContact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Phone number/Email"
-                android:layout_marginTop="12dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                android:inputType="text"
+                android:textSize="22sp"
+                android:textColor="#6b6b6b"
+                android:gravity="center"
+                android:fontFamily="@font/roboto_regular"
+                android:textStyle="bold"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etContact"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                />
-            </com.google.android.material.textfield.TextInputLayout>
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/btnSaveContact"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:backgroundTint="#81d8d0"
+            android:padding="10dp"
+            android:text="Save Contact"
+            android:textAllCaps="false"
+            android:textColor="#000000"
+            android:fontFamily="@font/roboto_bold"
+            android:textSize="24sp"
+            android:layout_marginTop="30dp"/>
 
-            <!-- Save Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSaveContact"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Save Contact"
-                style="@style/Widget.MaterialComponents.Button"
-                app:cornerRadius="12dp" />
-
-        </LinearLayout>
+    </LinearLayout>
 </ScrollView>

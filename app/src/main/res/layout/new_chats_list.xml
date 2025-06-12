@@ -33,9 +33,8 @@
             android:fontFamily="@font/roboto_regular"
             android:text="Arman"
             android:textColor="#81d8d0"
-
             android:textSize="24sp"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="20dp"
             android:textStyle="bold" />
     </RelativeLayout>
 
