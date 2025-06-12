@@ -35,6 +35,10 @@ class NewChatsFragment : Fragment() {
         binding.friendsList.layoutManager = LinearLayoutManager(requireContext())
         binding.friendsList.adapter = adapter
 
+
+        binding.backIcon.setOnClickListener {
+            findNavController().popBackStack()
+        }
         // 群聊创建按钮（右上角）点击事件
         binding.doneButton.setOnClickListener {
 

@@ -57,7 +57,7 @@
     <EditText
         android:id="@+id/searchBar"
         android:layout_width="match_parent"
-        android:layout_height="38dp"
+        android:layout_height="35dp"
         android:layout_below="@id/newChatTopBar"
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="20dp"
@@ -99,8 +99,9 @@
             android:fontFamily="@font/roboto_regular"
             android:text="Select a group"
             android:textColor="#81d8d0"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginStart="25dp"/>
 
     </LinearLayout>
 
