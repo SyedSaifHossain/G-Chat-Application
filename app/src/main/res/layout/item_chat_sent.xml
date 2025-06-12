@@ -39,6 +39,7 @@
             android:textColor="@android:color/black"
             android:textSize="16sp"
             android:layout_marginRight="15dp"
+            android:maxWidth="240dp"
             android:text="Sent message text" />
 
         <!-- Optional: TextView for timestamp -->
@@ -86,7 +87,30 @@
             android:layout_height="180dp"
             android:layout_marginTop="6dp"
             android:scaleType="centerCrop"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:adjustViewBounds="true"
+            android:maxWidth="200dp"
+            android:maxHeight="200dp" />
+
+        <!-- 视频消息缩略图和播放按钮 -->
+        <FrameLayout
+            android:id="@+id/video_container"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="6dp"
+            android:visibility="gone">
+            <ImageView
+                android:id="@+id/iv_video_thumb"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+            <ImageView
+                android:id="@+id/iv_play"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_play_circle" />
+        </FrameLayout>
 
     </LinearLayout>
 

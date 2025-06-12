@@ -45,7 +45,12 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.widget.PopupMenu
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide // Keep Glide import for later use in RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.DataSource
+import android.graphics.drawable.Drawable
 import com.syedsaifhossain.g_chatapplication.adapter.ChatAdapter
 import com.syedsaifhossain.g_chatapplication.models.Chats
 import kotlinx.coroutines.Dispatchers
@@ -54,6 +59,8 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.Timer
 import java.util.TimerTask
+import android.webkit.MimeTypeMap
+import androidx.exifinterface.media.ExifInterface
 
 // Ensure the class declaration includes the interface implementation from your original
 class ChatScreenFragment : Fragment(){
@@ -85,6 +92,7 @@ class ChatScreenFragment : Fragment(){
     private var recordStartTime = 0L
     private var recordingTimer: Timer? = null
     private var elapsedTime: Long = 0
+    private var lastVoiceDuration: Int = 0
 
     private val messages = mutableListOf<Chats>()
     private lateinit var chatAdapter: ChatAdapter
@@ -98,12 +106,30 @@ class ChatScreenFragment : Fragment(){
         }
     }
 
+    // 优化后的权限申请Launcher，支持多权限
+    private val requestGalleryPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.all { it.value }
+        if (allGranted) {
+            openGallery()
+        } else {
+            Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     // Original ActivityResultLaunchers (kept)
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
-                uploadImageToFirebase(uri)
+                val mimeType = requireContext().contentResolver.getType(uri) ?: ""
+                if (mimeType.startsWith("image")) {
+                    uploadImageToFirebase(uri)
+                } else if (mimeType.startsWith("video")) {
+                    uploadVideoToFirebase(uri)
+                } else {
+                    Toast.makeText(requireContext(), "Unsupported file type", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -134,11 +160,25 @@ class ChatScreenFragment : Fragment(){
                     photoFile
                 )
                 selectedCameraPhotoUri = photoUri
-                binding.chatMessageInput.setText("📷 Photo taken. Press Enter to send.")
+                // 自动上传图片
+                uploadImageToFirebase(selectedCameraPhotoUri!!)
+                selectedCameraPhotoUri = null
+                binding.chatMessageInput.setText("")
             }
         }
     }
-    // --- END ActivityResultLaunchers ---
+
+    // 1. Video launcher
+    private val videoLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val videoUri = result.data?.data
+            if (videoUri != null) {
+                uploadVideoToFirebase(videoUri)
+            } else {
+                Toast.makeText(requireContext(), "No video found", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -155,9 +195,7 @@ class ChatScreenFragment : Fragment(){
         arguments?.let { bundle ->
             otherUserId = bundle.getString("otherUserId")
             otherUserName = bundle.getString("otherUserName")
-            otherUserAvatarUrl = bundle.getString("otherUserAvatarUrl")
-            myAvatarUrl = bundle.getString("myAvatarUrl")
-            Log.d("ChatScreenFragment", "Arguments received: otherUserId=$otherUserId, otherUserName=$otherUserName, otherUserAvatarUrl=$otherUserAvatarUrl, myAvatarUrl=$myAvatarUrl")
+            // 不再直接用bundle里的头像url
         }
 
         // Check if essential arguments were received
@@ -176,17 +214,35 @@ class ChatScreenFragment : Fragment(){
         currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
         if (currentUserId == "anonymous") {
             Log.e("ChatScreenFragment", "Current user is anonymous!")
-            // Consider stronger error handling
         }
 
-        // --- MODIFIED: Setup RecyclerView Adapter to pass avatar URLs ---
-        chatMessageAdapter = ChatMessageAdapter(chatList, currentUserId, myAvatarUrl, otherUserAvatarUrl)
-        // --- END MODIFICATION ---
-
-        binding.chatScreenRecyclerView.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = chatMessageAdapter
-        }
+        // 实时获取双方头像url
+        val usersRef = FirebaseDatabase.getInstance().getReference("users")
+        usersRef.child(otherUserId!!).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                otherUserAvatarUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
+                    ?: snapshot.child("avatarUrl").getValue(String::class.java)
+                    ?: ""
+                // 加载到顶部头像前加日志
+                Log.d("ChatScreenFragment", "加载到的头像URL: $otherUserAvatarUrl")
+                usersRef.child(currentUserId).addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(mySnap: DataSnapshot) {
+                        myAvatarUrl = mySnap.child("profileImageUrl").getValue(String::class.java)
+                            ?: mySnap.child("avatarUrl").getValue(String::class.java)
+                            ?: ""
+                        // 用最新头像初始化Adapter
+                        chatMessageAdapter = ChatMessageAdapter(chatList, currentUserId, myAvatarUrl, otherUserAvatarUrl)
+                        binding.chatScreenRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+                        binding.chatScreenRecyclerView.adapter = chatMessageAdapter
+                        chatMessageAdapter.notifyDataSetChanged()
+                        // 只有adapter初始化后再监听消息，避免未初始化异常
+                        listenForMessages()
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
 
         // Setup Emoji Popup (Original)
         emojiPopup = EmojiPopup.Builder.fromRootView(binding.root)
@@ -203,8 +259,6 @@ class ChatScreenFragment : Fragment(){
             else emojiPopup.toggle()
         }
 
-        // Start listening for messages (Original)
-        listenForMessages()
         // Setup message input listener (Original)
         handleMessageSendOnEnter()
 
@@ -220,13 +274,33 @@ class ChatScreenFragment : Fragment(){
             findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment)
         }
 
-        // 绑定下方相机按钮点击事件
+        // Update camera button click event
         binding.cameraIcon.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                openCamera()
-            } else {
-                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
+            // Show option dialog
+            val options = arrayOf("Take Photo", "Record Video")
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Choose Action")
+                .setItems(options) { _, which ->
+                    when (which) {
+                        0 -> {
+                            // Take photo
+                            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                                openCamera()
+                            } else {
+                                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                            }
+                        }
+                        1 -> {
+                            // Record video
+                            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                                openVideoRecorder()
+                            } else {
+                                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                            }
+                        }
+                    }
+                }
+                .show()
         }
 
         binding.chatAddButton.setOnClickListener { view ->
@@ -260,8 +334,7 @@ class ChatScreenFragment : Fragment(){
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.galleryId -> {
-                        // Example: Handle permission properly using new APIs if targeting Android 13+
-                        checkAndRequestPermission(Manifest.permission.READ_MEDIA_IMAGES)
+                        checkAndRequestGalleryPermission()
                         true
                     }
                     R.id.documentId -> {
@@ -386,22 +459,11 @@ class ChatScreenFragment : Fragment(){
                 } else {
                     Toast.makeText(requireContext(), "No voice message recorded", Toast.LENGTH_SHORT).show()
                 }
-                // Handle photo/image sending
-                if (selectedCameraPhotoUri != null) {
-                    uploadImageToFirebase(selectedCameraPhotoUri!!)
-                    selectedCameraPhotoUri = null
+                // Handle text message sending
+                val message = binding.chatMessageInput.text.toString().trim()
+                if (message.isNotEmpty()) {
+                    sendMessageToFirebase(message)
                     binding.chatMessageInput.setText("")
-                } else if (selectedImageUri != null) {
-                    uploadImageToFirebase(selectedImageUri!!)
-                    selectedImageUri = null
-                    binding.chatMessageInput.setText("")
-                } else {
-                    // Handle text message sending
-                    val message = binding.chatMessageInput.text.toString().trim()
-                    if (message.isNotEmpty()) {
-                        sendMessageToFirebase(message)
-                        binding.chatMessageInput.setText("")
-                    }
                 }
                 true
             } else {
@@ -505,16 +567,29 @@ class ChatScreenFragment : Fragment(){
     }
     // --- END MODIFICATION ---
 
-
-    private fun checkAndRequestPermission(permission: String) {
-        when {
-            ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED -> openGallery()
-            else -> requestPermissionLauncher.launch(permission)
+    // 替换原有checkAndRequestPermission方法，适配多版本和多权限
+    private fun checkAndRequestGalleryPermission() {
+        val permissions = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> arrayOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_VIDEO
+            )
+            else -> arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        val notGranted = permissions.filter {
+            ContextCompat.checkSelfPermission(requireContext(), it) != PackageManager.PERMISSION_GRANTED
+        }
+        if (notGranted.isEmpty()) {
+            openGallery()
+        } else {
+            requestGalleryPermissionsLauncher.launch(notGranted.toTypedArray())
         }
     }
 
     private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "*/*"
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
         galleryLauncher.launch(intent)
     }
 
@@ -581,9 +656,32 @@ class ChatScreenFragment : Fragment(){
     private fun compressImage(imageUri: Uri): Uri? {
         try {
             val inputStream = requireContext().contentResolver.openInputStream(imageUri)
-            val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
-            inputStream?.close()
+            val tempFileForExif = File.createTempFile("exif_temp_", ".jpg", requireContext().cacheDir)
+            inputStream?.use { input ->
+                tempFileForExif.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            val exif = ExifInterface(tempFileForExif.absolutePath)
+            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+            var bitmap = android.graphics.BitmapFactory.decodeFile(tempFileForExif.absolutePath)
             if (bitmap == null) return null
+
+            // 旋转修正
+            val matrix = android.graphics.Matrix()
+            when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.preScale(-1f, 1f)
+                ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.preScale(1f, -1f)
+            }
+            if (!matrix.isIdentity) {
+                val rotatedBitmap = android.graphics.Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+                bitmap.recycle()
+                bitmap = rotatedBitmap
+            }
 
             val maxDimension = 1024
             val width = bitmap.width; val height = bitmap.height
@@ -592,13 +690,14 @@ class ChatScreenFragment : Fragment(){
             else if (height > maxDimension) { newHeight = maxDimension; newWidth = (width.toFloat() * maxDimension / height).toInt() }
 
             val compressedBitmap = android.graphics.Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
-            bitmap.recycle()
+            if (compressedBitmap != bitmap) bitmap.recycle()
 
             val tempFile = File.createTempFile("compressed_", ".jpg", requireContext().cacheDir)
             val outputStream = java.io.FileOutputStream(tempFile)
             compressedBitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 80, outputStream)
             outputStream.flush(); outputStream.close()
             compressedBitmap.recycle()
+            tempFileForExif.delete()
             return Uri.fromFile(tempFile)
         } catch (e: Exception) { Log.e("ChatScreenFragment", "Error compressing image", e); return null }
     }
@@ -606,15 +705,21 @@ class ChatScreenFragment : Fragment(){
     private fun openCamera() {
         try {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if (requireActivity().packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY).isNotEmpty()) {
+            val activities = requireActivity().packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+            Log.d("CameraDebug", "Camera activities: $activities")
+            if (activities.isNotEmpty()) {
                 val photoFile: File? = try { createImageFile() } catch (ex: java.io.IOException) { Log.e("ChatScreenFragment", "Error creating image file", ex); null }
                 photoFile?.also {
                     val photoURI: Uri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", it)
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                     cameraLauncher.launch(intent)
                 } ?: run { Toast.makeText(requireContext(), "Error preparing camera", Toast.LENGTH_SHORT).show() }
-            } else { Toast.makeText(requireContext(), "No camera app found", Toast.LENGTH_SHORT).show() }
-        } catch (e: Exception) { Toast.makeText(requireContext(), "Error opening camera: ${e.message}", Toast.LENGTH_SHORT).show(); Log.e("ChatScreenFragment", "Error opening camera", e) }
+            } else {
+                Toast.makeText(requireContext(), "No camera app found", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error opening camera: ${e.message}", Toast.LENGTH_SHORT).show(); Log.e("ChatScreenFragment", "Error opening camera", e)
+        }
     }
 
     @Throws(java.io.IOException::class)
@@ -697,6 +802,7 @@ class ChatScreenFragment : Fragment(){
     private fun stopRecording() {
         try {
             val elapsed = System.currentTimeMillis() - recordStartTime
+            lastVoiceDuration = (elapsed / 1000).toInt()
             Log.d("VoiceDebug", "准备停止录音，录音时长: ${elapsed}ms")
             if (elapsed < 1000) { // If recording was too short
                 Toast.makeText(requireContext(), "Recording too short", Toast.LENGTH_SHORT).show()
@@ -752,7 +858,7 @@ class ChatScreenFragment : Fragment(){
     private fun sendVoiceMessageWithCoroutine(filePath: String) {
         val storageRef = FirebaseStorage.getInstance().reference
         val audioRef = storageRef.child("voiceMessages/${File(filePath).name}")
-        val duration = ((System.currentTimeMillis() - recordStartTime) / 1000).toInt()
+        val duration = lastVoiceDuration
         val file = File(filePath)
         Log.d("VoiceDebug", "准备上传录音文件: $filePath, 文件大小: ${file.length()} 字节, 时长: ${duration}s")
         lifecycleScope.launch(Dispatchers.IO) {
@@ -771,6 +877,49 @@ class ChatScreenFragment : Fragment(){
                 }
             }
         }
+    }
+
+    // 2. Open system video recorder
+    private fun openVideoRecorder() {
+        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+        videoLauncher.launch(intent)
+    }
+
+    // 3. Upload video to Firebase Storage and send as message
+    private fun uploadVideoToFirebase(videoUri: Uri) {
+        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
+        val videoRef = storageRef.child("chat_videos/${java.util.UUID.randomUUID()}.mp4")
+        _binding?.progressBar?.visibility = View.VISIBLE
+        val metadata = com.google.firebase.storage.StorageMetadata.Builder().setContentType("video/mp4").build()
+        videoRef.putFile(videoUri, metadata)
+            .addOnProgressListener { taskSnapshot ->
+                val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
+                _binding?.progressBar?.progress = progress
+            }
+            .addOnSuccessListener {
+                videoRef.downloadUrl.addOnSuccessListener { downloadUrl ->
+                    if (otherUserId == null) { _binding?.progressBar?.visibility = View.GONE; return@addOnSuccessListener }
+                    val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+                    val chatRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+                    val messageId = chatRef.push().key ?: return@addOnSuccessListener
+                    val senderId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "anonymous"
+                    val message = com.syedsaifhossain.g_chatapplication.models.ChatModel(
+                        senderId = senderId,
+                        message = "🎥 Video",
+                        imageUrl = downloadUrl.toString(),
+                        type = "video",
+                        timestamp = System.currentTimeMillis()
+                    )
+                    chatRef.child(messageId).setValue(message)
+                        .addOnSuccessListener { Toast.makeText(requireContext(), "Video sent", Toast.LENGTH_SHORT).show() }
+                        .addOnFailureListener { e -> Toast.makeText(requireContext(), "Failed to send: ${e.message}", Toast.LENGTH_SHORT).show() }
+                    _binding?.progressBar?.visibility = View.GONE
+                }.addOnFailureListener { e -> Toast.makeText(requireContext(), "Failed to get video URL: ${e.message}", Toast.LENGTH_SHORT).show(); _binding?.progressBar?.visibility = View.GONE }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                _binding?.progressBar?.visibility = View.GONE
+            }
     }
 
     override fun onDestroyView() {

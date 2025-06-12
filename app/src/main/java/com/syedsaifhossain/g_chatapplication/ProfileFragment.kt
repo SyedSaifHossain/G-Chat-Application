@@ -12,6 +12,8 @@ import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentProfileBinding
+import com.bumptech.glide.Glide
+import androidx.navigation.fragment.findNavController
 
 class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
@@ -30,6 +32,12 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         loadUserInfo()
         binding.editPhoneBtn.setOnClickListener { showEditPhoneDialog() }
+        binding.ivProfileAvatar.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_profileSettingFragment)
+        }
+        binding.tvProfileName.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_profileSettingFragment)
+        }
     }
 
     private fun loadUserInfo() {
@@ -37,6 +45,14 @@ class ProfileFragment : Fragment() {
         dbRef.get().addOnSuccessListener { snapshot ->
             binding.tvProfileName.text = snapshot.child("name").getValue(String::class.java) ?: ""
             binding.tvProfilePhone.text = snapshot.child("phone").getValue(String::class.java) ?: ""
+            val avatarUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
+                ?: snapshot.child("avatarUrl").getValue(String::class.java)
+                ?: ""
+            if (avatarUrl.isNotEmpty()) {
+                Glide.with(this).load(avatarUrl).placeholder(R.drawable.default_avatar).into(binding.ivProfileAvatar)
+            } else {
+                binding.ivProfileAvatar.setImageResource(R.drawable.default_avatar)
+            }
         }
     }
 
@@ -69,6 +85,11 @@ class ProfileFragment : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Failed to update phone", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadUserInfo()
     }
 
     override fun onDestroyView() {
