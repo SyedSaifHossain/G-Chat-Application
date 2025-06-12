@@ -72,22 +72,22 @@ class LoginPage : Fragment() {
                                     if (_binding == null) return@getUserInfo
                                     if (userInfo != null) {
                                         Log.d("LoginPage", "User logged in successfully: ${userInfo.name}")
-                                        Toast.makeText(requireContext(), "登录成功！", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
                                         findNavController().navigate(R.id.action_loginPage_to_homeFragment)
                                     } else {
                                         Log.e("LoginPage", "Failed to get user info")
-                                        Toast.makeText(requireContext(), "获取用户信息失败", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(requireContext(), "Failed to get user info", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             }
                         } else {
                             // 登录失败
                             val errorMessage = when {
-                                task.exception?.message?.contains("no user record") == true -> "用户不存在"
-                                task.exception?.message?.contains("password is invalid") == true -> "密码错误"
-                                task.exception?.message?.contains("badly formatted") == true -> "邮箱格式不正确"
-                                task.exception?.message?.contains("malformed") == true -> "登录凭证格式不正确"
-                                else -> "登录失败：${task.exception?.message}"
+                                task.exception?.message?.contains("no user record") == true -> "User does not exist"
+                                task.exception?.message?.contains("password is invalid") == true -> "Incorrect password"
+                                task.exception?.message?.contains("badly formatted") == true -> "Invalid email format"
+                                task.exception?.message?.contains("malformed") == true -> "Invalid login credential format"
+                                else -> "Login failed: ${task.exception?.message}"
                             }
                             Log.e("LoginPage", "Login failed: ${task.exception?.message}", task.exception)
                             Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
@@ -109,23 +109,23 @@ class LoginPage : Fragment() {
 
     private fun validateInput(phoneOrEmail: String, password: String): Boolean {
         if (phoneOrEmail.isEmpty()) {
-            binding.phoneLoginEdt.error = "请输入手机号或邮箱"
+            binding.phoneLoginEdt.error = "Please enter phone or email"
             return false
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(phoneOrEmail).matches() &&
             !phoneOrEmail.matches(Regex("^[+]?[0-9]{10,13}\$"))) {
-            binding.phoneLoginEdt.error = "请输入有效的邮箱地址或手机号"
+            binding.phoneLoginEdt.error = "Please enter a valid email address or phone number"
             return false
         }
 
         if (password.isEmpty()) {
-            binding.passwordLoginEdt.error = "请输入密码"
+            binding.passwordLoginEdt.error = "Please enter password"
             return false
         }
 
         if (password.length < 6) {
-            binding.passwordLoginEdt.error = "密码长度至少为6位"
+            binding.passwordLoginEdt.error = "Password must be at least 6 characters"
             return false
         }
 

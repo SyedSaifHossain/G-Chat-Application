@@ -64,6 +64,8 @@ dependencies {
     // Custom Image Views
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("com.mikhaellopez:circularimageview:4.3.1")
+    // ExifInterface for image orientation
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
 
     // Firebase BOM (Platform) - Only the latest version is kept
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))

@@ -1,25 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <group android:id="@+id/galleryGroup">
         <item
             android:id="@+id/galleryId"
             android:icon="@drawable/galleryicon"
-            android:title="Gallery" />
+            android:title="Gallery"
+            app:showAsAction="always"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
     </group>
 
     <group android:id="@+id/documentyGroup">
         <item
             android:id="@+id/documentId"
             android:icon="@drawable/document"
-            android:title="Documents" />
+            android:title="Documents"
+            app:showAsAction="always"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
     </group>
 
     <group android:id="@+id/contactGroup">
         <item
             android:id="@+id/contactId"
             android:icon="@drawable/addcontact"
-            android:title="Contact" />
+            android:title="Contact"
+            app:showAsAction="always"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
     </group>
 
 </menu>

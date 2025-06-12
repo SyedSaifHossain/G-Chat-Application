@@ -52,14 +52,17 @@ class ContactFragment : Fragment() {
                 Contact.TYPE_GROUP_CHATS -> {
                     findNavController().navigate(R.id.groupChatsFragment)
                 }
-                else -> {
-                    // 点击联系人后跳转到ChatScreenFragment
-                    val bundle = Bundle().apply {
-                        putString("otherUserId", contact.id)
-                        putString("otherUserName", contact.name)
+                Contact.TYPE_NORMAL -> {
+                    // 只处理普通联系人且id不为空
+                    if (contact.id.isNotBlank()) {
+                        val bundle = Bundle().apply {
+                            putString("otherUserId", contact.id)
+                            putString("otherUserName", contact.name)
+                        }
+                        findNavController().navigate(R.id.chatScreenFragment, bundle)
                     }
-                    findNavController().navigate(R.id.chatScreenFragment, bundle)
                 }
+                // 其它类型不做跳转
             }
         }
         binding.contactRecyclerView.adapter = contactAdapter
