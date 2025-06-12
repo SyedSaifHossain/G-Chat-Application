@@ -2,47 +2,41 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:padding="15dp">
+        android:layout_alignParentTop="true"
+        android:padding="10dp"
+        android:layout_marginHorizontal="10dp">
 
-        <CheckBox
-            android:id="@+id/new_chat_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="15dp"
-            android:button="@drawable/circle_checkbox"
-            android:layout_alignParentTop="true"/>
 
-        <ImageView
+
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/new_chats_img"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="5dp"
-            android:layout_toEndOf="@id/new_chat_checkbox"
-            android:scaleType="centerCrop"
-            android:src="@drawable/cityimg" />
+            android:src="@drawable/profileimage"
+            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle"/>
 
         <TextView
             android:id="@+id/friend_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="25dp"
-            android:layout_alignParentTop="true"
-            android:layout_toEndOf="@id/new_chats_img"
-            android:textColor="@android:color/black"
-            android:text="Anything"
-            android:textSize="18sp" />
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/new_chats_img"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Arman"
+            android:textColor="#81d8d0"
+
+            android:textSize="24sp"
+            android:layout_marginStart="30dp"
+            android:textStyle="bold" />
     </RelativeLayout>
 
 </RelativeLayout>
