@@ -6,8 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.syedsaifhossain.g_chatapplication.R
 import com.syedsaifhossain.g_chatapplication.models.Contact
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 
 class ContactAdapter(
     private val context: Context,
@@ -27,6 +33,7 @@ class ContactAdapter(
     // 普通联系人ViewHolder
     class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val contactName: TextView = itemView.findViewById(R.id.contactName)
+        val contactImg: android.widget.ImageView = itemView.findViewById(R.id.contactItemImg)
     }
     // 分组入口ViewHolder
     class GroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -70,7 +77,7 @@ class ContactAdapter(
             is GroupViewHolder -> {
                 holder.groupName.text = contact.name
                 when (contact.type) {
-                    Contact.TYPE_NEW_FRIENDS -> holder.groupIcon.setImageResource(R.drawable.friendsicon)
+                    Contact.TYPE_NEW_FRIENDS -> holder.groupIcon.setImageResource(R.drawable.addcontact)
                     Contact.TYPE_GROUP_CHATS -> holder.groupIcon.setImageResource(R.drawable.addcontacticon)
                 }
                 holder.itemView.setOnClickListener { onItemClick(contact) }
@@ -79,7 +86,23 @@ class ContactAdapter(
                 holder.sectionTitle.text = contact.name
             }
             is ContactViewHolder -> {
-                holder.contactName.text = contact.name
+                // 实时从users节点获取头像和名字
+                val usersRef = FirebaseDatabase.getInstance().getReference("users")
+                usersRef.child(contact.id).addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val name = snapshot.child("name").getValue(String::class.java) ?: contact.name
+                        val avatarUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
+                            ?: snapshot.child("avatarUrl").getValue(String::class.java)
+                            ?: ""
+                        holder.contactName.text = name
+                        Glide.with(holder.itemView.context)
+                            .load(avatarUrl)
+                            .placeholder(R.drawable.default_avatar)
+                            .transform(RoundedCorners(dpToPx(16, holder.itemView)))
+                            .into(holder.contactImg)
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
                 holder.itemView.setOnClickListener { onItemClick(contact) }
             }
         }
@@ -128,5 +151,11 @@ class ContactAdapter(
             result.addAll(grouped[key]!!.sortedBy { it.name.uppercase() })
         }
         return result
+    }
+
+    // dp转px工具
+    private fun dpToPx(dp: Int, view: View): Int {
+        val density = view.context.resources.displayMetrics.density
+        return (dp * density + 0.5f).toInt()
     }
 }

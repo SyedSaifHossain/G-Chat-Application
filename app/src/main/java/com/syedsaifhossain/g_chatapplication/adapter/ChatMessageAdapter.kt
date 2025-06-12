@@ -1,5 +1,6 @@
 package com.syedsaifhossain.g_chatapplication.adapter
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,6 +68,10 @@ class ChatMessageAdapter(
         private val voiceIcon: ImageView? = itemView.findViewById(R.id.voice_icon)
         private val voiceDuration: TextView? = itemView.findViewById(R.id.voice_duration)
         private val imageView: ImageView? = itemView.findViewById(R.id.iv_image)
+        private val bubbleLayout: View = itemView.findViewById(R.id.layout_message_bubble)
+        private val videoContainer: View? = itemView.findViewById(R.id.video_container)
+        private val videoThumb: ImageView? = itemView.findViewById(R.id.iv_video_thumb)
+        private val playBtn: ImageView? = itemView.findViewById(R.id.iv_play)
 
         // --- Modified bind method to accept avatar URL ---
         fun bind(message: ChatModel, avatarUrl: String?) {
@@ -75,6 +80,8 @@ class ChatMessageAdapter(
                 messageText.visibility = View.GONE
                 voiceLayout?.visibility = View.VISIBLE
                 imageView?.visibility = View.GONE
+                videoContainer?.visibility = View.GONE
+                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_sent)
                 voiceDuration?.text = "${message.duration}\""
                 val playListener = View.OnClickListener {
                     try {
@@ -89,25 +96,44 @@ class ChatMessageAdapter(
                 voiceLayout?.setOnClickListener(playListener)
                 voiceIcon?.setOnClickListener(playListener)
                 voiceDuration?.setOnClickListener(playListener)
-            } else if (message.type == "image" || (!message.imageUrl.isNullOrEmpty())) {
-                // 图片消息
+            } else if (message.type == "image") {
                 messageText.visibility = View.GONE
                 voiceLayout?.visibility = View.GONE
                 imageView?.visibility = View.VISIBLE
+                videoContainer?.visibility = View.GONE
+                bubbleLayout.setBackgroundResource(0)
                 Glide.with(itemView.context)
                     .load(message.imageUrl)
                     .placeholder(R.drawable.bg_gradient)
                     .error(R.drawable.bg_gradient)
                     .into(imageView!!)
                 imageView.setOnClickListener {
-                    // 可选：放大预览
-                    // 这里只弹出 Toast，实际可用 Dialog 或新页面展示大图
                     Toast.makeText(itemView.context, "Preview image", Toast.LENGTH_SHORT).show()
+                }
+            } else if (message.type == "video") {
+                messageText.visibility = View.GONE
+                voiceLayout?.visibility = View.GONE
+                imageView?.visibility = View.GONE
+                videoContainer?.visibility = View.VISIBLE
+                bubbleLayout.setBackgroundResource(0)
+                // 加载视频缩略图
+                Glide.with(itemView.context)
+                    .load(message.imageUrl)
+                    .frame(1000000) // 取第1秒帧
+                    .placeholder(R.drawable.bg_gradient)
+                    .error(R.drawable.bg_gradient)
+                    .into(videoThumb!!)
+                playBtn?.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setDataAndType(android.net.Uri.parse(message.imageUrl), "video/*")
+                    itemView.context.startActivity(intent)
                 }
             } else {
                 messageText.visibility = View.VISIBLE
                 voiceLayout?.visibility = View.GONE
                 imageView?.visibility = View.GONE
+                videoContainer?.visibility = View.GONE
+                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_sent)
                 messageText.text = message.message
             }
             if (avatarUrl != null) {
@@ -132,6 +158,10 @@ class ChatMessageAdapter(
         private val voiceIcon: ImageView? = itemView.findViewById(R.id.voice_icon)
         private val voiceDuration: TextView? = itemView.findViewById(R.id.voice_duration)
         private val imageView: ImageView? = itemView.findViewById(R.id.iv_image)
+        private val bubbleLayout: View = itemView.findViewById(R.id.layout_message_bubble)
+        private val videoContainer: View? = itemView.findViewById(R.id.video_container)
+        private val videoThumb: ImageView? = itemView.findViewById(R.id.iv_video_thumb)
+        private val playBtn: ImageView? = itemView.findViewById(R.id.iv_play)
 
         // --- Modified bind method to accept avatar URL ---
         fun bind(message: ChatModel, avatarUrl: String?) {
@@ -140,6 +170,8 @@ class ChatMessageAdapter(
                 messageText.visibility = View.GONE
                 voiceLayout?.visibility = View.VISIBLE
                 imageView?.visibility = View.GONE
+                videoContainer?.visibility = View.GONE
+                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_received)
                 voiceDuration?.text = "${message.duration}\""
                 val playListener = View.OnClickListener {
                     try {
@@ -154,25 +186,43 @@ class ChatMessageAdapter(
                 voiceLayout?.setOnClickListener(playListener)
                 voiceIcon?.setOnClickListener(playListener)
                 voiceDuration?.setOnClickListener(playListener)
-            } else if (message.type == "image" || (!message.imageUrl.isNullOrEmpty())) {
-                // 图片消息
+            } else if (message.type == "image") {
                 messageText.visibility = View.GONE
                 voiceLayout?.visibility = View.GONE
                 imageView?.visibility = View.VISIBLE
+                videoContainer?.visibility = View.GONE
+                bubbleLayout.setBackgroundResource(0)
                 Glide.with(itemView.context)
                     .load(message.imageUrl)
                     .placeholder(R.drawable.bg_gradient)
                     .error(R.drawable.bg_gradient)
                     .into(imageView!!)
                 imageView.setOnClickListener {
-                    // 可选：放大预览
-                    // 这里只弹出 Toast，实际可用 Dialog 或新页面展示大图
                     Toast.makeText(itemView.context, "Preview image", Toast.LENGTH_SHORT).show()
+                }
+            } else if (message.type == "video") {
+                messageText.visibility = View.GONE
+                voiceLayout?.visibility = View.GONE
+                imageView?.visibility = View.GONE
+                videoContainer?.visibility = View.VISIBLE
+                bubbleLayout.setBackgroundResource(0)
+                Glide.with(itemView.context)
+                    .load(message.imageUrl)
+                    .frame(1000000)
+                    .placeholder(R.drawable.bg_gradient)
+                    .error(R.drawable.bg_gradient)
+                    .into(videoThumb!!)
+                playBtn?.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.setDataAndType(android.net.Uri.parse(message.imageUrl), "video/*")
+                    itemView.context.startActivity(intent)
                 }
             } else {
                 messageText.visibility = View.VISIBLE
                 voiceLayout?.visibility = View.GONE
                 imageView?.visibility = View.GONE
+                videoContainer?.visibility = View.GONE
+                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_received)
                 messageText.text = message.message
             }
             if (avatarUrl != null) {
