@@ -9,108 +9,122 @@
     android:background="@android:color/transparent">
     <!-- Add paddingStart to prevent bubble touching edge -->
 
-    <ImageView
-        android:id="@+id/iv_avatar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="8dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/profile" />
-    <!-- Placeholder, ensure R.drawable.profile exists -->
-
-    <!-- Bubble background drawable -->
-    <LinearLayout
-        android:id="@+id/layout_message_bubble"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/tv_recall_message"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/iv_avatar"
-        android:layout_alignTop="@id/iv_avatar"
-        android:orientation="vertical"
-        android:background="@drawable/bg_chat_sent"
-        android:padding="10dp">
+        android:textColor="#999999"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_centerInParent="true"/>
 
-        <!-- Sent messages often use white text -->
-        <TextView
-            android:id="@+id/tv_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
-            android:layout_marginRight="15dp"
-            android:maxWidth="240dp"
-            android:text="Sent message text" />
+    <LinearLayout
+        android:id="@+id/layout_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
 
-        <!-- Optional: TextView for timestamp -->
-        <!-- Lighter gray for sent timestamp -->
-        <TextView
-            android:id="@+id/tv_timestamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="10sp"
-            android:layout_marginRight="15dp"
-            android:layout_marginTop="4dp"
-            android:layout_gravity="end"
-            android:textColor="#000000"
-            android:text="10:01 AM"/>
-
-        <!-- 语音消息气泡（微信风格） -->
+        <!-- 气泡在左 -->
         <LinearLayout
-            android:id="@+id/voice_layout"
+            android:id="@+id/layout_message_bubble"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone"
-            android:layout_marginTop="4dp">
-            <ImageView
-                android:id="@+id/voice_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_voice_msg"
-                android:contentDescription="voice icon" />
+            android:orientation="vertical"
+            android:background="@drawable/bg_chat_sent"
+            android:padding="10dp">
+
+            <!-- Sent messages often use white text -->
             <TextView
-                android:id="@+id/voice_duration"
+                android:id="@+id/tv_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text='4"'
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:layout_marginStart="8dp" />
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:maxWidth="240dp"
+                android:text="Sent message text" />
+
+            <!-- Optional: TextView for timestamp -->
+            <!-- Lighter gray for sent timestamp -->
+            <TextView
+                android:id="@+id/tv_timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:layout_marginTop="4dp"
+                android:layout_gravity="end"
+                android:textColor="#000000"
+                android:text="10:01 AM"/>
+
+            <!-- 语音消息气泡（微信风格） -->
+            <LinearLayout
+                android:id="@+id/voice_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                android:layout_marginTop="4dp">
+                <ImageView
+                    android:id="@+id/voice_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_voice_msg"
+                    android:contentDescription="voice icon" />
+                <TextView
+                    android:id="@+id/voice_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text='4"'
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <!-- 图片消息显示 -->
+            <ImageView
+                android:id="@+id/iv_image"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_marginTop="6dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:adjustViewBounds="true"
+                android:maxWidth="200dp"
+                android:maxHeight="200dp" />
+
+            <!-- 视频消息缩略图和播放按钮 -->
+            <FrameLayout
+                android:id="@+id/video_container"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:layout_marginTop="6dp"
+                android:visibility="gone">
+                <ImageView
+                    android:id="@+id/iv_video_thumb"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop" />
+                <ImageView
+                    android:id="@+id/iv_play"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_play_circle" />
+            </FrameLayout>
+
         </LinearLayout>
 
-        <!-- 图片消息显示 -->
+        <!-- 头像在右 -->
         <ImageView
-            android:id="@+id/iv_image"
-            android:layout_width="180dp"
-            android:layout_height="180dp"
-            android:layout_marginTop="6dp"
+            android:id="@+id/iv_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
             android:scaleType="centerCrop"
-            android:visibility="gone"
-            android:adjustViewBounds="true"
-            android:maxWidth="200dp"
-            android:maxHeight="200dp" />
-
-        <!-- 视频消息缩略图和播放按钮 -->
-        <FrameLayout
-            android:id="@+id/video_container"
-            android:layout_width="180dp"
-            android:layout_height="180dp"
-            android:layout_marginTop="6dp"
-            android:visibility="gone">
-            <ImageView
-                android:id="@+id/iv_video_thumb"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
-            <ImageView
-                android:id="@+id/iv_play"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_play_circle" />
-        </FrameLayout>
+            android:src="@drawable/profile" />
+        <!-- Placeholder, ensure R.drawable.profile exists -->
 
     </LinearLayout>
 

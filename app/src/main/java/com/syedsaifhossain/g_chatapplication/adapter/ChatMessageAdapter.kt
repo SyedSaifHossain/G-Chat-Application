@@ -22,27 +22,46 @@ class ChatMessageAdapter(
     private val currentUserId: String,
     // --- ADDED: Avatar URLs ---
     private val myAvatarUrl: String?,
-    private val otherUserAvatarUrl: String?
+    private val otherUserAvatarUrl: String?,
+    private val onMessageLongClick: (ChatModel, View) -> Unit // Added: long click callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    // View types remain the same
-    private val VIEW_TYPE_SENT = 1
-    private val VIEW_TYPE_RECEIVED = 2
+    companion object {
+        private const val VIEW_TYPE_SENT = 1
+        private const val VIEW_TYPE_RECEIVED = 2
+        private const val VIEW_TYPE_RECALL = 3
+    }
+
+    // Add a single MediaPlayer instance for the adapter
+    private var mediaPlayer: android.media.MediaPlayer? = null
+    private var lastPlayingUrl: String? = null
 
     override fun getItemViewType(position: Int): Int {
-        // Logic remains the same
-        return if (chatList[position].senderId == currentUserId) VIEW_TYPE_SENT else VIEW_TYPE_RECEIVED
+        val message = chatList[position]
+        return if (message.deleted) {
+            VIEW_TYPE_RECALL
+        } else if (message.senderId == currentUserId) {
+            VIEW_TYPE_SENT
+        } else {
+            VIEW_TYPE_RECEIVED
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        // --- MODIFIED: Inflate the NEW layout files ---
-        return if (viewType == VIEW_TYPE_SENT) {
-            val view = inflater.inflate(R.layout.item_chat_sent, parent, false) // Use item_chat_sent
-            SentMessageViewHolder(view)
-        } else {
-            val view = inflater.inflate(R.layout.item_chat_received, parent, false) // Use item_chat_received
-            ReceivedMessageViewHolder(view)
+        return when (viewType) {
+            VIEW_TYPE_SENT -> {
+                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_chat_sent, parent, false)
+                SentMessageViewHolder(view)
+            }
+            VIEW_TYPE_RECEIVED -> {
+                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_chat_received, parent, false)
+                ReceivedMessageViewHolder(view)
+            }
+            VIEW_TYPE_RECALL -> {
+                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_recall_message, parent, false)
+                RecallMessageViewHolder(view)
+            }
+            else -> throw IllegalArgumentException("Invalid view type")
         }
     }
 
@@ -50,11 +69,17 @@ class ChatMessageAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = chatList[position]
-        // --- MODIFIED: Pass avatar URLs to bind methods ---
-        if (holder is SentMessageViewHolder) {
-            holder.bind(message, myAvatarUrl) // Pass my avatar URL
-        } else if (holder is ReceivedMessageViewHolder) {
-            holder.bind(message, otherUserAvatarUrl) // Pass other user's avatar URL
+        when (holder) {
+            is SentMessageViewHolder -> holder.bind(message, myAvatarUrl)
+            is ReceivedMessageViewHolder -> holder.bind(message, otherUserAvatarUrl)
+            is RecallMessageViewHolder -> holder.bind(message)
+        }
+    }
+
+    inner class RecallMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val recallMessageText: TextView = itemView.findViewById(R.id.tv_recall_message)
+        fun bind(message: ChatModel) {
+            recallMessageText.text = "This message was recalled"
         }
     }
 
@@ -63,6 +88,8 @@ class ChatMessageAdapter(
         // --- Find views using IDs from item_chat_sent.xml ---
         private val messageText: TextView = itemView.findViewById(R.id.tv_message)
         private val timeText: TextView = itemView.findViewById(R.id.tv_timestamp)
+        private val recallMessageText: TextView = itemView.findViewById(R.id.tv_recall_message)
+        private val layoutContent: View = itemView.findViewById(R.id.layout_content)
         private val avatarImage: ImageView = itemView.findViewById(R.id.iv_avatar)
         private val voiceLayout: View? = itemView.findViewById(R.id.voice_layout)
         private val voiceIcon: ImageView? = itemView.findViewById(R.id.voice_icon)
@@ -75,66 +102,126 @@ class ChatMessageAdapter(
 
         // --- Modified bind method to accept avatar URL ---
         fun bind(message: ChatModel, avatarUrl: String?) {
-            timeText.text = formatTime(message.timestamp)
-            if (message.type == "voice") {
-                messageText.visibility = View.GONE
-                voiceLayout?.visibility = View.VISIBLE
-                imageView?.visibility = View.GONE
-                videoContainer?.visibility = View.GONE
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_sent)
-                voiceDuration?.text = "${message.duration}\""
-                val playListener = View.OnClickListener {
-                    try {
-                        val mediaPlayer = android.media.MediaPlayer()
-                        mediaPlayer.setDataSource(message.message)
-                        mediaPlayer.prepare()
-                        mediaPlayer.start()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+            // Always reset all visibilities to avoid RecyclerView reuse bugs
+            recallMessageText.visibility = View.GONE
+            layoutContent.visibility = View.GONE
+            messageText.visibility = View.GONE
+            imageView?.visibility = View.GONE
+            voiceLayout?.visibility = View.GONE
+            videoContainer?.visibility = View.GONE
+            bubbleLayout.visibility = View.GONE
+
+            if (message.deleted) {
+                recallMessageText.visibility = View.VISIBLE
+                recallMessageText.text = "This message was recalled"
+            } else {
+                layoutContent.visibility = View.VISIBLE
+                bubbleLayout.visibility = View.VISIBLE
+                // Set long click listener
+                itemView.setOnLongClickListener { view ->
+                    if (message.senderId == currentUserId && !message.deleted) {
+                        onMessageLongClick(message, view)
+                        true
+                    } else {
+                        false
                     }
                 }
-                voiceLayout?.setOnClickListener(playListener)
-                voiceIcon?.setOnClickListener(playListener)
-                voiceDuration?.setOnClickListener(playListener)
-            } else if (message.type == "image") {
-                messageText.visibility = View.GONE
-                voiceLayout?.visibility = View.GONE
-                imageView?.visibility = View.VISIBLE
-                videoContainer?.visibility = View.GONE
-                bubbleLayout.setBackgroundResource(0)
-                Glide.with(itemView.context)
-                    .load(message.imageUrl)
-                    .placeholder(R.drawable.bg_gradient)
-                    .error(R.drawable.bg_gradient)
-                    .into(imageView!!)
-                imageView.setOnClickListener {
-                    Toast.makeText(itemView.context, "Preview image", Toast.LENGTH_SHORT).show()
+                // Show correct content type
+                when (message.type) {
+                    "text" -> {
+                        messageText.visibility = View.VISIBLE
+                        messageText.text = if (message.isEdited) "${message.message} (edited)" else message.message
+                        timeText.visibility = View.VISIBLE
+                        timeText.text = formatTime(message.timestamp)
+                    }
+                    "image" -> {
+                        imageView?.visibility = View.VISIBLE
+                        imageView?.setImageResource(android.R.color.transparent)
+                        if (!message.imageUrl.isNullOrEmpty()) {
+                            Glide.with(itemView.context)
+                                .load(message.imageUrl)
+                                .placeholder(R.drawable.bg_gradient)
+                                .error(R.drawable.bg_gradient)
+                                .into(imageView!!)
+                        }
+                        timeText.visibility = View.VISIBLE
+                        timeText.text = formatTime(message.timestamp)
+                    }
+                    "voice" -> {
+                        voiceLayout?.visibility = View.VISIBLE
+                        messageText.visibility = View.GONE
+                        imageView?.visibility = View.GONE
+                        videoContainer?.visibility = View.GONE
+                        bubbleLayout.setBackgroundResource(R.drawable.bg_chat_sent)
+                        voiceDuration?.text = "${message.duration}\""
+                        val playListener = View.OnClickListener {
+                            try {
+                                // If already playing and same url, stop and do not replay
+                                if (mediaPlayer != null && mediaPlayer!!.isPlaying && lastPlayingUrl == message.message) {
+                                    mediaPlayer!!.stop()
+                                    mediaPlayer!!.release()
+                                    mediaPlayer = null
+                                    lastPlayingUrl = null
+                                    return@OnClickListener
+                                }
+                                // If already playing other url, stop and release
+                                if (mediaPlayer != null) {
+                                    mediaPlayer!!.stop()
+                                    mediaPlayer!!.release()
+                                    mediaPlayer = null
+                                }
+                                // Start new playback
+                                mediaPlayer = android.media.MediaPlayer().apply {
+                                    setDataSource(message.message)
+                                    prepare()
+                                    start()
+                                    setOnCompletionListener {
+                                        release()
+                                        mediaPlayer = null
+                                        lastPlayingUrl = null
+                                    }
+                                }
+                                lastPlayingUrl = message.message
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                mediaPlayer = null
+                                lastPlayingUrl = null
+                            }
+                        }
+                        voiceLayout?.setOnClickListener(playListener)
+                        voiceIcon?.setOnClickListener(playListener)
+                        voiceDuration?.setOnClickListener(playListener)
+                        timeText.visibility = View.VISIBLE
+                        timeText.text = formatTime(message.timestamp)
+                    }
+                    "video" -> {
+                        videoContainer?.visibility = View.VISIBLE
+                        messageText.visibility = View.GONE
+                        imageView?.visibility = View.GONE
+                        voiceLayout?.visibility = View.GONE
+                        bubbleLayout.setBackgroundResource(0)
+                        // 加载视频缩略图
+                        Glide.with(itemView.context)
+                            .load(message.imageUrl)
+                            .frame(1000000) // 取第1秒帧
+                            .placeholder(R.drawable.bg_gradient)
+                            .error(R.drawable.bg_gradient)
+                            .into(videoThumb!!)
+                        playBtn?.setOnClickListener {
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.setDataAndType(android.net.Uri.parse(message.imageUrl), "video/*")
+                            itemView.context.startActivity(intent)
+                        }
+                        timeText.visibility = View.VISIBLE
+                        timeText.text = formatTime(message.timestamp)
+                    }
+                    else -> {
+                        messageText.visibility = View.VISIBLE
+                        messageText.text = message.message
+                        timeText.visibility = View.VISIBLE
+                        timeText.text = formatTime(message.timestamp)
+                    }
                 }
-            } else if (message.type == "video") {
-                messageText.visibility = View.GONE
-                voiceLayout?.visibility = View.GONE
-                imageView?.visibility = View.GONE
-                videoContainer?.visibility = View.VISIBLE
-                bubbleLayout.setBackgroundResource(0)
-                // 加载视频缩略图
-                Glide.with(itemView.context)
-                    .load(message.imageUrl)
-                    .frame(1000000) // 取第1秒帧
-                    .placeholder(R.drawable.bg_gradient)
-                    .error(R.drawable.bg_gradient)
-                    .into(videoThumb!!)
-                playBtn?.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setDataAndType(android.net.Uri.parse(message.imageUrl), "video/*")
-                    itemView.context.startActivity(intent)
-                }
-            } else {
-                messageText.visibility = View.VISIBLE
-                voiceLayout?.visibility = View.GONE
-                imageView?.visibility = View.GONE
-                videoContainer?.visibility = View.GONE
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_sent)
-                messageText.text = message.message
             }
             if (avatarUrl != null) {
                 Glide.with(itemView.context)
@@ -153,6 +240,8 @@ class ChatMessageAdapter(
         // --- Find views using IDs from item_chat_received.xml ---
         private val messageText: TextView = itemView.findViewById(R.id.tv_message)
         private val timeText: TextView = itemView.findViewById(R.id.tv_timestamp)
+        private val recallMessageText: TextView = itemView.findViewById(R.id.tv_recall_message)
+        private val layoutContent: View = itemView.findViewById(R.id.layout_content)
         private val avatarImage: ImageView = itemView.findViewById(R.id.iv_avatar)
         private val voiceLayout: View? = itemView.findViewById(R.id.voice_layout)
         private val voiceIcon: ImageView? = itemView.findViewById(R.id.voice_icon)
@@ -165,65 +254,128 @@ class ChatMessageAdapter(
 
         // --- Modified bind method to accept avatar URL ---
         fun bind(message: ChatModel, avatarUrl: String?) {
-            timeText.text = formatTime(message.timestamp)
-            if (message.type == "voice") {
-                messageText.visibility = View.GONE
-                voiceLayout?.visibility = View.VISIBLE
-                imageView?.visibility = View.GONE
-                videoContainer?.visibility = View.GONE
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_received)
-                voiceDuration?.text = "${message.duration}\""
-                val playListener = View.OnClickListener {
-                    try {
-                        val mediaPlayer = android.media.MediaPlayer()
-                        mediaPlayer.setDataSource(message.message)
-                        mediaPlayer.prepare()
-                        mediaPlayer.start()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+            // Always reset all visibilities to avoid RecyclerView reuse bugs
+            recallMessageText.visibility = View.GONE
+            layoutContent.visibility = View.GONE
+            messageText.visibility = View.GONE
+            imageView?.visibility = View.GONE
+            voiceLayout?.visibility = View.GONE
+            videoContainer?.visibility = View.GONE
+            bubbleLayout.visibility = View.GONE
+            avatarImage.visibility = View.VISIBLE
+
+            if (message.deleted) {
+                recallMessageText.visibility = View.VISIBLE
+                recallMessageText.text = "This message was recalled"
+                avatarImage.visibility = View.GONE
+            } else {
+                layoutContent.visibility = View.VISIBLE
+                bubbleLayout.visibility = View.VISIBLE
+                avatarImage.visibility = View.VISIBLE
+                // Set long click listener
+                itemView.setOnLongClickListener { view ->
+                    if (message.senderId == currentUserId && !message.deleted) {
+                        onMessageLongClick(message, view)
+                        true
+                    } else {
+                        false
                     }
                 }
-                voiceLayout?.setOnClickListener(playListener)
-                voiceIcon?.setOnClickListener(playListener)
-                voiceDuration?.setOnClickListener(playListener)
-            } else if (message.type == "image") {
-                messageText.visibility = View.GONE
-                voiceLayout?.visibility = View.GONE
-                imageView?.visibility = View.VISIBLE
-                videoContainer?.visibility = View.GONE
-                bubbleLayout.setBackgroundResource(0)
-                Glide.with(itemView.context)
-                    .load(message.imageUrl)
-                    .placeholder(R.drawable.bg_gradient)
-                    .error(R.drawable.bg_gradient)
-                    .into(imageView!!)
-                imageView.setOnClickListener {
-                    Toast.makeText(itemView.context, "Preview image", Toast.LENGTH_SHORT).show()
+                // Show correct content type
+                when (message.type) {
+                    "text" -> {
+                        messageText.visibility = View.VISIBLE
+                        messageText.text = if (message.isEdited) "${message.message} (edited)" else message.message
+                        timeText.visibility = View.VISIBLE
+                        timeText.text = formatTime(message.timestamp)
+                    }
+                    "image" -> {
+                        imageView?.visibility = View.VISIBLE
+                        imageView?.setImageResource(android.R.color.transparent)
+                        if (!message.imageUrl.isNullOrEmpty()) {
+                            Glide.with(itemView.context)
+                                .load(message.imageUrl)
+                                .placeholder(R.drawable.bg_gradient)
+                                .error(R.drawable.bg_gradient)
+                                .into(imageView!!)
+                        }
+                        timeText.visibility = View.VISIBLE
+                        timeText.text = formatTime(message.timestamp)
+                    }
+                    "voice" -> {
+                        voiceLayout?.visibility = View.VISIBLE
+                        messageText.visibility = View.GONE
+                        imageView?.visibility = View.GONE
+                        videoContainer?.visibility = View.GONE
+                        bubbleLayout.setBackgroundResource(R.drawable.bg_chat_received)
+                        voiceDuration?.text = "${message.duration}\""
+                        val playListener = View.OnClickListener {
+                            try {
+                                // If already playing and same url, stop and do not replay
+                                if (mediaPlayer != null && mediaPlayer!!.isPlaying && lastPlayingUrl == message.message) {
+                                    mediaPlayer!!.stop()
+                                    mediaPlayer!!.release()
+                                    mediaPlayer = null
+                                    lastPlayingUrl = null
+                                    return@OnClickListener
+                                }
+                                // If already playing other url, stop and release
+                                if (mediaPlayer != null) {
+                                    mediaPlayer!!.stop()
+                                    mediaPlayer!!.release()
+                                    mediaPlayer = null
+                                }
+                                // Start new playback
+                                mediaPlayer = android.media.MediaPlayer().apply {
+                                    setDataSource(message.message)
+                                    prepare()
+                                    start()
+                                    setOnCompletionListener {
+                                        release()
+                                        mediaPlayer = null
+                                        lastPlayingUrl = null
+                                    }
+                                }
+                                lastPlayingUrl = message.message
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                mediaPlayer = null
+                                lastPlayingUrl = null
+                            }
+                        }
+                        voiceLayout?.setOnClickListener(playListener)
+                        voiceIcon?.setOnClickListener(playListener)
+                        voiceDuration?.setOnClickListener(playListener)
+                        timeText.visibility = View.VISIBLE
+                        timeText.text = formatTime(message.timestamp)
+                    }
+                    "video" -> {
+                        videoContainer?.visibility = View.VISIBLE
+                        messageText.visibility = View.GONE
+                        imageView?.visibility = View.GONE
+                        voiceLayout?.visibility = View.GONE
+                        bubbleLayout.setBackgroundResource(0)
+                        Glide.with(itemView.context)
+                            .load(message.imageUrl)
+                            .frame(1000000)
+                            .placeholder(R.drawable.bg_gradient)
+                            .error(R.drawable.bg_gradient)
+                            .into(videoThumb!!)
+                        playBtn?.setOnClickListener {
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.setDataAndType(android.net.Uri.parse(message.imageUrl), "video/*")
+                            itemView.context.startActivity(intent)
+                        }
+                        timeText.visibility = View.VISIBLE
+                        timeText.text = formatTime(message.timestamp)
+                    }
+                    else -> {
+                        messageText.visibility = View.VISIBLE
+                        messageText.text = message.message
+                        timeText.visibility = View.VISIBLE
+                        timeText.text = formatTime(message.timestamp)
+                    }
                 }
-            } else if (message.type == "video") {
-                messageText.visibility = View.GONE
-                voiceLayout?.visibility = View.GONE
-                imageView?.visibility = View.GONE
-                videoContainer?.visibility = View.VISIBLE
-                bubbleLayout.setBackgroundResource(0)
-                Glide.with(itemView.context)
-                    .load(message.imageUrl)
-                    .frame(1000000)
-                    .placeholder(R.drawable.bg_gradient)
-                    .error(R.drawable.bg_gradient)
-                    .into(videoThumb!!)
-                playBtn?.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setDataAndType(android.net.Uri.parse(message.imageUrl), "video/*")
-                    itemView.context.startActivity(intent)
-                }
-            } else {
-                messageText.visibility = View.VISIBLE
-                voiceLayout?.visibility = View.GONE
-                imageView?.visibility = View.GONE
-                videoContainer?.visibility = View.GONE
-                bubbleLayout.setBackgroundResource(R.drawable.bg_chat_received)
-                messageText.text = message.message
             }
             if (avatarUrl != null) {
                 Glide.with(itemView.context)
