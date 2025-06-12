@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/black"
-    android:fitsSystemWindows="true"
     tools:context=".ChatScreenFragment">
 
     <!-- Chat Message Toolbar -->
@@ -15,6 +13,9 @@
         android:id="@+id/chatMessageLayout"
         android:layout_width="match_parent"
         android:layout_height="110dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:gravity="center_vertical"
         android:minHeight="?attr/actionBarSize"
         android:paddingStart="8dp"
@@ -30,6 +31,16 @@
             android:src="@drawable/leftarrow"
             app:tint="#81d8d0" />
 
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/toolbarUserImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/chatMessage_back_img"
+            android:src="@drawable/profileimage"
+            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
+
         <TextView
             android:id="@+id/tvToolbarUserName"
             android:layout_width="wrap_content"
@@ -38,7 +49,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="8dp"
             android:layout_toStartOf="@+id/videoIcon"
-            android:layout_toEndOf="@id/chatMessage_back_img"
+            android:layout_toEndOf="@id/toolbarUserImage"
             android:maxLines="1"
             android:text="User Name"
             android:textColor="#81d8d0"
@@ -81,22 +92,28 @@
         android:id="@+id/horizontalLine"
         android:layout_width="match_parent"
         android:layout_height="3dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:background="#81d8d0"
-        android:layout_marginHorizontal="20dp" />
+        android:layout_marginHorizontal="20dp"
+        android:layout_below="@id/chatMessageLayout" />
 
     <!-- RecyclerView for Chat Messages -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chatScreenRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_above="@+id/chatScreen_bottom_layout"
+        android:layout_below="@+id/chatMessageLayout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
 
     <!-- ProgressBar for Loading -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_centerInParent="true"
         android:visibility="gone" />
 
     <!-- Bottom Layout for Chat Input -->
@@ -104,10 +121,13 @@
         android:id="@+id/chatScreen_bottom_layout"
         android:layout_width="match_parent"
         android:layout_height="70dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:gravity="center_vertical"
-        android:fitsSystemWindows="true">
+        android:layout_marginBottom="35dp">
 
         <EditText
             android:id="@+id/chatMessage_input"
@@ -176,7 +196,8 @@
             android:background="@drawable/round_shape_bg"
             android:backgroundTint="#81d8d0"
             android:padding="8dp"
-            android:src="@drawable/send" />
+            android:src="@drawable/send"
+            app:tint="#000000" />
     </RelativeLayout>
 
     <!-- Recording Indicator Layout (hidden initially) -->
@@ -208,4 +229,4 @@
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>
