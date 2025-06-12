@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/tv_recall_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This message was recalled"
+        android:gravity="center"
+        android:textColor="#999999"
+        android:textSize="14sp" />
+
+</FrameLayout> 

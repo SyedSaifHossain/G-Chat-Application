@@ -61,6 +61,10 @@ import java.util.Timer
 import java.util.TimerTask
 import android.webkit.MimeTypeMap
 import androidx.exifinterface.media.ExifInterface
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
 
 // Ensure the class declaration includes the interface implementation from your original
 class ChatScreenFragment : Fragment(){
@@ -93,10 +97,15 @@ class ChatScreenFragment : Fragment(){
     private var recordingTimer: Timer? = null
     private var elapsedTime: Long = 0
     private var lastVoiceDuration: Int = 0
+    private var shouldSendVoiceMessage = true  // 新增：是否应该发送语音消息
+    private var initialX = 0f // For WhatsApp style cancel
+    private val CANCEL_X_THRESHOLD = 150f // Swipe left 150px to cancel
 
     private val messages = mutableListOf<Chats>()
     private lateinit var chatAdapter: ChatAdapter
 
+    private var recordTimer: Timer? = null
+    private var recordSeconds = 0
 
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -190,6 +199,11 @@ class ChatScreenFragment : Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("VoiceDebug", "onViewCreated called")
+        Log.d("VoiceDebug", "setOnTouchListener for chatMicButton is set")
+        binding.chatMicButton.setOnClickListener {
+            showRecordAudioPanel()
+        }
 
         // --- Receive Arguments (Revised) ---
         arguments?.let { bundle ->
@@ -231,7 +245,14 @@ class ChatScreenFragment : Fragment(){
                             ?: mySnap.child("avatarUrl").getValue(String::class.java)
                             ?: ""
                         // 用最新头像初始化Adapter
-                        chatMessageAdapter = ChatMessageAdapter(chatList, currentUserId, myAvatarUrl, otherUserAvatarUrl)
+                        chatMessageAdapter = ChatMessageAdapter(
+                            chatList,
+                            currentUserId,
+                            myAvatarUrl,
+                            otherUserAvatarUrl
+                        ) { message, view ->
+                            showMessageOptionsMenu(message, view)
+                        }
                         binding.chatScreenRecyclerView.layoutManager = LinearLayoutManager(requireContext())
                         binding.chatScreenRecyclerView.adapter = chatMessageAdapter
                         chatMessageAdapter.notifyDataSetChanged()
@@ -354,43 +375,6 @@ class ChatScreenFragment : Fragment(){
 
         requestPermissionsIfNeeded()
 
-        requestPermissionsIfNeeded()
-
-        binding.chatMicButton.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    if (checkAudioPermission()) {
-                        startRecording()
-                    } else {
-                        requestPermissionsIfNeeded()
-                    }
-                    true
-                }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    if (isRecording) {
-                        stopRecording()
-                    }
-                    true
-                }
-                else -> false
-            }
-        }
-
-        binding.chatSendButton.setOnClickListener {
-            val message = binding.chatMessageInput.text.toString().trim()
-            if (message.isNotEmpty()) {
-                sendTextMessage(message)
-                binding.chatMessageInput.setText("")
-            } else if (outputFile.isNotEmpty() && File(outputFile).exists()) {
-                sendVoiceMessageWithCoroutine(outputFile)
-                outputFile = ""
-            } else {
-                Toast.makeText(requireContext(), "Type a message or record voice first", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-
-
         binding.tvToolbarUserName.text = otherUserName
 
         binding.moreIcon.setOnClickListener {
@@ -401,37 +385,62 @@ class ChatScreenFragment : Fragment(){
 
 
     private fun sendTextMessage(messageText: String) {
+        // Generate message ID first
+        val messageId = FirebaseDatabase.getInstance().getReference("chats").push().key ?: return
+        
         val message = ChatModel(
             senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
             message = messageText,
-            timestamp = System.currentTimeMillis()
+            timestamp = System.currentTimeMillis(),
+            messageId = messageId  // Set the message ID
         )
-        chatList.add(message)
-        chatMessageAdapter.notifyItemInserted(chatList.size - 1)
-        // 保存到Firebase
+        
+        // Save to Firebase first
         val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
         val chatNodeId = getChatNodeId(senderId, otherUserId!!)
         val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
-        val messageId = chatRef.push().key ?: return
+        
         chatRef.child(messageId).setValue(message)
+            .addOnSuccessListener {
+                // Only add to local list after successful save
+                chatList.add(message)
+                chatMessageAdapter.notifyItemInserted(chatList.size - 1)
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Failed to send message: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun sendVoiceMessage(audioUrl: String, duration: Int) {
+        Log.d("VoiceDebug", "sendVoiceMessage called with URL: $audioUrl, duration: $duration")
+        val messageId = FirebaseDatabase.getInstance().getReference("chats").push().key ?: return
+        Log.d("VoiceDebug", "Generated message ID: $messageId")
+        
         val message = ChatModel(
             senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-            message = audioUrl, // 语音URL
+            message = audioUrl,
             timestamp = System.currentTimeMillis(),
-            type = "voice",     // 指定为语音消息
-            duration = duration  // 录音时长
+            type = "voice",
+            duration = duration,
+            messageId = messageId
         )
-        chatList.add(message)
-        chatMessageAdapter.notifyItemInserted(chatList.size - 1)
-        // 保存到Firebase
+        Log.d("VoiceDebug", "Created message object: $message")
+        
         val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
         val chatNodeId = getChatNodeId(senderId, otherUserId!!)
         val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
-        val messageId = chatRef.push().key ?: return
+        Log.d("VoiceDebug", "Sending to chat node: $chatNodeId")
+        
         chatRef.child(messageId).setValue(message)
+            .addOnSuccessListener {
+                Log.d("VoiceDebug", "Voice message saved to database successfully")
+                chatList.add(message)
+                chatMessageAdapter.notifyItemInserted(chatList.size - 1)
+            }
+            .addOnFailureListener { e ->
+                Log.e("VoiceDebug", "Failed to save voice message: ${e.message}")
+                Toast.makeText(requireContext(), "Failed to send voice message: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
 
@@ -526,20 +535,17 @@ class ChatScreenFragment : Fragment(){
             return
         }
 
-        // 获取当前登录用户的 UID
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
             Log.e("ChatScreenFragment", "User not logged in")
-            Toast.makeText(requireContext(), "请先登录", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Please login first", Toast.LENGTH_SHORT).show()
             return
         }
         val senderId = currentUser.uid
 
-        // Create a specific chat node ID based on the two users involved
         val chatNodeId = getChatNodeId(senderId, otherUserId!!)
         Log.d("ChatScreenFragment", "Listening for messages in chat node: $chatNodeId")
 
-        // Reference to the specific chat node
         val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
 
         chatRef.addValueEventListener(object : ValueEventListener {
@@ -548,8 +554,10 @@ class ChatScreenFragment : Fragment(){
                 chatList.clear()
                 for (child in snapshot.children) {
                     val message = child.getValue(ChatModel::class.java)
-                    Log.d("ChatScreenFragment", "Message from Firebase: $message")
-                    message?.let { chatList.add(it) }
+                    Log.d("ChatDebug", "msgId=${child.key}, deleted=${message?.deleted}, msg=${message?.message}")
+                    // Ensure message ID is set from the key
+                    val messageWithId = message?.copy(messageId = child.key ?: "")
+                    if (messageWithId != null) chatList.add(messageWithId)
                 }
                 Log.d("ChatScreenFragment", "Total messages in chatList: ${chatList.size}")
                 chatList.sortBy { it.timestamp }
@@ -746,7 +754,7 @@ class ChatScreenFragment : Fragment(){
 
     private fun startRecording() {
         try {
-            Log.d("VoiceDebug", "准备开始录音，准备文件路径...")
+            Log.d("VoiceDebug", "Preparing to start recording...")
             // Prepare recording file
             val dirPath = "${requireContext().externalCacheDir?.absolutePath}/voiceMessages"
             val dir = File(dirPath)
@@ -754,7 +762,7 @@ class ChatScreenFragment : Fragment(){
 
             val fileName = "voice_${System.currentTimeMillis()}.3gp"
             outputFile = "$dirPath/$fileName"
-            Log.d("VoiceDebug", "录音文件路径: $outputFile")
+            Log.d("VoiceDebug", "Recording file path: $outputFile")
 
             mediaRecorder = MediaRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -767,20 +775,22 @@ class ChatScreenFragment : Fragment(){
 
             isRecording = true
             recordStartTime = System.currentTimeMillis()
-            Log.d("VoiceDebug", "录音已开始，时间戳: $recordStartTime")
+            Log.d("VoiceDebug", "Recording started at timestamp: $recordStartTime")
 
-            // Show the recording indicator (text and mic icon)
+            // Show recording UI
             binding.recordingIndicatorLayout.visibility = View.VISIBLE
             binding.recordingStatusText.visibility = View.VISIBLE
             binding.recordingMicIcon.visibility = View.VISIBLE
+            binding.recordingStatusText.text = "Slide left to cancel"
+            binding.recordingStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
 
-            // Start a timer to update the recording time
+            // Start timer
             startTimer()
+            Log.d("VoiceDebug", "Recording UI and timer started")
 
-            Toast.makeText(requireContext(), "Recording Started", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e("VoiceDebug", "录音启动失败: ${e.message}")
+            Log.e("VoiceDebug", "Failed to start recording: ${e.message}")
             Toast.makeText(requireContext(), "Failed to start recording: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
@@ -803,54 +813,47 @@ class ChatScreenFragment : Fragment(){
         try {
             val elapsed = System.currentTimeMillis() - recordStartTime
             lastVoiceDuration = (elapsed / 1000).toInt()
-            Log.d("VoiceDebug", "准备停止录音，录音时长: ${elapsed}ms")
-            if (elapsed < 1000) { // If recording was too short
+            Log.d("VoiceDebug", "Stopping recording, duration: ${elapsed}ms")
+            
+            if (elapsed < 1000) { // If recording is too short
                 Toast.makeText(requireContext(), "Recording too short", Toast.LENGTH_SHORT).show()
                 try {
-                    Log.d("VoiceDebug", "调用 release() 释放 MediaRecorder（录音过短）")
+                    mediaRecorder?.stop()
                     mediaRecorder?.release()
                 } catch (e: Exception) {
-                    Log.e("VoiceDebug", "录音过短时 release() 异常: ${e.message}")
+                    Log.e("VoiceDebug", "Exception during stop/release for short recording: ${e.message}")
                 }
                 mediaRecorder = null
                 isRecording = false
-                // Hide the recording indicator
                 binding.recordingIndicatorLayout.visibility = View.GONE
-                Log.d("VoiceDebug", "录音过短，已取消")
+                Log.d("VoiceDebug", "Recording cancelled - too short")
                 return
             }
 
             try {
-                Log.d("VoiceDebug", "调用 stop() 停止 MediaRecorder")
                 mediaRecorder?.stop()
-                Log.d("VoiceDebug", "stop() 调用成功")
-            } catch (e: Exception) {
-                Log.e("VoiceDebug", "stop() 调用异常: ${e.message}")
-            }
-            try {
-                Log.d("VoiceDebug", "调用 release() 释放 MediaRecorder")
                 mediaRecorder?.release()
-                Log.d("VoiceDebug", "release() 调用成功")
             } catch (e: Exception) {
-                Log.e("VoiceDebug", "release() 调用异常: ${e.message}")
+                Log.e("VoiceDebug", "Exception during stop/release: ${e.message}")
+            } finally {
+                mediaRecorder = null
+                isRecording = false
+                binding.recordingIndicatorLayout.visibility = View.GONE
+                recordingTimer?.cancel()
             }
-            isRecording = false
 
-            // Hide the recording indicator and stop timer
-            binding.recordingIndicatorLayout.visibility = View.GONE
-            recordingTimer?.cancel()
-
-            // 打印录音文件大小
+            // Log file size
             val file = File(outputFile)
-            Log.d("VoiceDebug", "录音结束，文件路径: $outputFile, 文件大小: ${file.length()} 字节")
+            Log.d("VoiceDebug", "Recording finished, file path: $outputFile, file size: ${file.length()} bytes")
 
-            Toast.makeText(requireContext(), "Recording Stopped", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e("VoiceDebug", "录音停止失败: ${e.message}")
+            Log.e("VoiceDebug", "Failed to stop recording: ${e.message}")
             Toast.makeText(requireContext(), "Failed to stop recording: ${e.message}", Toast.LENGTH_LONG).show()
-        } finally {
             mediaRecorder = null
+            isRecording = false
+            binding.recordingIndicatorLayout.visibility = View.GONE
+            recordingTimer?.cancel()
         }
     }
 
@@ -860,20 +863,25 @@ class ChatScreenFragment : Fragment(){
         val audioRef = storageRef.child("voiceMessages/${File(filePath).name}")
         val duration = lastVoiceDuration
         val file = File(filePath)
-        Log.d("VoiceDebug", "准备上传录音文件: $filePath, 文件大小: ${file.length()} 字节, 时长: ${duration}s")
+        Log.d("VoiceDebug", "Preparing to upload voice file: $filePath, size: ${file.length()} bytes, duration: ${duration}s")
+        
+        // Show upload progress
+        _binding?.progressBar?.visibility = View.VISIBLE
+        
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 audioRef.putFile(Uri.fromFile(File(filePath))).await()
                 val downloadUrl = audioRef.downloadUrl.await()
                 withContext(Dispatchers.Main) {
-                    Log.d("VoiceDebug", "录音文件上传成功，downloadUrl: $downloadUrl")
+                    Log.d("VoiceDebug", "Voice file uploaded successfully, downloadUrl: $downloadUrl")
                     sendVoiceMessage(downloadUrl.toString(), duration)
-                    Toast.makeText(requireContext(), "Voice message sent!", Toast.LENGTH_SHORT).show()
+                    _binding?.progressBar?.visibility = View.GONE
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Log.e("VoiceDebug", "录音文件上传失败: ${e.message}")
-                    Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("VoiceDebug", "Failed to upload voice file: ${e.message}")
+                    Toast.makeText(requireContext(), "Failed to send: ${e.message}", Toast.LENGTH_SHORT).show()
+                    _binding?.progressBar?.visibility = View.GONE
                 }
             }
         }
@@ -920,6 +928,146 @@ class ChatScreenFragment : Fragment(){
                 Toast.makeText(requireContext(), "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
                 _binding?.progressBar?.visibility = View.GONE
             }
+    }
+
+    private fun showMessageOptionsMenu(message: ChatModel, view: View) {
+        val popupMenu = PopupMenu(requireContext(), view)
+        popupMenu.menuInflater.inflate(R.menu.message_options_menu, popupMenu.menu)
+        
+        // Set menu items visibility based on message status
+        popupMenu.menu.findItem(R.id.menu_recall)?.isVisible = !message.deleted
+        popupMenu.menu.findItem(R.id.menu_edit)?.isVisible = !message.deleted && message.type == "text"
+        
+        popupMenu.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_recall -> {
+                    recallMessage(message)
+                    true
+                }
+                R.id.menu_edit -> {
+                    editMessage(message)
+                    true
+                }
+                else -> false
+            }
+        }
+        popupMenu.show()
+    }
+
+    private fun recallMessage(message: ChatModel) {
+        if (otherUserId == null) return
+        
+        val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+        
+        // Update message status to deleted, and remove isDeleted field if exists
+        val updates = mapOf(
+            "deleted" to true,
+            "isDeleted" to null, // remove old field if exists
+            "message" to "This message was recalled"
+        )
+        
+        chatRef.child(message.messageId).updateChildren(updates)
+            .addOnSuccessListener {
+                listenForMessages()
+                Toast.makeText(requireContext(), "Message recalled", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Failed to recall: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun editMessage(message: ChatModel) {
+        // Show edit dialog
+        val editText = android.widget.EditText(requireContext()).apply {
+            setText(message.message)
+            filters = arrayOf(android.text.InputFilter.LengthFilter(1000))
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Edit Message")
+            .setView(editText)
+            .setPositiveButton("OK") { _, _ ->
+                val newMessage = editText.text.toString().trim()
+                if (newMessage.isNotEmpty() && newMessage != message.message) {
+                    updateMessage(message, newMessage)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun updateMessage(message: ChatModel, newContent: String) {
+        if (otherUserId == null) return
+        
+        val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+        
+        // Update message content and edit status
+        val updates = mapOf(
+            "message" to newContent,
+            "isEdited" to true,
+            "editTimestamp" to System.currentTimeMillis()
+        )
+        
+        chatRef.child(message.messageId).updateChildren(updates)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Message updated", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Update failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun showRecordAudioPanel() {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.record_audio_panel, null)
+        dialog.setContentView(view)
+
+        val btnDelete = view.findViewById<ImageView>(R.id.btnDeleteRecording)
+        val btnSend = view.findViewById<ImageView>(R.id.btnSendRecording)
+        val tvTime = view.findViewById<TextView>(R.id.tvRecordingTime)
+        val wave = view.findViewById<ProgressBar>(R.id.recordingWave)
+
+        // Start recording
+        startRecording()
+        startRecordTimer(tvTime)
+
+        btnDelete.setOnClickListener {
+            stopRecording()
+            File(outputFile).delete()
+            dialog.dismiss()
+            Toast.makeText(requireContext(), "Voice message cancelled", Toast.LENGTH_SHORT).show()
+        }
+        btnSend.setOnClickListener {
+            stopRecording()
+            sendVoiceMessageWithCoroutine(outputFile)
+            dialog.dismiss()
+        }
+        dialog.setOnDismissListener {
+            stopRecordTimer()
+        }
+        dialog.show()
+    }
+
+    private fun startRecordTimer(tv: TextView) {
+        recordSeconds = 0
+        recordTimer = Timer()
+        recordTimer?.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                recordSeconds++
+                val min = recordSeconds / 60
+                val sec = recordSeconds % 60
+                activity?.runOnUiThread {
+                    tv.text = String.format("%d:%02d", min, sec)
+                }
+            }
+        }, 0, 1000)
+    }
+
+    private fun stopRecordTimer() {
+        recordTimer?.cancel()
+        recordTimer = null
     }
 
     override fun onDestroyView() {
