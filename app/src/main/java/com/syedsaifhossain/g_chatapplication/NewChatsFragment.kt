@@ -1,11 +1,13 @@
 package com.syedsaifhossain.g_chatapplication
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.syedsaifhossain.g_chatapplication.adapter.NewChatAdapter
@@ -35,6 +37,11 @@ class NewChatsFragment : Fragment() {
 
         // 群聊创建按钮（右上角）点击事件
         binding.doneButton.setOnClickListener {
+
+            binding.doneButton.setBackgroundColor(Color.parseColor("#606060"))
+
+            binding.doneButton.setTextColor(Color.parseColor("#000000"))
+
             val selectedUids = chatList.filter { it.isSelected }.map { it.uid }
             if (selectedUids.isEmpty()) {
                 android.widget.Toast.makeText(requireContext(), "Please select at least one friend", android.widget.Toast.LENGTH_SHORT).show()
@@ -45,7 +52,7 @@ class NewChatsFragment : Fragment() {
             }
         }
 
-        binding.selectGroupText.setOnClickListener{
+        binding.selectGroup.setOnClickListener{
             findNavController().navigate(R.id.action_newChatsFragment_to_selectGroupFragment)
         }
         return binding.root
@@ -75,7 +82,7 @@ class NewChatsFragment : Fragment() {
                     val userSnap = usersSnap.child(uid)
                     android.util.Log.d("NewChatsFragment", "userSnap for $uid: ${userSnap.value}") // 调试日志
                     val name = userSnap.child("name").getValue(String::class.java) ?: "Unknown"
-                    newList.add(com.syedsaifhossain.g_chatapplication.models.NewChatItem(uid, name, R.drawable.cityimg))
+                    newList.add(com.syedsaifhossain.g_chatapplication.models.NewChatItem(uid, name, R.drawable.profileimage))
                 }
                 chatList.clear()
                 chatList.addAll(newList)

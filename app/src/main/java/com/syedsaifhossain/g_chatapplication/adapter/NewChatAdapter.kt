@@ -15,12 +15,6 @@ class NewChatAdapter(private val chatList: ArrayList<NewChatItem>) : RecyclerVie
         fun bind(chatItem: NewChatItem) {
             binding.friendName.text = chatItem.name
             binding.newChatsImg.setImageResource(chatItem.avatarResId)
-
-            binding.newChatCheckbox.isChecked = chatItem.isSelected
-
-            binding.newChatCheckbox.setOnCheckedChangeListener { _, isChecked ->
-                chatItem.isSelected = isChecked
-            }
         }
     }
 
