@@ -57,13 +57,13 @@
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxStrokeColor="#81d8d0"
-            android:textColorHint="#6b6b6b">
+            android:textColorHint="#6b6b6b"
+            android:hint="Phone number/Email">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etContact"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Phone number/Email"
                 android:inputType="text"
                 android:textSize="22sp"
                 android:textColor="#6b6b6b"
@@ -71,7 +71,7 @@
                 android:fontFamily="@font/roboto_regular"
                 android:textStyle="bold"
                 android:paddingStart="16dp"
-                android:paddingEnd="16dp" />
+                android:paddingEnd="16dp"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Save Button -->
