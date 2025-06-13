@@ -337,5 +337,9 @@
         android:id="@+id/mePageFragment"
         android:name="com.syedsaifhossain.g_chatapplication.MePageFragment"
         android:label="fragment_me_page"
-        tools:layout="@layout/fragment_me_page" />
+        tools:layout="@layout/fragment_me_page" >
+        <action
+            android:id="@+id/action_mePageFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
 </navigation>
