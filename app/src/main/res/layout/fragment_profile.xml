@@ -22,7 +22,7 @@ android:background="@drawable/bg_gradient">
 
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/addImageButton"
+        android:id="@+id/profileAddImageButton"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_alignEnd="@id/ivProfileAvatar"
