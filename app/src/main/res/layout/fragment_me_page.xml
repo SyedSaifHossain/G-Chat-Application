@@ -55,7 +55,7 @@
 
         <!-- Right Arrow Image -->
         <ImageView
-            android:id="@+id/merightArrow"
+            android:id="@+id/meRightArrow"
             android:layout_width="18dp"
             android:layout_height="40dp"
             android:layout_below="@id/qcodeImg"
