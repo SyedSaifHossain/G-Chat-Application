@@ -6,10 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.syedsaifhossain.g_chatapplication.adapter.NewChatAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentNewChatsBinding
 import com.syedsaifhossain.g_chatapplication.models.NewChatItem
@@ -69,31 +69,48 @@ class NewChatsFragment : Fragment() {
         // 其它初始化逻辑可保留
     }
 
+
     private fun loadFriends() {
-        val currentUserUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val usersRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users")
+        val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val usersRef = FirebaseDatabase.getInstance().getReference("users")
+
         usersRef.child(currentUserUid).child("friends").get().addOnSuccessListener { snapshot ->
             val friendUids = snapshot.children.mapNotNull { it.key }
-            android.util.Log.d("NewChatsFragment", "friendUids: $friendUids") // 调试日志
+
             if (friendUids.isEmpty()) {
                 chatList.clear()
                 adapter.notifyDataSetChanged()
                 return@addOnSuccessListener
             }
+
             usersRef.get().addOnSuccessListener { usersSnap ->
-                val newList = ArrayList<com.syedsaifhossain.g_chatapplication.models.NewChatItem>()
+                val friendList = mutableListOf<NewChatItem>()
                 for (uid in friendUids) {
                     val userSnap = usersSnap.child(uid)
-                    android.util.Log.d("NewChatsFragment", "userSnap for $uid: ${userSnap.value}") // 调试日志
                     val name = userSnap.child("name").getValue(String::class.java) ?: "Unknown"
-                    newList.add(com.syedsaifhossain.g_chatapplication.models.NewChatItem(uid, name, R.drawable.profileimage))
+                    friendList.add(NewChatItem(uid, name, R.drawable.profileimage))
                 }
+
+                // Sort and group
+                val grouped = friendList.sortedBy { it.name.lowercase() }
+                    .groupBy { it.name.first().uppercaseChar() }
+
+                val newList = ArrayList<NewChatItem>()
+                for ((letter, items) in grouped) {
+                    // Add header with special uid
+                    newList.add(NewChatItem("header_$letter", letter.toString(), 0))
+                    newList.addAll(items)
+                }
+
                 chatList.clear()
                 chatList.addAll(newList)
                 adapter.notifyDataSetChanged()
             }
         }
     }
+
+
+
 
     // 弹窗输入群名
     private fun showGroupNameDialog(onGroupNameEntered: (String) -> Unit) {
