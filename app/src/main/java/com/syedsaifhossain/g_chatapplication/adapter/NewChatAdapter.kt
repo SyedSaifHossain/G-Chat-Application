@@ -6,34 +6,54 @@ import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.databinding.NewChatsListBinding
 import com.syedsaifhossain.g_chatapplication.models.NewChatItem
 
-class NewChatAdapter(private val chatList: ArrayList<NewChatItem>) : RecyclerView.Adapter<NewChatAdapter.NewChatViewHolder>() {
+class NewChatAdapter(private val chatList: ArrayList<NewChatItem>) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    // ViewHolder class to bind the views using ViewBinding
-    inner class NewChatViewHolder(private val binding: NewChatsListBinding) : RecyclerView.ViewHolder(binding.root) {
+    private val VIEW_TYPE_HEADER = 0
+    private val VIEW_TYPE_ITEM = 1
 
-        // Bind method to update the views with the data
-        fun bind(chatItem: NewChatItem) {
-            binding.friendName.text = chatItem.name
-            binding.newChatsImg.setImageResource(chatItem.avatarResId)
+    inner class HeaderViewHolder(val binding: com.syedsaifhossain.g_chatapplication.databinding.ItemHeaderBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: NewChatItem) {
+            binding.headerText.text = item.name
         }
     }
 
-    // Create ViewHolder by inflating the item layout using ViewBinding
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewChatViewHolder {
-        val binding = NewChatsListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return NewChatViewHolder(binding)
+    inner class ItemViewHolder(val binding: NewChatsListBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: NewChatItem) {
+            binding.friendName.text = item.name
+            binding.newChatsImg.setImageResource(item.avatarResId)
+        }
     }
 
-    // Bind the data to the ViewHolder
-    override fun onBindViewHolder(holder: NewChatViewHolder, position: Int) {
+    override fun getItemViewType(position: Int): Int {
+        return if (chatList[position].uid.startsWith("header_")) VIEW_TYPE_HEADER else VIEW_TYPE_ITEM
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == VIEW_TYPE_HEADER) {
+            val binding = com.syedsaifhossain.g_chatapplication.databinding.ItemHeaderBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false)
+            HeaderViewHolder(binding)
+        } else {
+            val binding = NewChatsListBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false)
+            ItemViewHolder(binding)
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val chatItem = chatList[position]
-        holder.bind(chatItem)
+        if (holder is HeaderViewHolder) {
+            holder.bind(chatItem)
+        } else if (holder is ItemViewHolder) {
+            holder.bind(chatItem)
+        }
     }
 
-    // Return the size of the dataset
     override fun getItemCount(): Int = chatList.size
 
-    // Method to update the data in the ArrayList
     fun updateChatList(newList: ArrayList<NewChatItem>) {
         chatList.clear()
         chatList.addAll(newList)
