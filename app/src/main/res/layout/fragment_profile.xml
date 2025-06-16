@@ -1,135 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-android:background="@drawable/bg_gradient">
+android:background="@drawable/bg_gradient"
+tools:context=".ProfileFragment">
 
 <RelativeLayout
+    android:id="@+id/profilePageHeader"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="24dp">
+    android:layout_marginTop="30dp"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentEnd="true"
+    android:layout_alignParentTop="true"
+    android:layout_marginBottom="10dp">
 
-    <!-- Profile Image -->
     <ImageView
-        android:id="@+id/ivProfileAvatar"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        android:src="@drawable/profileicon" />
-
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profileAddImageButton"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_alignEnd="@id/ivProfileAvatar"
-        android:layout_alignBottom="@id/ivProfileAvatar"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="15dp"
-        android:src="@drawable/addcirclebutton"
-        app:civ_circle_background_color="#000000" />
+        android:id="@+id/profileBackImg"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="20dp"
+        android:src="@drawable/leftarrow"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
 
     <TextView
-        android:id="@+id/tvProfileName"
+        android:id="@+id/meUserName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/ivProfileAvatar"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="24dp"
-        android:text="Name"
-        android:textColor="#FFFFFF"
-        android:textSize="22sp"
-        android:textStyle="bold" />
-
-    <!-- Phone -->
-    <LinearLayout
-        android:id="@+id/phoneSection"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tvProfileName"
-        android:layout_marginTop="24dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:text="Phone"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"/>
-
-        <TextView
-            android:id="@+id/tvProfilePhone"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="139****1234"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"/>
-
-        <ImageView
-            android:id="@+id/editPhoneBtn"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/ic_edit"
-            android:contentDescription="Edit Phone"
-            android:padding="4dp"
-            android:tint="@color/white"/>
-    </LinearLayout>
-
-    <!-- Gender -->
-    <LinearLayout
-        android:id="@+id/genderSection"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/phoneSection"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:text="Gender"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"/>
-
-        <TextView
-            android:id="@+id/tvProfileGender"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Female"
-            android:textSize="20sp"
-            android:textColor="@color/white"/>
-    </LinearLayout>
-
-    <!-- Region -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/genderSection"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:text="Region"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"/>
-
-        <TextView
-            android:id="@+id/tvProfileRegion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sydney, Australia"
-            android:textSize="20sp"
-            android:textColor="@color/white"/>
-    </LinearLayout>
+        android:layout_centerVertical="true"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Profile"
+        android:textColor="#81d8d0"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:paddingTop="5dp"
+        android:layout_marginStart="15dp"
+        android:layout_toEndOf="@+id/profileBackImg"/>
 
 </RelativeLayout>
-</ScrollView>
+
+<View
+    android:id="@+id/mePageLine"
+    android:layout_width="match_parent"
+    android:layout_height="3dp"
+    android:background="#81d8d0"
+    android:layout_below="@+id/profilePageHeader"
+    android:layout_marginTop="15dp"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentEnd="true"
+
+    android:alpha="0.5"/>
+
+<RelativeLayout
+    android:id="@+id/profilePhotoLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_below="@+id/mePageLine"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentEnd="true">
+
+    <TextView
+        android:id="@+id/profilePhotoeTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:fontFamily="@font/roboto_regular"
+        android:text="Profile Photo"
+        android:textColor="#81d8d0"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginStart="20dp"
+        android:layout_centerVertical="true"/>
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/profilePhotoImg"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="40dp"
+        android:src="@drawable/profileimage"
+        android:layout_centerVertical="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="10dp"
+        android:layout_toStartOf="@+id/payServiceArrow"
+        app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
+
+    <ImageView
+        android:id="@+id/payServiceArrow"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/newarrowright"
+        app:tint="#81d8d0"
+        android:layout_marginEnd="20dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#81d8d0"
+        android:layout_below="@+id/profilePhotoImg"
+        android:layout_marginTop="25dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="20dp"
+        android:alpha="0.5"/>
+</RelativeLayout>
+
+
+
+
+</RelativeLayout>
