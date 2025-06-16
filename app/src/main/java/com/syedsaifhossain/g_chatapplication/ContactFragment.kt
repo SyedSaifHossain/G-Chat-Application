@@ -32,6 +32,10 @@ class ContactFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         loadContactsFromFirebase()
+        // 返回按钮点击事件
+        binding.contactBackBtn.setOnClickListener {
+            findNavController().popBackStack()
+        }
         // 搜索框监听
         binding.contactSearchbar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
