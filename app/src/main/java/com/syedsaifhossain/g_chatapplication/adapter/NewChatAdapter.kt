@@ -24,6 +24,14 @@ class NewChatAdapter(private val chatList: ArrayList<NewChatItem>) :
         fun bind(item: NewChatItem) {
             binding.friendName.text = item.name
             binding.newChatsImg.setImageResource(item.avatarResId)
+            binding.root.isSelected = item.isSelected
+            binding.root.setBackgroundColor(if (item.isSelected) 0x3381d8d0 else 0x00000000)
+            binding.root.setOnClickListener {
+                if (!item.uid.startsWith("header_")) {
+                    item.isSelected = !item.isSelected
+                    notifyItemChanged(adapterPosition)
+                }
+            }
         }
     }
 
