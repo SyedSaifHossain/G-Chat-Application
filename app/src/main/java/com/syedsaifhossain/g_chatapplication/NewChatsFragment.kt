@@ -88,7 +88,10 @@ class NewChatsFragment : Fragment() {
                 for (uid in friendUids) {
                     val userSnap = usersSnap.child(uid)
                     val name = userSnap.child("name").getValue(String::class.java) ?: "Unknown"
-                    friendList.add(NewChatItem(uid, name, R.drawable.profileimage))
+                    val avatarUrl = userSnap.child("profileImageUrl").getValue(String::class.java)
+                        ?: userSnap.child("avatarUrl").getValue(String::class.java)
+                        ?: ""
+                    friendList.add(NewChatItem(uid, name, R.drawable.profileimage, avatarUrl))
                 }
 
                 // Sort and group

@@ -5,5 +5,6 @@ data class NewChatItem(
     val uid: String,
     val name: String,
     val avatarResId: Int,
+    val avatarUrl: String = "",
     var isSelected: Boolean = false
 )
