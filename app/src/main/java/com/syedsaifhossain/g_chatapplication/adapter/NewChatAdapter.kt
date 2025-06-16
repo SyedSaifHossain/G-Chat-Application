@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.databinding.NewChatsListBinding
 import com.syedsaifhossain.g_chatapplication.models.NewChatItem
+import com.bumptech.glide.Glide
 
 class NewChatAdapter(private val chatList: ArrayList<NewChatItem>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -23,7 +24,15 @@ class NewChatAdapter(private val chatList: ArrayList<NewChatItem>) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: NewChatItem) {
             binding.friendName.text = item.name
-            binding.newChatsImg.setImageResource(item.avatarResId)
+            if (item.avatarUrl.isNotEmpty()) {
+                Glide.with(binding.newChatsImg.context)
+                    .load(item.avatarUrl)
+                    .placeholder(item.avatarResId)
+                    .error(item.avatarResId)
+                    .into(binding.newChatsImg)
+            } else {
+                binding.newChatsImg.setImageResource(item.avatarResId)
+            }
             binding.root.isSelected = item.isSelected
             binding.root.setBackgroundColor(if (item.isSelected) 0x3381d8d0 else 0x00000000)
             binding.root.setOnClickListener {
