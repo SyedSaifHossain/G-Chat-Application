@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -28,6 +29,11 @@ class MePageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadUserData()
+
+        binding.meRightArrow.setOnClickListener {
+            findNavController().navigate(R.id.profileFragment)
+        }
+
     }
 
     private fun loadUserData() {
@@ -45,6 +51,7 @@ class MePageFragment : Fragment() {
                     Glide.with(requireContext())
                         .load(imageUrl)
                         .placeholder(R.drawable.default_avatar)
+                        .override(70,70)
                         .into(binding.meProfileImg)
                 }
 
