@@ -7,6 +7,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -65,6 +66,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.LinearLayout
 
 // Ensure the class declaration includes the interface implementation from your original
 class ChatScreenFragment : Fragment(){
@@ -74,7 +76,7 @@ class ChatScreenFragment : Fragment(){
 
     // Original Variables
     private lateinit var chatMessageAdapter: ChatMessageAdapter
-    private val chatList = mutableListOf<ChatModel>()
+    private var chatList = mutableListOf<ChatModel>()
     private lateinit var currentUserId: String
     private lateinit var emojiPopup: EmojiPopup
     // Variables from original code for image/camera handling (kept)
@@ -106,6 +108,15 @@ class ChatScreenFragment : Fragment(){
 
     private var recordTimer: Timer? = null
     private var recordSeconds = 0
+
+    private var previewPlayer: MediaPlayer? = null
+    private var isPreviewPlaying = false
+    private var previewFilePath: String? = null
+
+    private var voicePlayer: MediaPlayer? = null
+    private var isPlaying = false
+    private var isRecordingPhase = false
+    private var recordedFilePath: String? = null
 
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -202,7 +213,11 @@ class ChatScreenFragment : Fragment(){
         Log.d("VoiceDebug", "onViewCreated called")
         Log.d("VoiceDebug", "setOnTouchListener for chatMicButton is set")
         binding.chatMicButton.setOnClickListener {
-            showRecordAudioPanel()
+            if (!isRecordingPhase) {
+                startRecordingWithBubble()
+            } else {
+                stopRecordingWithBubble()
+            }
         }
 
         // --- Receive Arguments (Revised) ---
@@ -810,6 +825,8 @@ class ChatScreenFragment : Fragment(){
     }
 
     private fun stopRecording() {
+        Toast.makeText(requireContext(), "stopRecording called", Toast.LENGTH_SHORT).show()
+        Log.d("VoiceDebug", "stopRecording called")
         try {
             val elapsed = System.currentTimeMillis() - recordStartTime
             lastVoiceDuration = (elapsed / 1000).toInt()
@@ -1019,55 +1036,170 @@ class ChatScreenFragment : Fragment(){
             }
     }
 
-    private fun showRecordAudioPanel() {
-        val dialog = BottomSheetDialog(requireContext())
-        val view = layoutInflater.inflate(R.layout.record_audio_panel, null)
-        dialog.setContentView(view)
-
-        val btnDelete = view.findViewById<ImageView>(R.id.btnDeleteRecording)
-        val btnSend = view.findViewById<ImageView>(R.id.btnSendRecording)
-        val tvTime = view.findViewById<TextView>(R.id.tvRecordingTime)
-        val wave = view.findViewById<ProgressBar>(R.id.recordingWave)
-
-        // Start recording
-        startRecording()
-        startRecordTimer(tvTime)
-
-        btnDelete.setOnClickListener {
-            stopRecording()
-            File(outputFile).delete()
-            dialog.dismiss()
-            Toast.makeText(requireContext(), "Voice message cancelled", Toast.LENGTH_SHORT).show()
-        }
-        btnSend.setOnClickListener {
-            stopRecording()
-            sendVoiceMessageWithCoroutine(outputFile)
-            dialog.dismiss()
-        }
-        dialog.setOnDismissListener {
-            stopRecordTimer()
-        }
-        dialog.show()
-    }
-
-    private fun startRecordTimer(tv: TextView) {
+    // 录音时和录音后都显示底部气泡
+    private fun startRecordingWithBubble() {
+        Toast.makeText(requireContext(), "startRecordingWithBubble called", Toast.LENGTH_SHORT).show()
+        Log.d("VoiceDebug", "startRecordingWithBubble called")
+        isRecordingPhase = true
+        recordedFilePath = null
         recordSeconds = 0
+        val bubble = binding.voicePreviewLayout.root
+        bubble.visibility = View.VISIBLE
+        binding.chatScreenBottomLayout.visibility = View.GONE
+        val tvDuration = bubble.findViewById<TextView>(R.id.tvDuration)
+        val btnPlayPause = bubble.findViewById<ImageView>(R.id.btnPlayPause)
+        val btnDelete = bubble.findViewById<ImageView>(R.id.btnDelete)
+        val btnSend = bubble.findViewById<ImageView>(R.id.btnSend)
+        btnPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+        btnPlayPause.isEnabled = false
+        btnSend.isEnabled = false
+        // 开始录音
+        startRecording()
+        // 录音时长计时
         recordTimer = Timer()
         recordTimer?.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 recordSeconds++
-                val min = recordSeconds / 60
-                val sec = recordSeconds % 60
                 activity?.runOnUiThread {
-                    tv.text = String.format("%d:%02d", min, sec)
+                    tvDuration.text = String.format("%d:%02d", recordSeconds / 60, recordSeconds % 60)
                 }
             }
-        }, 0, 1000)
+        }, 1000, 1000)
+        // 删除按钮：取消录音
+        btnDelete.setOnClickListener {
+            stopRecordingWithBubble()
+            recordTimer?.cancel()
+            isRecordingPhase = false
+            binding.voicePreviewLayout.root.visibility = View.GONE
+            binding.chatScreenBottomLayout.visibility = View.VISIBLE
+            recordedFilePath?.let { File(it).delete() }
+        }
     }
 
-    private fun stopRecordTimer() {
+    private fun stopRecordingWithBubble() {
+        Toast.makeText(requireContext(), "stopRecordingWithBubble called", Toast.LENGTH_SHORT).show()
+        Log.d("VoiceDebug", "stopRecordingWithBubble called")
+        stopRecording()
         recordTimer?.cancel()
-        recordTimer = null
+        isRecordingPhase = false
+        recordedFilePath = outputFile
+        val bubble = binding.voicePreviewLayout.root
+        val tvDuration = bubble.findViewById<TextView>(R.id.tvDuration)
+        val btnPlayPause = bubble.findViewById<ImageView>(R.id.btnPlayPause)
+        val btnDelete = bubble.findViewById<ImageView>(R.id.btnDelete)
+        val btnSend = bubble.findViewById<ImageView>(R.id.btnSend)
+        Log.d("VoiceDebug", "btnPlayPause=$btnPlayPause, btnSend=$btnSend, btnDelete=$btnDelete")
+        Toast.makeText(requireContext(), "btnPlayPause=$btnPlayPause, btnSend=$btnSend, btnDelete=$btnDelete", Toast.LENGTH_LONG).show()
+        tvDuration.text = String.format("%d:%02d", recordSeconds / 60, recordSeconds % 60)
+        btnPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+        btnPlayPause.isEnabled = true
+        btnSend.isEnabled = true
+
+        // 试听播放/暂停
+        var previewPlayer: MediaPlayer? = null
+        var isPreviewPlaying = false
+        btnPlayPause.setOnClickListener {
+            Toast.makeText(requireContext(), "PlayPause Clicked", Toast.LENGTH_SHORT).show()
+            Log.d("VoiceDebug", "PlayPause Clicked")
+            if (recordedFilePath.isNullOrEmpty() || !File(recordedFilePath!!).exists()) {
+                Toast.makeText(requireContext(), "录音文件不存在，无法播放", Toast.LENGTH_SHORT).show()
+                Log.e("VoiceDebug", "录音文件不存在: $recordedFilePath")
+                return@setOnClickListener
+            }
+            if (isPreviewPlaying) {
+                previewPlayer?.pause()
+                btnPlayPause.setImageResource(android.R.drawable.ic_media_play)
+                isPreviewPlaying = false
+                Log.d("VoiceDebug", "已暂停播放")
+                Toast.makeText(requireContext(), "已暂停播放", Toast.LENGTH_SHORT).show()
+            } else {
+                try {
+                    if (previewPlayer == null) {
+                        previewPlayer = MediaPlayer().apply {
+                            setDataSource(recordedFilePath)
+                            prepare()
+                            setOnCompletionListener {
+                                btnPlayPause.setImageResource(android.R.drawable.ic_media_play)
+                                isPreviewPlaying = false
+                                Log.d("VoiceDebug", "播放完成")
+                                Toast.makeText(requireContext(), "播放完成", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    previewPlayer?.start()
+                    btnPlayPause.setImageResource(android.R.drawable.ic_media_pause)
+                    isPreviewPlaying = true
+                    Log.d("VoiceDebug", "开始播放")
+                    Toast.makeText(requireContext(), "开始播放", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "播放失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("VoiceDebug", "播放失败: ${e.message}")
+                    e.printStackTrace()
+                }
+            }
+        }
+        // 删除按钮
+        btnDelete.setOnClickListener {
+            Toast.makeText(requireContext(), "Delete Clicked", Toast.LENGTH_SHORT).show()
+            Log.d("VoiceDebug", "Delete Clicked")
+            previewPlayer?.stop()
+            previewPlayer?.release()
+            previewPlayer = null
+            isPreviewPlaying = false
+            binding.voicePreviewLayout.root.visibility = View.GONE
+            binding.chatScreenBottomLayout.visibility = View.VISIBLE
+            recordedFilePath?.let {
+                val deleted = File(it).delete()
+                Toast.makeText(requireContext(), "录音文件删除: $deleted", Toast.LENGTH_SHORT).show()
+                Log.d("VoiceDebug", "录音文件删除: $deleted, 路径: $it")
+            }
+        }
+        // 发送按钮
+        btnSend.setOnClickListener {
+            Toast.makeText(requireContext(), "Send Clicked", Toast.LENGTH_SHORT).show()
+            Log.d("VoiceDebug", "Send Clicked")
+            if (recordedFilePath.isNullOrEmpty() || !File(recordedFilePath!!).exists()) {
+                Toast.makeText(requireContext(), "录音文件不存在，无法发送", Toast.LENGTH_SHORT).show()
+                Log.e("VoiceDebug", "录音文件不存在: $recordedFilePath")
+                return@setOnClickListener
+            }
+            previewPlayer?.stop()
+            previewPlayer?.release()
+            previewPlayer = null
+            isPreviewPlaying = false
+            sendVoiceMessageWithFirebase(recordedFilePath!!, recordSeconds)
+            binding.voicePreviewLayout.root.visibility = View.GONE
+            binding.chatScreenBottomLayout.visibility = View.VISIBLE
+        }
+        // 录音完成时弹Toast
+        Toast.makeText(requireContext(), "录音完成，文件: $recordedFilePath, 存在: ${File(recordedFilePath ?: "").exists()}", Toast.LENGTH_LONG).show()
+        Log.d("VoiceDebug", "录音完成，文件: $recordedFilePath, 存在: ${File(recordedFilePath ?: "").exists()}")
+    }
+
+    // 录音语音消息上传并发送
+    private fun sendVoiceMessageWithFirebase(filePath: String, duration: Int) {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val voiceRef = storageRef.child("chat_voices/${UUID.randomUUID()}.3gp")
+        val fileUri = Uri.fromFile(File(filePath))
+        val uploadTask = voiceRef.putFile(fileUri)
+        uploadTask.addOnSuccessListener {
+            voiceRef.downloadUrl.addOnSuccessListener { uri ->
+                val messageId = FirebaseDatabase.getInstance().getReference("chats").push().key ?: return@addOnSuccessListener
+                val senderId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                val chatNodeId = getChatNodeId(senderId, otherUserId!!)
+                val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+                val message = ChatModel(
+                    senderId = senderId,
+                    message = uri.toString(),
+                    timestamp = System.currentTimeMillis(),
+                    type = "voice",
+                    duration = duration
+                )
+                chatRef.child(messageId).setValue(message)
+            }
+        }.addOnFailureListener {
+            Toast.makeText(requireContext(), "语音上传失败: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {

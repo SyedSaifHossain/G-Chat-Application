@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:orientation="horizontal"
+    android:background="@drawable/bg_input_bubble"
+    android:gravity="center_vertical"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:layout_margin="8dp">
+
+    <ImageView
+        android:id="@+id/btnDelete"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:src="@android:drawable/ic_menu_delete"
+        android:tint="#FFF"
+        android:contentDescription="删除录音"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <Space
+        android:layout_width="12dp"
+        android:layout_height="0dp" />
+
+    <ImageView
+        android:id="@+id/btnPlayPause"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:src="@android:drawable/ic_media_play"
+        android:tint="#FFF"
+        android:contentDescription="播放/暂停"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <Space
+        android:layout_width="8dp"
+        android:layout_height="0dp" />
+
+    <!-- 波形动画区域，可用自定义View或第三方库替换 -->
+    <View
+        android:id="@+id/voiceWave"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_wave_placeholder" />
+
+    <Space
+        android:layout_width="8dp"
+        android:layout_height="0dp" />
+
+    <TextView
+        android:id="@+id/tvDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0:00"
+        android:textColor="#FFF"
+        android:textSize="16sp"
+        android:layout_marginEnd="8dp" />
+
+    <ImageView
+        android:id="@+id/btnSend"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/ic_menu_send"
+        android:background="@drawable/bg_send_btn"
+        android:tint="#FFF"
+        android:layout_marginStart="4dp"
+        android:contentDescription="发送录音"
+        android:clickable="true"
+        android:focusable="true" />
+
+</LinearLayout> 

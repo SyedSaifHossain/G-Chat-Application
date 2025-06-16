@@ -31,16 +31,6 @@
             android:src="@drawable/leftarrow"
             app:tint="#81d8d0" />
 
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/toolbarUserImage"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/chatMessage_back_img"
-            android:src="@drawable/profileimage"
-            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
-
         <TextView
             android:id="@+id/tvToolbarUserName"
             android:layout_width="wrap_content"
@@ -49,7 +39,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="8dp"
             android:layout_toStartOf="@+id/videoIcon"
-            android:layout_toEndOf="@id/toolbarUserImage"
+            android:layout_toEndOf="@id/chatMessage_back_img"
             android:maxLines="1"
             android:text="User Name"
             android:textColor="#81d8d0"
@@ -199,6 +189,14 @@
             android:src="@drawable/send"
             app:tint="#000000" />
     </RelativeLayout>
+
+    <include
+        android:id="@+id/voicePreviewLayout"
+        layout="@layout/layout_voice_preview"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
     <!-- Recording Indicator Layout (hidden initially) -->
     <RelativeLayout
