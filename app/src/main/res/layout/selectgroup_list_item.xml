@@ -19,35 +19,20 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginEnd="16dp"
-            app:srcCompat="@drawable/cityimg"
+            app:srcCompat="@drawable/addcontacticon"
             android:scaleType="centerCrop"
             android:background="@drawable/bg_avatar_circle"
             android:padding="2dp" />
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/selectgroupTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#81d8d0"
-                android:text="@string/group_name"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/selectgroupDescreption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#b0b0b0"
-                android:text="@string/members_preview"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/selectgroupTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:textColor="#81d8d0"
+            android:text="@string/group_name"
+            android:textSize="18sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- 分割线 -->
