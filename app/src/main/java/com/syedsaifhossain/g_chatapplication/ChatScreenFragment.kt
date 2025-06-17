@@ -118,6 +118,10 @@ class ChatScreenFragment : Fragment(){
     private var isRecordingPhase = false
     private var recordedFilePath: String? = null
 
+    // --- 新增：保存消息监听器和引用 ---
+    private var chatValueEventListener: ValueEventListener? = null
+    private var chatRef: DatabaseReference? = null
+
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -561,16 +565,22 @@ class ChatScreenFragment : Fragment(){
         val chatNodeId = getChatNodeId(senderId, otherUserId!!)
         Log.d("ChatScreenFragment", "Listening for messages in chat node: $chatNodeId")
 
-        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+        // --- 新增：保存 chatRef ---
+        chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
 
-        chatRef.addValueEventListener(object : ValueEventListener {
+        // --- 新增：移除旧监听 ---
+        chatValueEventListener?.let { chatRef?.removeEventListener(it) }
+
+        // --- 新增：保存监听器引用 ---
+        chatValueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                Log.d("ChatScreenFragment", "Received data snapshot: ${snapshot.exists()}")
+                // --- 新增：防止 binding 为空崩溃 ---
+                if (_binding == null) return
+                Log.d("ChatScreenFragment", "Received data snapshot: "+snapshot.exists())
                 chatList.clear()
                 for (child in snapshot.children) {
                     val message = child.getValue(ChatModel::class.java)
                     Log.d("ChatDebug", "msgId=${child.key}, deleted=${message?.deleted}, msg=${message?.message}")
-                    // Ensure message ID is set from the key
                     val messageWithId = message?.copy(messageId = child.key ?: "")
                     if (messageWithId != null) chatList.add(messageWithId)
                 }
@@ -581,12 +591,13 @@ class ChatScreenFragment : Fragment(){
                     binding.chatScreenRecyclerView.scrollToPosition(chatList.size - 1)
                 }
             }
-
             override fun onCancelled(error: DatabaseError) {
+                if (_binding == null) return
                 Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT).show()
                 Log.e("ChatScreenFragment", "Failed to load messages", error.toException())
             }
-        })
+        }
+        chatRef?.addValueEventListener(chatValueEventListener!!)
     }
     // --- END MODIFICATION ---
 
@@ -1285,6 +1296,10 @@ class ChatScreenFragment : Fragment(){
 
     override fun onDestroyView() {
         super.onDestroyView()
+        // --- 新增：移除消息监听，防止内存泄漏和回调访问已销毁的 UI ---
+        chatValueEventListener?.let { chatRef?.removeEventListener(it) }
+        chatValueEventListener = null
+        chatRef = null
         mediaRecorder?.release()
         mediaRecorder = null
         audioFile?.delete()
