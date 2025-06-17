@@ -45,7 +45,7 @@ tools:context=".ProfileFragment">
 </RelativeLayout>
 
 <View
-    android:id="@+id/mePageLine"
+    android:id="@+id/profilePageLine"
     android:layout_width="match_parent"
     android:layout_height="3dp"
     android:background="#81d8d0"
@@ -53,46 +53,44 @@ tools:context=".ProfileFragment">
     android:layout_marginTop="15dp"
     android:layout_alignParentStart="true"
     android:layout_alignParentEnd="true"
-
     android:alpha="0.5"/>
 
 <RelativeLayout
     android:id="@+id/profilePhotoLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="5dp"
-    android:layout_below="@+id/mePageLine"
+    android:layout_below="@+id/profilePageLine"
     android:layout_alignParentStart="true"
     android:layout_alignParentEnd="true">
 
     <TextView
-        android:id="@+id/profilePhotoeTxt"
+        android:id="@+id/profilePhotoTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:fontFamily="@font/roboto_regular"
         android:text="Profile Photo"
         android:textColor="#81d8d0"
-        android:textSize="22sp"
+
+        android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginStart="20dp"
         android:layout_centerVertical="true"/>
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profilePhotoImg"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginStart="40dp"
         android:src="@drawable/profileimage"
         android:layout_centerVertical="true"
         android:layout_alignParentTop="true"
         android:layout_marginEnd="10dp"
-
-        android:layout_toStartOf="@+id/payServiceArrow"
+        android:layout_toStartOf="@+id/profilePhotoArrow"
         app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
     <ImageView
-        android:id="@+id/payServiceArrow"
+        android:id="@+id/profilePhotoArrow"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_alignParentEnd="true"
@@ -105,8 +103,8 @@ tools:context=".ProfileFragment">
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#81d8d0"
-        android:layout_below="@+id/profilePhotoImg"
-        android:layout_marginTop="25dp"
+        android:layout_below="@+id/profilePhotoArrow"
+        android:layout_marginTop="55dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_marginHorizontal="20dp"
@@ -114,6 +112,228 @@ tools:context=".ProfileFragment">
 </RelativeLayout>
 
 
+    <RelativeLayout
+        android:id="@+id/nameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/profilePhotoLayout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true">
 
+        <TextView
+            android:id="@+id/nameTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Name"
+            android:textColor="#81d8d0"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:id="@+id/userNameTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/nameArrow"
+            android:text="Aaron Loeb"
+            android:textColor="#81d8d0"
+            android:fontFamily="@font/roboto_regular"
+            android:textSize="22sp"/>
+
+        <ImageView
+            android:id="@+id/nameArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0"
+            android:layout_marginEnd="20dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/nameArrow"
+            android:layout_marginTop="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginHorizontal="20dp"
+            android:alpha="0.5"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/genderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nameLayout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true">
+
+        <TextView
+            android:id="@+id/genderTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Gender"
+            android:textColor="#81d8d0"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:id="@+id/genderNameTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/genderArrow"
+            android:text="Female"
+            android:textColor="#81d8d0"
+            android:fontFamily="@font/roboto_regular"
+            android:textSize="22sp"/>
+
+        <ImageView
+            android:id="@+id/genderArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0"
+            android:layout_marginEnd="20dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/genderArrow"
+            android:layout_marginTop="45dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginHorizontal="20dp"
+            android:alpha="0.5"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/phoneLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/genderLayout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true">
+
+        <TextView
+            android:id="@+id/phoneTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Phone"
+            android:textColor="#81d8d0"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:id="@+id/phoneNameTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/phoneArrow"
+            android:text="0123456767"
+            android:textColor="#81d8d0"
+            android:fontFamily="@font/roboto_regular"
+            android:textSize="22sp"/>
+
+        <ImageView
+            android:id="@+id/phoneArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0"
+            android:layout_marginEnd="20dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/phoneArrow"
+            android:layout_marginTop="45dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginHorizontal="20dp"
+            android:alpha="0.5"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/RegionLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/phoneLayout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true">
+
+        <TextView
+            android:id="@+id/RegionTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Region"
+            android:textColor="#81d8d0"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:layout_centerVertical="true"/>
+
+        <TextView
+            android:id="@+id/regionNameTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/regionArrow"
+            android:text="Sydney, Australia"
+            android:textColor="#81d8d0"
+            android:fontFamily="@font/roboto_regular"
+            android:textSize="22sp"/>
+
+        <ImageView
+            android:id="@+id/regionArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0"
+            android:layout_marginEnd="20dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/phoneArrow"
+            android:layout_marginTop="45dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginHorizontal="20dp"
+            android:alpha="0.5"/>
+    </RelativeLayout>
 
 </RelativeLayout>
