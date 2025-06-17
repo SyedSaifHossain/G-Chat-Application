@@ -1,10 +1,12 @@
 package com.syedsaifhossain.g_chatapplication
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
+import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -51,6 +53,16 @@ class ProfileFragment : Fragment() {
             intent.type = "image/*"
             startActivityForResult(intent, IMAGE_PICK_CODE)
         }
+
+        binding.nameArrow.setOnClickListener {
+            // Open a dialog to edit name
+            showNameEditDialog()
+        }
+
+        binding.phoneArrow.setOnClickListener {
+            showPhoneEditDialog()
+        }
+
     }
 
     // Fetch user profile from Firebase Realtime Database
@@ -136,6 +148,87 @@ class ProfileFragment : Fragment() {
             }
     }
 
+    private fun showNameEditDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        val input = EditText(requireContext())
+        input.setText(binding.userNameTxt.text.toString()) // Set the current name in the input field
+
+        builder.setTitle("Edit Name")
+            .setView(input)
+            .setPositiveButton("Save") { dialog, _ ->
+                val newName = input.text.toString().trim()
+                if (newName.isNotEmpty()) {
+                    updateNameInDatabase(newName)
+                    dialog.dismiss()
+                } else {
+                    Toast.makeText(requireContext(), "Name cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        builder.create().show()
+    }
+
+    // Update the name in Firebase Realtime Database
+    private fun updateNameInDatabase(newName: String) {
+        val userId = auth.currentUser?.uid ?: return
+
+        // Create a map of updated values
+        val updates = mapOf("name" to newName)
+
+        // Update the name in Firebase
+        database.child("users").child(userId).updateChildren(updates)
+            .addOnSuccessListener {
+                binding.userNameTxt.text = newName // Update the name in the UI
+                Toast.makeText(requireContext(), "Name updated successfully", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to update name", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun showPhoneEditDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        val input = EditText(requireContext())
+        input.setText(binding.phoneNameTxt.text.toString()) // Set the current phone number in the input field
+
+        builder.setTitle("Edit Phone Number")
+            .setView(input)
+            .setPositiveButton("Save") { dialog, _ ->
+                val newPhone = input.text.toString().trim()
+                if (newPhone.isNotEmpty()) {
+                    updatePhoneInDatabase(newPhone)
+                    dialog.dismiss()
+                } else {
+                    Toast.makeText(requireContext(), "Phone number cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        builder.create().show()
+    }
+
+    // Update the phone number in Firebase Realtime Database
+    private fun updatePhoneInDatabase(newPhone: String) {
+        val userId = auth.currentUser?.uid ?: return
+
+        // Create a map of updated values
+        val updates = mapOf("phone" to newPhone)
+
+        // Update the phone number in Firebase
+        database.child("users").child(userId).updateChildren(updates)
+            .addOnSuccessListener {
+                binding.phoneNameTxt.text = newPhone // Update the phone number in the UI
+                Toast.makeText(requireContext(), "Phone number updated successfully", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to update phone number", Toast.LENGTH_SHORT).show()
+            }
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
