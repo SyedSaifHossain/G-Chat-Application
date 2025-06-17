@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentEnd="true"
+    android:layout_alignParentBottom="true"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:gravity="center_vertical"
+    android:layout_marginBottom="35dp">
+
+    <EditText
+        android:id="@+id/chatMessage_input"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_toStartOf="@+id/chat_send_button"
+        android:background="@drawable/rounded_edit_field"
+        android:hint="Message"
+        android:imeOptions="actionSend"
+        android:inputType="text"
+        android:paddingLeft="60dp"
+        android:textColorHint="#6b6b6b"
+        android:textSize="24sp"
+        android:fontFamily="@font/poppins_regular"/>
+
+    <ImageView
+        android:id="@+id/imo_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignStart="@id/chatMessage_input"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="10dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/imoji"/>
+
+    <ImageView
+        android:id="@+id/cameraIcon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_toStartOf="@id/chatAdd_button"
+        android:layout_centerVertical="true"
+        android:src="@drawable/camera" />
+
+    <ImageView
+        android:id="@+id/chatAdd_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_toStartOf="@id/chat_mic_button"
+        android:layout_centerVertical="true"
+        android:src="@drawable/addbutton" />
+
+    <ImageView
+        android:id="@+id/chat_mic_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_toStartOf="@id/chat_send_button"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/round_shape_bg"
+        android:backgroundTint="#81d8d0"
+        android:padding="5dp"
+        android:src="@drawable/voicemike" />
+
+    <ImageView
+        android:id="@+id/chat_send_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/round_shape_bg"
+        android:backgroundTint="#81d8d0"
+        android:padding="8dp"
+        android:src="@drawable/send"
+        app:tint="#000000" />
+
+</RelativeLayout> 
