@@ -16,7 +16,7 @@ open class BaseActivity : AppCompatActivity() {
      * locale configuration provided by LocaleHelper.
      */
     override fun attachBaseContext(newBase: Context) {
-        // Apply the saved locale using LocaleHelper before the Activity loads
+        // 恢复为原始实现
         super.attachBaseContext(LocaleHelper.onAttach(newBase))
     }
 }
