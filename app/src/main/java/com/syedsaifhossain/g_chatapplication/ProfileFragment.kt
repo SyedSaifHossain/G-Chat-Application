@@ -254,7 +254,7 @@ class ProfileFragment : Fragment() {
         val updates = mapOf("gender" to newGender)
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
-                binding.genderTxt.text = newGender
+                binding.genderNameTxt.text = newGender
                 Toast.makeText(requireContext(), "Gender updated successfully", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
