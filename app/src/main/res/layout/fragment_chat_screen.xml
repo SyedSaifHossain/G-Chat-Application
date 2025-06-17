@@ -92,11 +92,14 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chatScreenRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_above="@+id/chatScreen_bottom_layout"
         android:layout_below="@+id/chatMessageLayout"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp" />
 
     <!-- ProgressBar for Loading -->
     <ProgressBar
@@ -193,38 +196,40 @@
     <include
         android:id="@+id/voicePreviewLayout"
         layout="@layout/layout_voice_preview"
-        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
+        android:layout_alignParentBottom="true"
+        android:layout_above="@id/chatScreen_bottom_layout"
+        android:layout_marginBottom="8dp"
         android:visibility="gone" />
 
     <!-- Recording Indicator Layout (hidden initially) -->
-    <RelativeLayout
-        android:id="@+id/recordingIndicatorLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:visibility="gone"
-        android:layout_alignParentBottom="true">
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/recordingIndicatorLayout"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:gravity="center_horizontal"-->
+<!--        android:visibility="gone"-->
+<!--        android:layout_alignParentBottom="true">-->
 
-        <ImageView
-            android:id="@+id/recordingMicIcon"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/micon"
-            android:visibility="gone"
-            android:layout_marginBottom="8dp" />
+<!--        <ImageView-->
+<!--            android:id="@+id/recordingMicIcon"-->
+<!--            android:layout_width="60dp"-->
+<!--            android:layout_height="60dp"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            android:src="@drawable/micon"-->
+<!--            android:visibility="gone"-->
+<!--            android:layout_marginBottom="8dp" />-->
 
-        <TextView
-            android:id="@+id/recordingStatusText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Recording..."
-            android:textSize="18sp"
-            android:textColor="#FF0000"
-            android:visibility="gone"
-            android:layout_centerHorizontal="true" />
-    </RelativeLayout>
+<!--        <TextView-->
+<!--            android:id="@+id/recordingStatusText"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Recording..."-->
+<!--            android:textSize="18sp"-->
+<!--            android:textColor="#FF0000"-->
+<!--            android:visibility="gone"-->
+<!--            android:layout_centerHorizontal="true" />-->
+<!--    </RelativeLayout>-->
 
 </RelativeLayout>
