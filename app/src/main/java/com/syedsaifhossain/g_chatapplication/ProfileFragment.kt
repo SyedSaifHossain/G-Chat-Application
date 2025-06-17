@@ -17,6 +17,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentProfileBinding
 import com.syedsaifhossain.g_chatapplication.models.User
+import com.journeyapps.barcodescanner.BarcodeEncoder
 
 class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
@@ -24,6 +25,8 @@ class ProfileFragment : Fragment() {
     private val auth = FirebaseAuth.getInstance()
     private lateinit var database: DatabaseReference
     private val IMAGE_PICK_CODE = 1000
+    private val QR_CODE_WIDTH = 400
+    private val QR_CODE_HEIGHT = 400
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,7 +58,6 @@ class ProfileFragment : Fragment() {
         }
 
         binding.nameArrow.setOnClickListener {
-            // Open a dialog to edit name
             showNameEditDialog()
         }
 
@@ -63,9 +65,15 @@ class ProfileFragment : Fragment() {
             showPhoneEditDialog()
         }
 
+        binding.genderArrow.setOnClickListener {
+            showGenderEditDialog()
+        }
+
+        binding.qrcodeArrow.setOnClickListener {
+            showQRCodeEditDialog()
+        }
     }
 
-    // Fetch user profile from Firebase Realtime Database
     private fun fetchUserProfile() {
         val userId = auth.currentUser?.uid ?: return
 
@@ -74,11 +82,20 @@ class ProfileFragment : Fragment() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val name = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
                     val phone = snapshot.child("phone").getValue(String::class.java) ?: "No phone number"
+                    val gender = snapshot.child("gender").getValue(String::class.java) ?: "Not Set" // Fetch gender
+                    val qrCodeUrl = snapshot.child("qrCodeUrl").getValue(String::class.java) ?: ""
                     val imageUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
                         ?: snapshot.child("avatarUrl").getValue(String::class.java)
 
                     binding.userNameTxt.text = name
                     binding.phoneNameTxt.text = phone
+                    binding.genderNameTxt.text = gender // Set gender to genderNameTxt
+
+                    if (qrCodeUrl.isNotEmpty()) {
+                        Glide.with(requireContext())
+                            .load(qrCodeUrl)
+                            .into(binding.myqrCodeImg)
+                    }
 
                     Glide.with(requireContext())
                         .load(imageUrl)
@@ -88,25 +105,24 @@ class ProfileFragment : Fragment() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    // Handle error if needed
+                    Toast.makeText(requireContext(), "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             })
     }
 
-    // Handle the result of image selection
+
+    // Handle the result of image selection (profile photo)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE) {
             val imageUri = data?.data // URI of the selected image
             imageUri?.let {
-                // Upload the selected image to Firebase Storage
-                uploadProfileImage(it)
+                uploadProfileImage(it)  // Upload selected image to Firebase
             }
         }
     }
 
-    // Upload the selected image to Firebase Storage and update the URL in Firebase Database
     private fun uploadProfileImage(imageUri: Uri) {
         val userId = auth.currentUser?.uid ?: return
 
@@ -117,28 +133,21 @@ class ProfileFragment : Fragment() {
         fileRef.putFile(imageUri).addOnSuccessListener {
             // After upload, get the image URL
             fileRef.downloadUrl.addOnSuccessListener { uri ->
-                // Update the profile image URL in Firebase Realtime Database
                 updateProfileImageUrl(uri.toString())
-
-                // Set the image in the ImageView
                 Glide.with(requireContext())
                     .load(uri)
-                    .into(binding.profilePhotoImg) // Update the profile image in the UI
+                    .into(binding.profilePhotoImg)
             }
         }.addOnFailureListener {
-            // Handle errors
             Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Update the profile image URL in Firebase Realtime Database
     private fun updateProfileImageUrl(imageUrl: String) {
         val userId = auth.currentUser?.uid ?: return
 
-        // Create a map of updated values
         val updates = mapOf("profileImageUrl" to imageUrl)
 
-        // Update the profile image URL in Firebase
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Profile image updated successfully", Toast.LENGTH_SHORT).show()
@@ -148,10 +157,11 @@ class ProfileFragment : Fragment() {
             }
     }
 
+    // Edit Name
     private fun showNameEditDialog() {
         val builder = AlertDialog.Builder(requireContext())
         val input = EditText(requireContext())
-        input.setText(binding.userNameTxt.text.toString()) // Set the current name in the input field
+        input.setText(binding.userNameTxt.text.toString())
 
         builder.setTitle("Edit Name")
             .setView(input)
@@ -171,17 +181,12 @@ class ProfileFragment : Fragment() {
         builder.create().show()
     }
 
-    // Update the name in Firebase Realtime Database
     private fun updateNameInDatabase(newName: String) {
         val userId = auth.currentUser?.uid ?: return
-
-        // Create a map of updated values
         val updates = mapOf("name" to newName)
-
-        // Update the name in Firebase
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
-                binding.userNameTxt.text = newName // Update the name in the UI
+                binding.userNameTxt.text = newName
                 Toast.makeText(requireContext(), "Name updated successfully", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
@@ -189,10 +194,11 @@ class ProfileFragment : Fragment() {
             }
     }
 
+    // Edit Phone
     private fun showPhoneEditDialog() {
         val builder = AlertDialog.Builder(requireContext())
         val input = EditText(requireContext())
-        input.setText(binding.phoneNameTxt.text.toString()) // Set the current phone number in the input field
+        input.setText(binding.phoneNameTxt.text.toString())
 
         builder.setTitle("Edit Phone Number")
             .setView(input)
@@ -212,25 +218,89 @@ class ProfileFragment : Fragment() {
         builder.create().show()
     }
 
-    // Update the phone number in Firebase Realtime Database
     private fun updatePhoneInDatabase(newPhone: String) {
         val userId = auth.currentUser?.uid ?: return
-
-        // Create a map of updated values
         val updates = mapOf("phone" to newPhone)
-
-        // Update the phone number in Firebase
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
-                binding.phoneNameTxt.text = newPhone // Update the phone number in the UI
+                binding.phoneNameTxt.text = newPhone
                 Toast.makeText(requireContext(), "Phone number updated successfully", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Failed to update phone number", Toast.LENGTH_SHORT).show()
             }
     }
+
+    // Edit Gender
+    private fun showGenderEditDialog() {
+        val genderOptions = arrayOf("Male", "Female", "Other")
+        val builder = AlertDialog.Builder(requireContext())
+
+        builder.setTitle("Edit Gender")
+            .setItems(genderOptions) { dialog, which ->
+                val newGender = genderOptions[which]
+                updateGenderInDatabase(newGender)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        builder.create().show()
+    }
+
+    private fun updateGenderInDatabase(newGender: String) {
+        val userId = auth.currentUser?.uid ?: return
+        val updates = mapOf("gender" to newGender)
+        database.child("users").child(userId).updateChildren(updates)
+            .addOnSuccessListener {
+                binding.genderTxt.text = newGender
+                Toast.makeText(requireContext(), "Gender updated successfully", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to update gender", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Edit QR Code
+    private fun showQRCodeEditDialog() {
+        val builder = AlertDialog.Builder(requireContext())
+        val input = EditText(requireContext())
+        input.setText(binding.qrcodeTxt.text.toString()) // Placeholder
+
+        builder.setTitle("Edit QR Code")
+            .setView(input)
+            .setPositiveButton("Generate") { dialog, _ ->
+                val newQRCodeData = input.text.toString().trim()
+                if (newQRCodeData.isNotEmpty()) {
+                    generateQRCode(newQRCodeData)
+                    dialog.dismiss()
+                } else {
+                    Toast.makeText(requireContext(), "Input cannot be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        builder.create().show()
+    }
+
+    // Generate QR Code
+    private fun generateQRCode(data: String) {
+        try {
+            val barcodeEncoder = BarcodeEncoder()
+            val bitmap = barcodeEncoder.encodeBitmap(data, com.google.zxing.BarcodeFormat.QR_CODE, QR_CODE_WIDTH, QR_CODE_HEIGHT)
+            binding.myqrCodeImg.setImageBitmap(bitmap) // Set the QR code in ImageView
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 }

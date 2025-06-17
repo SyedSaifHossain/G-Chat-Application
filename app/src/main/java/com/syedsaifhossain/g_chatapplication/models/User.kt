@@ -17,7 +17,10 @@ data class User(
     val status: String = "Hey there! I'm using G-Chat",
     val lastSeen: Long = 0,
     val isOnline: Boolean = false,
-    val fcmToken: String = ""
+    val fcmToken: String = "",
+    val region: String = "",
+    val gender: String = "",
+    val qrCode: String = ""
 ) {
     fun toMap(): Map<String, Any?> {
         return mapOf(
@@ -35,7 +38,9 @@ data class User(
             "status" to status,
             "lastSeen" to lastSeen,
             "isOnline" to isOnline,
-            "fcmToken" to fcmToken
+            "fcmToken" to fcmToken,
+            "region" to region,
+            "grcode" to qrCode
         )
     }
 }
