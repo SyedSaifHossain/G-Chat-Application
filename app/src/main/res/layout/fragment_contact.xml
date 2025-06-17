@@ -17,6 +17,16 @@
         android:layout_alignParentEnd="true"
         android:background="#000000">
 
+        <ImageView
+            android:id="@+id/contactBackBtn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/arrowback"
+            app:tint="#81d8d0" />
+
         <TextView
             android:id="@+id/contactsTitle"
             android:layout_width="wrap_content"
@@ -65,7 +75,7 @@
                 android:layout_height="24dp"
                 android:layout_marginStart="16dp"
                 android:src="@drawable/search"
-                android:tint="#312D2D" />
+                app:tint="#312D2D" />
 
             <EditText
                 android:id="@+id/contactSearchbar"
