@@ -193,6 +193,7 @@ tools:context=".ProfileFragment">
             android:layout_centerVertical="true"/>
 
         <TextView
+
             android:id="@+id/genderNameTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
