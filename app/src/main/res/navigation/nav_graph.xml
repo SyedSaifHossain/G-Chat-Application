@@ -118,18 +118,9 @@
         <action
             android:id="@+id/action_profileFragment_to_profileSettingFragment"
             app:destination="@id/profileSettingFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/meFragment3"
-        android:name="com.syedsaifhossain.g_chatapplication.MeFragment"
-        android:label="fragment_me"
-        tools:layout="@layout/fragment_me" >
         <action
-            android:id="@+id/action_meFragment_to_walletFragment"
-            app:destination="@id/walletFragment" />
-        <action
-            android:id="@+id/action_meFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
+            android:id="@+id/action_profileFragment_to_mePageFragment"
+            app:destination="@id/mePageFragment" />
     </fragment>
     <fragment
         android:id="@+id/contactFragment3"
