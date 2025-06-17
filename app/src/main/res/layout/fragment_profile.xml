@@ -61,7 +61,8 @@ tools:context=".ProfileFragment">
     android:layout_height="wrap_content"
     android:layout_below="@+id/profilePageLine"
     android:layout_alignParentStart="true"
-    android:layout_alignParentEnd="true">
+    android:layout_alignParentEnd="true"
+    android:layout_marginTop="5dp">
 
     <TextView
         android:id="@+id/profilePhotoTxt"
@@ -104,7 +105,7 @@ tools:context=".ProfileFragment">
         android:layout_height="1dp"
         android:background="#81d8d0"
         android:layout_below="@+id/profilePhotoArrow"
-        android:layout_marginTop="55dp"
+        android:layout_marginTop="45dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_marginHorizontal="20dp"
@@ -118,7 +119,8 @@ tools:context=".ProfileFragment">
         android:layout_height="wrap_content"
         android:layout_below="@+id/profilePhotoLayout"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true">
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:id="@+id/nameTxt"
@@ -174,7 +176,8 @@ tools:context=".ProfileFragment">
         android:layout_height="wrap_content"
         android:layout_below="@+id/nameLayout"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true">
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:id="@+id/genderTxt"
@@ -217,7 +220,7 @@ tools:context=".ProfileFragment">
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/genderArrow"
-            android:layout_marginTop="45dp"
+            android:layout_marginTop="40dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="20dp"
@@ -230,7 +233,8 @@ tools:context=".ProfileFragment">
         android:layout_height="wrap_content"
         android:layout_below="@+id/genderLayout"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true">
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:id="@+id/phoneTxt"
@@ -273,7 +277,7 @@ tools:context=".ProfileFragment">
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/phoneArrow"
-            android:layout_marginTop="45dp"
+            android:layout_marginTop="40dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="20dp"
@@ -281,12 +285,13 @@ tools:context=".ProfileFragment">
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/RegionLayout"
+        android:id="@+id/regionLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/phoneLayout"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true">
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:id="@+id/RegionTxt"
@@ -328,8 +333,63 @@ tools:context=".ProfileFragment">
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#81d8d0"
-            android:layout_below="@+id/phoneArrow"
+            android:layout_below="@+id/regionArrow"
             android:layout_marginTop="45dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginHorizontal="20dp"
+            android:alpha="0.5"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/qrcodeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/regionLayout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="5dp">
+
+        <TextView
+            android:id="@+id/qrcodeTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:fontFamily="@font/roboto_regular"
+            android:text="My QR Code"
+            android:textColor="#81d8d0"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:layout_centerVertical="true"/>
+
+        <ImageView
+            android:id="@+id/myqrCodeImg"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="40dp"
+            android:src="@drawable/qcode"
+            android:layout_centerVertical="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/qrcodeArrow" />
+
+        <ImageView
+            android:id="@+id/qrcodeArrow"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0"
+            android:layout_marginEnd="20dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#81d8d0"
+            android:layout_below="@+id/qrcodeArrow"
+            android:layout_marginTop="40dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="20dp"
