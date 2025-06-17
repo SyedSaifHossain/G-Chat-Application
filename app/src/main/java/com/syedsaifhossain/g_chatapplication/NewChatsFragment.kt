@@ -2,6 +2,8 @@ package com.syedsaifhossain.g_chatapplication
 
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +20,7 @@ class NewChatsFragment : Fragment() {
 
     private lateinit var binding: FragmentNewChatsBinding
     private lateinit var chatList: ArrayList<NewChatItem>
+    private lateinit var filteredList: ArrayList<NewChatItem>
     private lateinit var adapter: NewChatAdapter
 
     override fun onCreateView(
@@ -26,24 +29,23 @@ class NewChatsFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentNewChatsBinding.inflate(inflater, container, false)
-        // 示例数据，实际应从Firebase加载好友列表
         chatList = ArrayList<NewChatItem>().apply {
             add(NewChatItem("uid_1", "Friend 1", R.drawable.cityimg))
             add(NewChatItem("uid_2", "Friend 2", R.drawable.cityimg))
         }
-        adapter = NewChatAdapter(chatList)
+        filteredList = ArrayList(chatList) // Initially set the filtered list to be the same as chatList
+        adapter = NewChatAdapter(filteredList)
         binding.friendsList.layoutManager = LinearLayoutManager(requireContext())
         binding.friendsList.adapter = adapter
 
-
+        // Set onClick listener for back button
         binding.backIcon.setOnClickListener {
             findNavController().popBackStack()
         }
-        // 群聊创建按钮（右上角）点击事件
+
+        // Set onClick listener for Done button
         binding.doneButton.setOnClickListener {
-
             binding.doneButton.setBackgroundColor(Color.parseColor("#606060"))
-
             binding.doneButton.setTextColor(Color.parseColor("#000000"))
 
             val selectedUids = chatList.filter { it.isSelected }.map { it.uid }
@@ -56,19 +58,29 @@ class NewChatsFragment : Fragment() {
             }
         }
 
+        // Set onClick listener for select group
         binding.selectGroup.setOnClickListener{
             findNavController().navigate(R.id.action_newChatsFragment_to_selectGroupFragment)
         }
+
+        // Add text watcher to the search bar for search functionality
+        binding.searchBar.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                filterGroups(s.toString()) // Filter groups based on the entered text
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // 加载真实好友列表
         loadFriends()
-        // 其它初始化逻辑可保留
     }
-
 
     private fun loadFriends() {
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
@@ -107,15 +119,24 @@ class NewChatsFragment : Fragment() {
 
                 chatList.clear()
                 chatList.addAll(newList)
+                filteredList.clear()
+                filteredList.addAll(newList) // Update filtered list as well
                 adapter.notifyDataSetChanged()
             }
         }
     }
 
+    private fun filterGroups(query: String) {
+        val filtered = if (query.isEmpty()) {
+            ArrayList(chatList) // Return all items if the query is empty
+        } else {
+            chatList.filter { it.name.contains(query, ignoreCase = true) } as ArrayList<NewChatItem>
+        }
+        filteredList.clear()
+        filteredList.addAll(filtered) // Update the filtered list
+        adapter.notifyDataSetChanged() // Notify adapter about the data change
+    }
 
-
-
-    // 弹窗输入群名
     private fun showGroupNameDialog(onGroupNameEntered: (String) -> Unit) {
         val editText = android.widget.EditText(requireContext())
         editText.hint = "Enter group name"
@@ -134,13 +155,12 @@ class NewChatsFragment : Fragment() {
             .show()
     }
 
-    // 创建群组并跳转
     private fun createGroupInFirebase(groupName: String, memberUids: List<String>) {
-        val currentUserUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val groupRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("groups").push()
+        val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val groupRef = FirebaseDatabase.getInstance().getReference("groups").push()
         val groupId = groupRef.key ?: return
         val members = memberUids.associateWith { true }.toMutableMap()
-        members[currentUserUid] = true // 把自己也加进去
+        members[currentUserUid] = true // Add the current user to the group as well
         val groupData = mapOf(
             "name" to groupName,
             "owner" to currentUserUid,
@@ -149,8 +169,7 @@ class NewChatsFragment : Fragment() {
         )
         groupRef.setValue(groupData)
             .addOnSuccessListener {
-                // 跳转到群聊页面，需在 nav_graph.xml 配置 groupId 传递
-                val bundle = android.os.Bundle().apply { putString("groupId", groupId) }
+                val bundle = Bundle().apply { putString("groupId", groupId) }
                 findNavController().navigate(R.id.groupChatFragment, bundle)
             }
             .addOnFailureListener {
