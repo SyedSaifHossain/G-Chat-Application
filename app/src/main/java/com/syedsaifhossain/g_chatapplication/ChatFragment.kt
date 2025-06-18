@@ -271,7 +271,7 @@ class ChatFragment : Fragment() {
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.newChats -> {
-                    findNavController().navigate(R.id.action_homeFragment_to_newChatsFragment)
+                    findNavController().navigate(R.id.newChatsFragment)
                     true
                 }
                 R.id.addContacts -> {
