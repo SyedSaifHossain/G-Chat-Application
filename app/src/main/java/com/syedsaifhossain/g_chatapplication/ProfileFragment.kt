@@ -300,6 +300,7 @@ class ProfileFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        (parentFragment as? HomeFragment)?.showBottomNav()
         _binding = null
     }
 

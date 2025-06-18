@@ -61,6 +61,11 @@ class MePageFragment : Fragment() {
             })
     }
 
+    override fun onResume() {
+        super.onResume()
+        (parentFragment as? HomeFragment)?.showBottomNav()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
