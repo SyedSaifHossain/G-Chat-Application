@@ -40,7 +40,8 @@ data class User(
             "isOnline" to isOnline,
             "fcmToken" to fcmToken,
             "region" to region,
-            "grcode" to qrCode
+            "gender" to gender,
+            "qrcode" to qrCode
         )
     }
 }
