@@ -25,10 +25,11 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
+import java.util.concurrent.TimeUnit
 
 class VoiceCallFragment : Fragment() {
 
-    private val APP_ID = "01764965ef8f461197b67bb61a51ed30"
+    private val APP_ID = "66157d3652d548ba86cc9c6075a69274"
     private val CHANNEL_NAME = "gchat_voice_call"
 
     private var agoraEngine: RtcEngine? = null
@@ -124,15 +125,13 @@ class VoiceCallFragment : Fragment() {
         updateSpeakerButton()
         updateMicButton()
 
-//        if (!checkPermissions()) {
-//            Log.d("PermissionDebug", "Permissions not granted, requesting...")
-//            requestPermissions()
-//        } else {
-//            Log.d("PermissionDebug", "Permissions already granted, fetching token and initializing channel.")
-//            fetchTokenAndJoinChannel()
-//        }
-        requestPermissions()
-        fetchTokenAndJoinChannel()
+        if (!checkPermissions()) {
+            Log.d("PermissionDebug", "Permissions not granted, requesting...")
+            requestPermissions()
+        } else {
+            Log.d("PermissionDebug", "Permissions already granted, fetching token and initializing channel.")
+            fetchTokenAndJoinChannel()
+        }
 
         return view
     }
@@ -183,35 +182,96 @@ class VoiceCallFragment : Fragment() {
     private fun fetchTokenAndJoinChannel() {
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            Toast.makeText(requireContext(), "User not authenticated. Please log in.", Toast.LENGTH_LONG).show()
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            if (isAdded) {
+                Toast.makeText(requireContext(), "User not authenticated. Please log in.", Toast.LENGTH_LONG).show()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
             return
         }
 
         val agoraUid = Math.abs(currentUser.uid.hashCode())
         val channelName = CHANNEL_NAME
-        // 替换为你的 Node.js Token Server 实际 IP
-        val url = "http://192.168.68.64:3000/rtcToken?channelName=$channelName&uid=$agoraUid"
+        val url = "https://agora-token-service-oajn.onrender.com/rtc/$channelName/publisher/uid/$agoraUid/"
+        
+        Log.d("VoiceCall", "Requesting token with parameters:")
+        Log.d("VoiceCall", "URL: $url")
+        Log.d("VoiceCall", "Channel Name: $channelName")
+        Log.d("VoiceCall", "User ID: ${currentUser.uid}")
+        Log.d("VoiceCall", "Agora UID: $agoraUid")
 
-        val client = OkHttpClient()
+        val client = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .build()
+            
         val request = Request.Builder().url(url).build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                if (!isAdded) {
+                    Log.d("VoiceCall", "Fragment not attached, ignoring network failure")
+                    return
+                }
+                Log.e("VoiceCall", "Network request failed: ${e.message}")
                 requireActivity().runOnUiThread {
                     Toast.makeText(requireContext(), "Failed to get token: ${e.message}", Toast.LENGTH_LONG).show()
                     requireActivity().onBackPressedDispatcher.onBackPressed()
                 }
             }
             override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                val token = JSONObject(body ?: "").optString("token")
-                if (token.isNotEmpty()) {
+                if (!isAdded) {
+                    Log.d("VoiceCall", "Fragment not attached, ignoring network response")
+                    return
+                }
+
+                Log.d("VoiceCall", "Server response code: ${response.code}")
+                Log.d("VoiceCall", "Server response message: ${response.message}")
+                
+                if (!response.isSuccessful) {
+                    val errorBody = response.body?.string()
+                    Log.e("VoiceCall", "Server returned error: ${response.code}")
+                    Log.e("VoiceCall", "Error response body: $errorBody")
                     requireActivity().runOnUiThread {
-                        initializeAndJoinChannel(token, agoraUid)
+                        when (response.code) {
+                            404 -> Toast.makeText(requireContext(), "服务器暂时不可用，请稍后再试", Toast.LENGTH_LONG).show()
+                            else -> Toast.makeText(requireContext(), "服务器错误: ${response.code}", Toast.LENGTH_LONG).show()
+                        }
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
-                } else {
+                    return
+                }
+
+                try {
+                    val body = response.body?.string()
+                    Log.d("VoiceCall", "Server response body: $body")
+                    
+                    if (body.isNullOrEmpty()) {
+                        Log.e("VoiceCall", "Empty response from server")
+                        requireActivity().runOnUiThread {
+                            Toast.makeText(requireContext(), "Empty response from server", Toast.LENGTH_LONG).show()
+                            requireActivity().onBackPressedDispatcher.onBackPressed()
+                        }
+                        return
+                    }
+
+                    val token = JSONObject(body).optString("rtcToken")
+                    if (token.isNotEmpty()) {
+                        Log.d("VoiceCall", "Successfully obtained token")
+                        requireActivity().runOnUiThread {
+                            initializeAndJoinChannel(token, agoraUid)
+                        }
+                    } else {
+                        Log.e("VoiceCall", "No token in response: $body")
+                        requireActivity().runOnUiThread {
+                            Toast.makeText(requireContext(), "Failed to get call token from server.", Toast.LENGTH_LONG).show()
+                            requireActivity().onBackPressedDispatcher.onBackPressed()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("VoiceCall", "Error parsing response: ${e.message}")
+                    Log.e("VoiceCall", "Response body that caused error: ${response.body?.string()}")
                     requireActivity().runOnUiThread {
-                        Toast.makeText(requireContext(), "Failed to get call token from server.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "Error parsing server response", Toast.LENGTH_LONG).show()
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
                 }
@@ -309,20 +369,101 @@ class VoiceCallFragment : Fragment() {
     // ----------------------------------------
 
     private fun endCall() {
-        stopCallTimer()
-        agoraEngine?.leaveChannel()
-        Toast.makeText(requireContext(), "Voice call ended", Toast.LENGTH_SHORT).show()
-        requireActivity().onBackPressedDispatcher.onBackPressed()
+        try {
+            Log.d("VoiceCall", "开始结束通话...")
+            
+            // 1. 停止计时器
+            Log.d("VoiceCall", "停止计时器")
+            stopCallTimer()
+            
+            // 2. 离开频道
+            Log.d("VoiceCall", "准备离开频道")
+            try {
+                agoraEngine?.leaveChannel()
+                Log.d("VoiceCall", "已离开频道")
+            } catch (e: Exception) {
+                Log.e("VoiceCall", "离开频道时出错: ${e.message}")
+            }
+            
+            // 3. 销毁引擎
+            Log.d("VoiceCall", "准备销毁引擎")
+            try {
+                RtcEngine.destroy()
+                agoraEngine = null
+                Log.d("VoiceCall", "引擎已销毁")
+            } catch (e: Exception) {
+                Log.e("VoiceCall", "销毁引擎时出错: ${e.message}")
+            }
+            
+            // 4. 显示提示
+            if (isAdded) {
+                try {
+                    Toast.makeText(requireContext(), "Voice call ended", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Log.e("VoiceCall", "显示Toast时出错: ${e.message}")
+                }
+            }
+            
+            // 5. 返回
+            Log.d("VoiceCall", "准备返回")
+            if (isAdded) {
+                try {
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                    Log.d("VoiceCall", "已触发返回")
+                } catch (e: Exception) {
+                    Log.e("VoiceCall", "返回时出错: ${e.message}")
+                }
+            }
+            
+        } catch (e: Exception) {
+            Log.e("VoiceCall", "结束通话时发生错误: ${e.message}")
+            e.printStackTrace()
+            if (isAdded) {
+                try {
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                } catch (e2: Exception) {
+                    Log.e("VoiceCall", "错误处理时返回失败: ${e2.message}")
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
+        Log.d("VoiceCall", "onDestroyView 开始")
+        try {
+            // 1. 停止计时器
+            Log.d("VoiceCall", "停止计时器")
+            stopCallTimer()
+            
+            // 2. 离开频道
+            Log.d("VoiceCall", "准备离开频道")
+            try {
+                agoraEngine?.leaveChannel()
+                Log.d("VoiceCall", "已离开频道")
+            } catch (e: Exception) {
+                Log.e("VoiceCall", "离开频道时出错: ${e.message}")
+            }
+            
+            // 3. 销毁引擎
+            Log.d("VoiceCall", "准备销毁引擎")
+            try {
+                RtcEngine.destroy()
+                agoraEngine = null
+                Log.d("VoiceCall", "引擎已销毁")
+            } catch (e: Exception) {
+                Log.e("VoiceCall", "销毁引擎时出错: ${e.message}")
+            }
+            
+            // 4. 清理绑定
+            Log.d("VoiceCall", "清理绑定")
+            _binding = null
+            
+        } catch (e: Exception) {
+            Log.e("VoiceCall", "onDestroyView 发生错误: ${e.message}")
+            e.printStackTrace()
+        }
+        Log.d("VoiceCall", "onDestroyView 结束")
         super.onDestroyView()
-        stopCallTimer()
-        agoraEngine?.leaveChannel()
-        RtcEngine.destroy()
-        agoraEngine = null
-        _binding = null
-        Log.d("VoiceCallFragment", "onDestroyView called. Agora engine destroyed.")
     }
 
     // 兼容 xml onClick 的 joinChannel 方法
