@@ -72,6 +72,18 @@ class ProfileFragment : Fragment() {
         binding.qrcodeArrow.setOnClickListener {
             showQRCodeEditDialog()
         }
+
+        // 新增：点击regionArrow选择国家/地区
+        binding.regionArrow.setOnClickListener {
+            findNavController().navigate(R.id.selectRegionFragment)
+        }
+
+        // 新增：监听选择结果，回填并保存
+        parentFragmentManager.setFragmentResultListener("regionSelection", viewLifecycleOwner) { _, bundle ->
+            val selectedCountry = bundle.getString("selectedCountry", "")
+            binding.regionNameTxt.text = selectedCountry
+            saveRegionToFirebase(selectedCountry)
+        }
     }
 
     private fun fetchUserProfile() {
@@ -297,9 +309,22 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // 在类内添加保存region的方法
+    private fun saveRegionToFirebase(region: String) {
+        val userId = auth.currentUser?.uid ?: return
+        val updates = mapOf("region" to region)
+        database.child("users").child(userId).updateChildren(updates)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Region updated successfully", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to update region", Toast.LENGTH_SHORT).show()
+            }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        (parentFragment as? HomeFragment)?.showBottomNav()
         _binding = null
     }
 
