@@ -75,7 +75,16 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // 回到HomeFragment时自动选中Chats
-        binding.bottomNavigation.selectedItemId = R.id.nav_chats
+        val currentFragment = childFragmentManager.findFragmentById(R.id.nav_host_fragment)
+        if (currentFragment is ChatFragment ||
+            currentFragment is ContactFragment ||
+            currentFragment is DiscoverFragment ||
+            currentFragment is MePageFragment) {
+            binding.bottomNavigation.visibility = View.VISIBLE
+        }
+    }
+
+    fun showBottomNav() {
+        binding.bottomNavigation.visibility = View.VISIBLE
     }
 }
