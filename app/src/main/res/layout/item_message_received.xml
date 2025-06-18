@@ -13,9 +13,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_chat_received"
-        android:padding="10dp"
+        android:paddingVertical="10dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="15dp"
         android:textColor="#000"
-        android:maxWidth="240dp" />
+        android:maxWidth="240dp"/>
 
     <ImageView
         android:id="@+id/receivedMessageImage"
