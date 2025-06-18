@@ -85,7 +85,7 @@ class GroupChatFragment : Fragment() {
             groupRef.child("name").get().addOnSuccessListener { snapshot ->
                 val groupName = snapshot.getValue(String::class.java)
                 if (!groupName.isNullOrEmpty()) {
-                    binding.groupchatTxt.text = groupName
+                    binding.groupChatToolbarUserName.text = groupName
                 }
             }
         } else {
@@ -121,7 +121,8 @@ class GroupChatFragment : Fragment() {
         }
 
         // File attachment
-        binding.attachButton.setOnClickListener {
+
+        binding.groupChatAddButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "*/*"
             intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -135,7 +136,7 @@ class GroupChatFragment : Fragment() {
 
         // 设置群聊默认头像并加日志
         android.util.Log.d("GroupChatFragment", "设置群聊头像")
-        binding.groupchatAvatar.setImageResource(R.drawable.addcontacticon)
+
     }
 
     private fun sendMessage() {
