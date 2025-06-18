@@ -10,8 +10,8 @@
 
     <ImageView
         android:id="@+id/loginBackArrow"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_alignParentTop="true"
         android:layout_marginTop="30dp"
         android:layout_alignParentStart="true"
@@ -20,8 +20,8 @@
 
         <ImageView
             android:id="@+id/gchatLogoSignInNext"
-            android:layout_width="110dp"
-            android:layout_height="110dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="110dp"
@@ -36,7 +36,7 @@
             android:text="Welcome back"
             android:textColor="#6b6b6b"
             android:textStyle="bold"
-            android:textSize="26sp"
+            android:textSize="22sp"
             android:fontFamily="@font/roboto_bold"
             android:layout_marginTop="50dp"
             android:gravity="center_horizontal"
@@ -57,7 +57,7 @@
             android:padding="10dp"
             android:textColor="#FFFFFF"
             android:textColorHint="#6b6b6b"
-            android:textSize="22sp"
+            android:textSize="18sp"
             android:alpha="0.7"
             android:drawableEnd="@drawable/arrowforward"
             android:drawableTint="#6b6b6b"/>
@@ -76,7 +76,7 @@
             android:padding="10dp"
             android:textColor="#FFFFFF"
             android:textColorHint="#6b6b6b"
-            android:textSize="22sp"
+            android:textSize="18sp"
             android:fontFamily="@font/roboto_bold"
             android:alpha="0.7"
             android:drawableEnd="@drawable/arrowforward"
@@ -97,7 +97,7 @@
             android:text="Login"
             android:textAllCaps="false"
             android:textColor="@color/black"
-            android:textSize="26dp"
+            android:textSize="18dp"
             android:textStyle="bold"
             android:fontFamily="@font/roboto_bold"/>
 
@@ -114,7 +114,7 @@
         android:textColor="#6b6b6b"
         android:gravity="center_horizontal"
         android:fontFamily="@font/roboto_bold"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold"/>
 
     </RelativeLayout>

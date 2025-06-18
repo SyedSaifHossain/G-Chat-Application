@@ -11,14 +11,15 @@
 
     <ImageView
         android:id="@+id/welcomeImg"
-        android:layout_width="170dp"
-        android:layout_height="170dp"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
         android:src="@drawable/gchatlogo"
         android:layout_marginTop="100dp"
         android:layout_gravity="center"/>
 
     <TextView
         android:id="@+id/welcomeText"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -26,9 +27,8 @@
         android:fontFamily="@font/roboto_bold"
         android:text="Welcome to G-CHAT"
         android:textColor="#6b6b6b"
-        android:textSize="28sp"
+        android:textSize="22sp"
         android:textStyle="bold" />
-
 
         <Button
             android:id="@+id/signInButton"
@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:text="Log In"
             android:textColor="#000000"
-            android:textSize="26sp"
+            android:textSize="20sp"
             android:layout_marginTop="130dp"
             android:backgroundTint="#81d8d0"
             android:padding="10dp"
@@ -54,7 +54,7 @@
             android:textColor="#000000"
             android:layout_gravity="center_horizontal"
             android:textAllCaps="false"
-            android:textSize="26sp"
+            android:textSize="20sp"
             android:backgroundTint="#81d8d0"
             android:fontFamily="@font/roboto_bold"
             android:padding="10dp"
