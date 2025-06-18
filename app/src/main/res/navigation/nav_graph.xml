@@ -109,15 +109,16 @@
         android:id="@+id/chatFragment5"
         android:name="com.syedsaifhossain.g_chatapplication.ChatFragment"
         android:label="fragment_chat"
-        tools:layout="@layout/fragment_chat" />
+        tools:layout="@layout/fragment_chat" >
+        <action
+            android:id="@+id/action_chatFragment5_to_chatScreenFragment"
+            app:destination="@id/chatScreenFragment" />
+    </fragment>
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.syedsaifhossain.g_chatapplication.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" >
-        <action
-            android:id="@+id/action_profileFragment_to_profileSettingFragment"
-            app:destination="@id/profileSettingFragment" />
         <action
             android:id="@+id/action_profileFragment_to_mePageFragment"
             app:destination="@id/mePageFragment" />
@@ -302,7 +303,11 @@
         android:id="@+id/profileSettingFragment"
         android:name="com.syedsaifhossain.g_chatapplication.ProfileSettingFragment"
         android:label="fragment_profile_setting"
-        tools:layout="@layout/fragment_profile_setting" />
+        tools:layout="@layout/fragment_profile_setting" >
+        <action
+            android:id="@+id/action_profileSettingFragment_to_chatFragment5"
+            app:destination="@id/chatFragment5" />
+    </fragment>
     <!-- 新增 signupViaEmailFragment -->
     <fragment
         android:id="@+id/signupViaEmailFragment"
