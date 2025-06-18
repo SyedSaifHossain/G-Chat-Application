@@ -27,10 +27,11 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
+import java.util.concurrent.TimeUnit
 
 class VideoCallFragment : Fragment() {
 
-    private val APP_ID = "01764965ef8f461197b67bb61a51ed30"
+    private val APP_ID = "66157d3652d548ba86cc9c6075a69274"
     private val CHANNEL_NAME = "gchat_video_call"
 
     private var agoraEngine: RtcEngine? = null
@@ -217,8 +218,16 @@ class VideoCallFragment : Fragment() {
         val currentUser = auth.currentUser
         if (currentUser == null) {
             Log.d("AgoraToken", "No user authenticated. Attempting anonymous sign-in...")
+            if (!isAdded) {
+                Log.d("VideoCall", "Fragment not attached, ignoring anonymous sign-in")
+                return
+            }
             auth.signInAnonymously()
                 .addOnCompleteListener(requireActivity()) { task ->
+                    if (!isAdded) {
+                        Log.d("VideoCall", "Fragment not attached, ignoring sign-in result")
+                        return@addOnCompleteListener
+                    }
                     if (task.isSuccessful) {
                         Log.d("AgoraToken", "Anonymous sign-in successful. Retrying token fetch.")
                         fetchTokenAndJoinChannel()
@@ -232,14 +241,30 @@ class VideoCallFragment : Fragment() {
         }
 
         val agoraUid = Math.abs(currentUser.uid.hashCode())
-        Log.d("TokenDebug", "Request token: channel=$CHANNEL_NAME, uid=$agoraUid")
-        val url = "http://192.168.68.64:3000/rtcToken?channelName=$CHANNEL_NAME&uid=$agoraUid"
+        val channelName = CHANNEL_NAME
+        val url = "https://agora-token-service-oajn.onrender.com/rtc/$channelName/publisher/uid/$agoraUid/"
+        
+        Log.d("VideoCall", "Requesting token with parameters:")
+        Log.d("VideoCall", "URL: $url")
+        Log.d("VideoCall", "Channel Name: $channelName")
+        Log.d("VideoCall", "User ID: ${currentUser.uid}")
+        Log.d("VideoCall", "Agora UID: $agoraUid")
 
-        val client = OkHttpClient()
+        val client = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .build()
+            
         val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                if (!isAdded) {
+                    Log.d("VideoCall", "Fragment not attached, ignoring network failure")
+                    return
+                }
+                Log.e("VideoCall", "Network request failed: ${e.message}")
                 requireActivity().runOnUiThread {
                     Toast.makeText(requireContext(), "Failed to get token: ${e.message}", Toast.LENGTH_LONG).show()
                     requireActivity().onBackPressedDispatcher.onBackPressed()
@@ -247,16 +272,59 @@ class VideoCallFragment : Fragment() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string()
-                val token = JSONObject(body ?: "").optString("token")
-                if (token.isNotEmpty()) {
-                    Log.d("AgoraToken", "Fetched RTC token from Node.js: $token")
+                if (!isAdded) {
+                    Log.d("VideoCall", "Fragment not attached, ignoring network response")
+                    return
+                }
+
+                Log.d("VideoCall", "Server response code: ${response.code}")
+                Log.d("VideoCall", "Server response message: ${response.message}")
+                
+                if (!response.isSuccessful) {
+                    val errorBody = response.body?.string()
+                    Log.e("VideoCall", "Server returned error: ${response.code}")
+                    Log.e("VideoCall", "Error response body: $errorBody")
                     requireActivity().runOnUiThread {
-                        initializeAndJoinChannel(token, agoraUid)
+                        when (response.code) {
+                            404 -> Toast.makeText(requireContext(), "服务器暂时不可用，请稍后再试", Toast.LENGTH_LONG).show()
+                            else -> Toast.makeText(requireContext(), "服务器错误: ${response.code}", Toast.LENGTH_LONG).show()
+                        }
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
-                } else {
+                    return
+                }
+
+                try {
+                    val body = response.body?.string()
+                    Log.d("VideoCall", "Server response body: $body")
+                    
+                    if (body.isNullOrEmpty()) {
+                        Log.e("VideoCall", "Empty response from server")
+                        requireActivity().runOnUiThread {
+                            Toast.makeText(requireContext(), "Empty response from server", Toast.LENGTH_LONG).show()
+                            requireActivity().onBackPressedDispatcher.onBackPressed()
+                        }
+                        return
+                    }
+
+                    val token = JSONObject(body).optString("rtcToken")
+                    if (token.isNotEmpty()) {
+                        Log.d("VideoCall", "Successfully obtained token")
+                        requireActivity().runOnUiThread {
+                            initializeAndJoinChannel(token, agoraUid)
+                        }
+                    } else {
+                        Log.e("VideoCall", "No token in response: $body")
+                        requireActivity().runOnUiThread {
+                            Toast.makeText(requireContext(), "Failed to get call token from server.", Toast.LENGTH_LONG).show()
+                            requireActivity().onBackPressedDispatcher.onBackPressed()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("VideoCall", "Error parsing response: ${e.message}")
+                    Log.e("VideoCall", "Response body that caused error: ${response.body?.string()}")
                     requireActivity().runOnUiThread {
-                        Toast.makeText(requireContext(), "Failed to get call token from server.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "Error parsing server response", Toast.LENGTH_LONG).show()
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
                 }
@@ -268,7 +336,7 @@ class VideoCallFragment : Fragment() {
     private fun initializeAndJoinChannel(token: String, agoraUid: Int) {
         try {
             val config = RtcEngineConfig()
-            config.mContext = requireContext()
+            config.mContext = requireContext().applicationContext
             config.mAppId = APP_ID
             config.mEventHandler = mRtcEventHandler
             config.mChannelProfile = Constants.CHANNEL_PROFILE_COMMUNICATION
@@ -276,16 +344,28 @@ class VideoCallFragment : Fragment() {
             agoraEngine = RtcEngine.create(config)
             Log.d("AgoraInit", "Agora RtcEngine created successfully.")
 
-            agoraEngine?.enableVideo()
-            agoraEngine?.setEnableSpeakerphone(isSpeakerOn)
-            agoraEngine?.setClientRole(Constants.CLIENT_ROLE_BROADCASTER)
+            // 在后台线程中初始化视频
+            Thread {
+                try {
+                    agoraEngine?.enableVideo()
+                    agoraEngine?.setEnableSpeakerphone(isSpeakerOn)
+                    agoraEngine?.setClientRole(Constants.CLIENT_ROLE_BROADCASTER)
 
-            setupLocalVideo()
-            Log.d("AgoraDebug", "准备 joinChannel: token=$token, channel=$CHANNEL_NAME, uid=$agoraUid")
-            agoraEngine?.joinChannel(token, CHANNEL_NAME, null, agoraUid)
-            Log.d("AgoraDebug", "joinChannel 已调用")
-            Toast.makeText(requireContext(), "Joining channel: $CHANNEL_NAME", Toast.LENGTH_SHORT).show()
-            Log.d("AgoraInit", "Join channel initiated for: $CHANNEL_NAME with token.")
+                    requireActivity().runOnUiThread {
+                        setupLocalVideo()
+                        Log.d("AgoraDebug", "准备 joinChannel: token=$token, channel=$CHANNEL_NAME, uid=$agoraUid")
+                        agoraEngine?.joinChannel(token, CHANNEL_NAME, null, agoraUid)
+                        Log.d("AgoraDebug", "joinChannel 已调用")
+                        Toast.makeText(requireContext(), "Joining channel: $CHANNEL_NAME", Toast.LENGTH_SHORT).show()
+                        Log.d("AgoraInit", "Join channel initiated for: $CHANNEL_NAME with token.")
+                    }
+                } catch (e: Exception) {
+                    Log.e("AgoraInit", "Error in video initialization: ", e)
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(requireContext(), "Error initializing video: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }.start()
 
         } catch (e: Exception) {
             Log.e("AgoraInit", "Error initializing Agora: ", e)
@@ -351,12 +431,73 @@ class VideoCallFragment : Fragment() {
     }
 
     private fun endCall() {
-        stopCallTimer()
-        agoraEngine?.leaveChannel()
-        _binding?.localVideoViewContainer?.removeAllViews()
-        _binding?.remoteVideoViewContainer?.removeAllViews()
-        Toast.makeText(requireContext(), "Call ended", Toast.LENGTH_SHORT).show()
-        requireActivity().onBackPressedDispatcher.onBackPressed()
+        try {
+            Log.d("VideoCall", "开始结束通话...")
+            
+            // 1. 停止计时器
+            Log.d("VideoCall", "停止计时器")
+            stopCallTimer()
+            
+            // 2. 离开频道
+            Log.d("VideoCall", "准备离开频道")
+            try {
+                agoraEngine?.leaveChannel()
+                Log.d("VideoCall", "已离开频道")
+            } catch (e: Exception) {
+                Log.e("VideoCall", "离开频道时出错: ${e.message}")
+            }
+            
+            // 3. 清理视频视图
+            Log.d("VideoCall", "清理视频视图")
+            try {
+                _binding?.localVideoViewContainer?.removeAllViews()
+                _binding?.remoteVideoViewContainer?.removeAllViews()
+                Log.d("VideoCall", "视频视图已清理")
+            } catch (e: Exception) {
+                Log.e("VideoCall", "清理视频视图时出错: ${e.message}")
+            }
+            
+            // 4. 销毁引擎
+            Log.d("VideoCall", "准备销毁引擎")
+            try {
+                RtcEngine.destroy()
+                agoraEngine = null
+                Log.d("VideoCall", "引擎已销毁")
+            } catch (e: Exception) {
+                Log.e("VideoCall", "销毁引擎时出错: ${e.message}")
+            }
+            
+            // 5. 显示提示
+            if (isAdded) {
+                try {
+                    Toast.makeText(requireContext(), "Call ended", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Log.e("VideoCall", "显示Toast时出错: ${e.message}")
+                }
+            }
+            
+            // 6. 返回
+            Log.d("VideoCall", "准备返回")
+            if (isAdded) {
+                try {
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                    Log.d("VideoCall", "已触发返回")
+                } catch (e: Exception) {
+                    Log.e("VideoCall", "返回时出错: ${e.message}")
+                }
+            }
+            
+        } catch (e: Exception) {
+            Log.e("VideoCall", "结束通话时发生错误: ${e.message}")
+            e.printStackTrace()
+            if (isAdded) {
+                try {
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                } catch (e2: Exception) {
+                    Log.e("VideoCall", "错误处理时返回失败: ${e2.message}")
+                }
+            }
+        }
     }
 
     // ----------- Call Timer Logic -----------
@@ -388,11 +529,40 @@ class VideoCallFragment : Fragment() {
     // ----------------------------------------
 
     override fun onDestroyView() {
+        Log.d("VideoCall", "onDestroyView 开始")
+        try {
+            // 1. 停止计时器
+            Log.d("VideoCall", "停止计时器")
+            stopCallTimer()
+            
+            // 2. 离开频道
+            Log.d("VideoCall", "准备离开频道")
+            try {
+                agoraEngine?.leaveChannel()
+                Log.d("VideoCall", "已离开频道")
+            } catch (e: Exception) {
+                Log.e("VideoCall", "离开频道时出错: ${e.message}")
+            }
+            
+            // 3. 销毁引擎
+            Log.d("VideoCall", "准备销毁引擎")
+            try {
+                RtcEngine.destroy()
+                agoraEngine = null
+                Log.d("VideoCall", "引擎已销毁")
+            } catch (e: Exception) {
+                Log.e("VideoCall", "销毁引擎时出错: ${e.message}")
+            }
+            
+            // 4. 清理绑定
+            Log.d("VideoCall", "清理绑定")
+            _binding = null
+            
+        } catch (e: Exception) {
+            Log.e("VideoCall", "onDestroyView 发生错误: ${e.message}")
+            e.printStackTrace()
+        }
+        Log.d("VideoCall", "onDestroyView 结束")
         super.onDestroyView()
-        stopCallTimer()
-        agoraEngine?.leaveChannel()
-        RtcEngine.destroy()
-        agoraEngine = null
-        _binding = null
     }
 }
