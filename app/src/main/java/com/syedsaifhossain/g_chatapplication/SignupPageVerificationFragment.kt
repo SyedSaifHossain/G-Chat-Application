@@ -106,7 +106,6 @@ class SignupPageVerificationFragment : Fragment() {
             } else {
                 Toast.makeText(requireContext(), "Verification ID not found", Toast.LENGTH_SHORT).show()
             }
-            navigateToHomePage()
         }
     }
 
@@ -194,6 +193,7 @@ class SignupPageVerificationFragment : Fragment() {
                             val phone = binding.singupVerificationEdtPhoneEmail.text.toString().trim()
                             val name = arguments?.getString("userName") ?: "G-Chat User"
                             val password = arguments?.getString("password") ?: ""
+                            val region = arguments?.getString("countryName") ?: ""
                             val user = User(
                                 uid = uid,
                                 name = name,
@@ -203,8 +203,10 @@ class SignupPageVerificationFragment : Fragment() {
                                 avatarUrl = "",
                                 status = "Hey there! I'm using G-Chat",
                                 isOnline = true,
-                                lastSeen = System.currentTimeMillis()
+                                lastSeen = System.currentTimeMillis(),
+                                region = region,
                             )
+
                             dbRef.updateChildren(user.toMap())
                             findNavController().navigate(R.id.action_signupPageVerificationFragment_to_profileSettingFragment)
                         }
@@ -230,11 +232,6 @@ class SignupPageVerificationFragment : Fragment() {
                 binding.resendCodeVerify.isEnabled = true
             }
         }.start()
-    }
-
-    private fun navigateToHomePage() {
-
-        findNavController().navigate(R.id.action_signupPageVerificationFragment_to_profileSettingFragment)
     }
 
     override fun onDestroyView() {
