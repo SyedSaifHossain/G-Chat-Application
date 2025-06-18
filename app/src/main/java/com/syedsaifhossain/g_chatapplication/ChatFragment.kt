@@ -205,7 +205,7 @@ class ChatFragment : Fragment() {
             }
 
             try {
-                findNavController().navigate(R.id.action_homeFragment_to_chatScreenFragment, args)
+                findNavController().navigate(R.id.chatScreenFragment, args)
             } catch (e: Exception) {
                 Log.e("ChatFragment", "导航失败", e)
                 Toast.makeText(context, "打开聊天失败", Toast.LENGTH_SHORT).show()
@@ -233,7 +233,7 @@ class ChatFragment : Fragment() {
             }
 
             try {
-                findNavController().navigate(R.id.action_homeFragment_to_chatScreenFragment, args)
+                findNavController().navigate(R.id.chatScreenFragment, args)
             } catch (e: Exception) {
                 Log.e("ChatFragment", "导航失败", e)
                 Toast.makeText(context, "打开聊天失败", Toast.LENGTH_SHORT).show()
@@ -271,7 +271,7 @@ class ChatFragment : Fragment() {
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.newChats -> {
-                    findNavController().navigate(R.id.action_homeFragment_to_newChatsFragment)
+                    findNavController().navigate(R.id.newChatsFragment)
                     true
                 }
                 R.id.addContacts -> {
