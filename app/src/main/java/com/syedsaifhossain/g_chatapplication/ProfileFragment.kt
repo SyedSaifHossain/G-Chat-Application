@@ -72,9 +72,6 @@ class ProfileFragment : Fragment() {
         binding.qrcodeArrow.setOnClickListener {
             showQRCodeEditDialog()
         }
-
-
-        binding.regionArrow.setOnClickListener { showRegionEditDialog() }
     }
 
     private fun fetchUserProfile() {
@@ -87,14 +84,12 @@ class ProfileFragment : Fragment() {
                     val phone = snapshot.child("phone").getValue(String::class.java) ?: "No phone number"
                     val gender = snapshot.child("gender").getValue(String::class.java) ?: "Not Set" // Fetch gender
                     val qrCodeUrl = snapshot.child("qrCodeUrl").getValue(String::class.java) ?: ""
-                    val region = snapshot.child("region").getValue(String::class.java) ?: ""
                     val imageUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
                         ?: snapshot.child("avatarUrl").getValue(String::class.java)
 
                     binding.userNameTxt.text = name
                     binding.phoneNameTxt.text = phone
                     binding.genderNameTxt.text = gender
-                    binding.regionNameTxt.text = region
                     if (qrCodeUrl.isNotEmpty()) {
                         Glide.with(requireContext())
                             .load(qrCodeUrl)
@@ -300,31 +295,6 @@ class ProfileFragment : Fragment() {
             e.printStackTrace()
             Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT).show()
         }
-    }
-
-
-    private fun showRegionEditDialog() {
-        val builder = AlertDialog.Builder(requireContext())
-        val input = EditText(requireContext())
-        input.setText(binding.regionNameTxt.text.toString())
-
-        builder.setTitle("Edit Region")
-            .setView(input)
-            .setPositiveButton("Save") { dialog, _ ->
-                val newRegion = input.text.toString().trim()
-                if (newRegion.isNotEmpty()) {
-                    val userId = auth.currentUser?.uid ?: return@setPositiveButton
-                    val updates = mapOf("region" to newRegion)
-                    database.child("users").child(userId).updateChildren(updates)
-                        .addOnSuccessListener {
-                            binding.regionNameTxt.text = newRegion
-                            Toast.makeText(requireContext(), "Region updated", Toast.LENGTH_SHORT).show()
-                        }
-                }
-                dialog.dismiss()
-            }
-            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-            .create().show()
     }
 
 
