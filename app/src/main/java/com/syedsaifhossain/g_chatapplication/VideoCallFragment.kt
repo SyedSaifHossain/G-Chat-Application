@@ -286,8 +286,8 @@ class VideoCallFragment : Fragment() {
                     Log.e("VideoCall", "Error response body: $errorBody")
                     requireActivity().runOnUiThread {
                         when (response.code) {
-                            404 -> Toast.makeText(requireContext(), "服务器暂时不可用，请稍后再试", Toast.LENGTH_LONG).show()
-                            else -> Toast.makeText(requireContext(), "服务器错误: ${response.code}", Toast.LENGTH_LONG).show()
+                            404 -> Toast.makeText(requireContext(), "Server temporarily unavailable, please try again later", Toast.LENGTH_LONG).show()
+                            else -> Toast.makeText(requireContext(), "Server error: ${response.code}", Toast.LENGTH_LONG).show()
                         }
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                     }

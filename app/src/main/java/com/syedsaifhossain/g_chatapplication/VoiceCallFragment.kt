@@ -26,6 +26,12 @@ import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.TimeUnit
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import androidx.navigation.fragment.findNavController
+import android.app.AlertDialog
 
 class VoiceCallFragment : Fragment() {
 
@@ -57,6 +63,8 @@ class VoiceCallFragment : Fragment() {
     private var callDuration = 0 // seconds
     private var timer: Timer? = null
     private val handler = Handler(Looper.getMainLooper())
+
+    private var callId: String? = null
 
     private val mRtcEventHandler: IRtcEngineEventHandler = object : IRtcEngineEventHandler() {
         override fun onUserJoined(uid: Int, elapsed: Int) {
@@ -98,6 +106,8 @@ class VoiceCallFragment : Fragment() {
         }
     }
 
+    private var waitingDialog: AlertDialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
@@ -134,6 +144,16 @@ class VoiceCallFragment : Fragment() {
         }
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        callId = arguments?.getString("callId")
+        Log.d("VoiceCallDebug", "onViewCreated: callId=$callId")
+        if (callId != null) {
+            listenCallStatus(callId!!)
+            showWaitingIfPending(callId!!)
+        }
     }
 
     private fun checkPermissions(): Boolean {
@@ -233,8 +253,8 @@ class VoiceCallFragment : Fragment() {
                     Log.e("VoiceCall", "Error response body: $errorBody")
                     requireActivity().runOnUiThread {
                         when (response.code) {
-                            404 -> Toast.makeText(requireContext(), "服务器暂时不可用，请稍后再试", Toast.LENGTH_LONG).show()
-                            else -> Toast.makeText(requireContext(), "服务器错误: ${response.code}", Toast.LENGTH_LONG).show()
+                            404 -> Toast.makeText(requireContext(), "Server temporarily unavailable, please try again later", Toast.LENGTH_LONG).show()
+                            else -> Toast.makeText(requireContext(), "Server error: ${response.code}", Toast.LENGTH_LONG).show()
                         }
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
@@ -370,104 +390,161 @@ class VoiceCallFragment : Fragment() {
 
     private fun endCall() {
         try {
-            Log.d("VoiceCall", "开始结束通话...")
+            if (callId != null) {
+                FirebaseDatabase.getInstance().getReference("calls").child(callId!!).child("status").setValue("ended")
+            }
+            Log.d("VoiceCall", "Starting to end call...")
             
-            // 1. 停止计时器
-            Log.d("VoiceCall", "停止计时器")
+            // 1. Stop timer
+            Log.d("VoiceCall", "Stopping timer")
             stopCallTimer()
             
-            // 2. 离开频道
-            Log.d("VoiceCall", "准备离开频道")
+            // 2. Leave channel
+            Log.d("VoiceCall", "Preparing to leave channel")
             try {
                 agoraEngine?.leaveChannel()
-                Log.d("VoiceCall", "已离开频道")
+                Log.d("VoiceCall", "Left channel")
             } catch (e: Exception) {
-                Log.e("VoiceCall", "离开频道时出错: ${e.message}")
+                Log.e("VoiceCall", "Error leaving channel: ${e.message}")
             }
             
-            // 3. 销毁引擎
-            Log.d("VoiceCall", "准备销毁引擎")
+            // 3. Destroy engine
+            Log.d("VoiceCall", "Preparing to destroy engine")
             try {
                 RtcEngine.destroy()
                 agoraEngine = null
-                Log.d("VoiceCall", "引擎已销毁")
+                Log.d("VoiceCall", "Engine destroyed")
             } catch (e: Exception) {
-                Log.e("VoiceCall", "销毁引擎时出错: ${e.message}")
+                Log.e("VoiceCall", "Error destroying engine: ${e.message}")
             }
             
-            // 4. 显示提示
+            // 4. Show toast
             if (isAdded) {
                 try {
                     Toast.makeText(requireContext(), "Voice call ended", Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
-                    Log.e("VoiceCall", "显示Toast时出错: ${e.message}")
+                    Log.e("VoiceCall", "Error showing toast: ${e.message}")
                 }
             }
             
-            // 5. 返回
-            Log.d("VoiceCall", "准备返回")
+            // 5. Return
+            Log.d("VoiceCall", "Preparing to return")
             if (isAdded) {
                 try {
                     requireActivity().onBackPressedDispatcher.onBackPressed()
-                    Log.d("VoiceCall", "已触发返回")
+                    Log.d("VoiceCall", "Back pressed triggered")
                 } catch (e: Exception) {
-                    Log.e("VoiceCall", "返回时出错: ${e.message}")
+                    Log.e("VoiceCall", "Error returning: ${e.message}")
                 }
             }
             
         } catch (e: Exception) {
-            Log.e("VoiceCall", "结束通话时发生错误: ${e.message}")
+            Log.e("VoiceCall", "Error ending call: ${e.message}")
             e.printStackTrace()
             if (isAdded) {
                 try {
                     requireActivity().onBackPressedDispatcher.onBackPressed()
                 } catch (e2: Exception) {
-                    Log.e("VoiceCall", "错误处理时返回失败: ${e2.message}")
+                    Log.e("VoiceCall", "Error handling return: ${e2.message}")
                 }
             }
         }
     }
 
     override fun onDestroyView() {
-        Log.d("VoiceCall", "onDestroyView 开始")
+        Log.d("VoiceCall", "onDestroyView starting")
         try {
-            // 1. 停止计时器
-            Log.d("VoiceCall", "停止计时器")
+            // 1. Stop timer
+            Log.d("VoiceCall", "Stopping timer")
             stopCallTimer()
             
-            // 2. 离开频道
-            Log.d("VoiceCall", "准备离开频道")
+            // 2. Leave channel
+            Log.d("VoiceCall", "Preparing to leave channel")
             try {
                 agoraEngine?.leaveChannel()
-                Log.d("VoiceCall", "已离开频道")
+                Log.d("VoiceCall", "Left channel")
             } catch (e: Exception) {
-                Log.e("VoiceCall", "离开频道时出错: ${e.message}")
+                Log.e("VoiceCall", "Error leaving channel: ${e.message}")
             }
             
-            // 3. 销毁引擎
-            Log.d("VoiceCall", "准备销毁引擎")
+            // 3. Destroy engine
+            Log.d("VoiceCall", "Preparing to destroy engine")
             try {
                 RtcEngine.destroy()
                 agoraEngine = null
-                Log.d("VoiceCall", "引擎已销毁")
+                Log.d("VoiceCall", "Engine destroyed")
             } catch (e: Exception) {
-                Log.e("VoiceCall", "销毁引擎时出错: ${e.message}")
+                Log.e("VoiceCall", "Error destroying engine: ${e.message}")
             }
             
-            // 4. 清理绑定
-            Log.d("VoiceCall", "清理绑定")
+            // 4. Clean up binding
+            Log.d("VoiceCall", "Cleaning up binding")
             _binding = null
             
         } catch (e: Exception) {
-            Log.e("VoiceCall", "onDestroyView 发生错误: ${e.message}")
+            Log.e("VoiceCall", "onDestroyView error: ${e.message}")
             e.printStackTrace()
         }
-        Log.d("VoiceCall", "onDestroyView 结束")
+        Log.d("VoiceCall", "onDestroyView ending")
         super.onDestroyView()
     }
 
     // 兼容 xml onClick 的 joinChannel 方法
     fun joinChannel(view: View) {
         fetchTokenAndJoinChannel()
+    }
+
+    // 新增：主叫方等待对方接听的界面
+    private fun showWaitingIfPending(callId: String) {
+        Log.d("VoiceCallDebug", "showWaitingIfPending called for callId=$callId")
+        val callRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
+        callRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val status = snapshot.child("status").getValue(String::class.java)
+                Log.d("VoiceCallDebug", "showWaitingIfPending: status=$status for callId=$callId")
+                if (status == "pending") {
+                    Log.d("VoiceCallDebug", "showWaitingIfPending: showing waitingDialog for callId=$callId")
+                    waitingDialog = AlertDialog.Builder(requireContext())
+                        .setTitle("Waiting for answer...")
+                        .setMessage("The other user is being called. Please wait.")
+                        .setNegativeButton("Cancel") { d, _ ->
+                            Log.d("VoiceCallDebug", "showWaitingIfPending: Cancel clicked, ending callId=$callId")
+                            FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("ended")
+                            d.dismiss()
+                            findNavController().popBackStack()
+                        }
+                        .setCancelable(false)
+                        .create()
+                    waitingDialog?.show()
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("VoiceCallDebug", "showWaitingIfPending: onCancelled: ${error.message}")
+            }
+        })
+    }
+
+    // 修改listenCallStatus，接听后自动关闭等待界面
+    private fun listenCallStatus(callId: String) {
+        Log.d("VoiceCallDebug", "listenCallStatus called for callId=$callId")
+        val callRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
+        callRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val status = snapshot.child("status").getValue(String::class.java)
+                Log.d("VoiceCallDebug", "listenCallStatus: status=$status for callId=$callId")
+                if (status == "ended") {
+                    Log.d("VoiceCallDebug", "listenCallStatus: call ended, dismiss waitingDialog and popBackStack for callId=$callId")
+                    waitingDialog?.dismiss()
+                    Toast.makeText(requireContext(), "Call ended", Toast.LENGTH_SHORT).show()
+                    findNavController().popBackStack()
+                } else if (status == "accepted") {
+                    Log.d("VoiceCallDebug", "listenCallStatus: call accepted, dismiss waitingDialog for callId=$callId")
+                    waitingDialog?.dismiss()
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("VoiceCallDebug", "listenCallStatus: onCancelled: ${error.message}")
+            }
+        })
     }
 }

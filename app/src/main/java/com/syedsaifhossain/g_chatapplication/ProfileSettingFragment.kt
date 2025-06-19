@@ -147,7 +147,7 @@ class ProfileSettingFragment : Fragment() {
         val originalBitmap = BitmapFactory.decodeStream(inputStream)
         inputStream?.close()
         if (originalBitmap == null) {
-            Toast.makeText(context, "图片读取失败", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Failed to read image", Toast.LENGTH_SHORT).show()
             return
         }
         val size = minOf(originalBitmap.width, originalBitmap.height, 512)

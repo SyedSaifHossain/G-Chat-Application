@@ -116,14 +116,14 @@ class SignupNextFragment : Fragment() {
         val username = binding.nameEdit.text.toString().trim()
 
         if (username.isEmpty()) {
-            Toast.makeText(requireContext(), "请输入您的姓名", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Please enter your name", Toast.LENGTH_SHORT).show()
             Log.d(TAG, "handleCompleteButtonClick: Username is empty. Returning.")
             return
         }
 
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            Toast.makeText(requireContext(), "用户未认证，请重新登录", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "User not logged in. Please restart verification.", Toast.LENGTH_LONG).show()
             Log.e(TAG, "handleCompleteButtonClick: Current user is NULL. Cannot proceed.")
             findNavController().popBackStack() // Go back to previous screen if no user
             return

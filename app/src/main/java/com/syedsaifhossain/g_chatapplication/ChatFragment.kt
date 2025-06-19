@@ -179,8 +179,8 @@ class ChatFragment : Fragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("ChatFragment", "加载用户列表失败", error.toException())
-                Toast.makeText(requireContext(), "加载用户列表失败", Toast.LENGTH_SHORT).show()
+                Log.e("ChatFragment", "Failed to load user list", error.toException())
+                Toast.makeText(requireContext(), "Failed to load user list", Toast.LENGTH_SHORT).show()
             }
         })
     }
