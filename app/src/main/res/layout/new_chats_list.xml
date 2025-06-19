@@ -14,11 +14,10 @@
         android:layout_marginHorizontal="10dp">
 
 
-
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/new_chats_img"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:src="@drawable/profileimage"
@@ -33,7 +32,7 @@
             android:fontFamily="@font/roboto_regular"
             android:text="Arman"
             android:textColor="#81d8d0"
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:layout_marginStart="20dp"
             android:textStyle="bold" />
     </RelativeLayout>

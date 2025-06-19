@@ -10,19 +10,18 @@
 
     <ImageView
         android:id="@+id/profileSettingBackArrow"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="50dp"
         android:src="@drawable/leftarrow" />
 
     <ImageView
-
         android:id="@+id/profileImage"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="110dp"
@@ -30,12 +29,12 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/addImageButton"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_below="@id/profileImage"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="-52dp"
-        android:layout_marginEnd="142dp"
+        android:layout_marginTop="-35dp"
+        android:layout_marginEnd="160dp"
         android:src="@drawable/addcirclebutton"
         app:civ_circle_background_color="#000000" />
 
@@ -45,11 +44,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="33dp"
+        android:layout_marginTop="50dp"
         android:fontFamily="@font/roboto_bold"
         android:text="Profile Setting"
         android:textColor="#d7d6d4"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
     <TextView
@@ -62,7 +61,7 @@
         android:fontFamily="@font/roboto_bold"
         android:text="Upload a picture"
         android:textColor="#d7d6d4"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/firstNameTxt"
@@ -74,7 +73,7 @@
         android:fontFamily="@font/roboto_bold"
         android:text="First Name"
         android:textColor="#d7d6d4"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
     <EditText
         android:id="@+id/firstNameEdt"
@@ -91,7 +90,7 @@
         android:padding="10dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#6b6b6b"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/lastNameTxt"
@@ -103,7 +102,7 @@
         android:fontFamily="@font/roboto_bold"
         android:text="Last Name"
         android:textColor="#d7d6d4"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
     <EditText
         android:id="@+id/lastNameEdt"
@@ -121,7 +120,7 @@
         android:paddingVertical="20dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#6b6b6b"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/profileSettingNextButton"
@@ -136,11 +135,11 @@
         android:layout_marginBottom="30dp"
         android:backgroundTint="#81d8d0"
         android:fontFamily="@font/roboto_bold"
-        android:padding="15dp"
+        android:padding="10dp"
         android:text="Next"
         android:textAllCaps="false"
         android:textColor="#000000"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
 </RelativeLayout>
