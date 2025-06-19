@@ -6,7 +6,6 @@
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
     android:paddingEnd="16dp"
-    android:paddingStart="60dp"
     android:background="@android:color/transparent">
     <!-- Add paddingStart to prevent bubble touching edge -->
 
@@ -25,7 +24,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end">
+        android:gravity="end"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true">
 
         <!-- 气泡在左 -->
         <LinearLayout
@@ -126,7 +128,8 @@
             android:layout_height="40dp"
             android:layout_marginStart="8dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/profile" />
+            android:src="@drawable/profileimage"
+            android:layout_gravity="center_vertical"/>
         <!-- Placeholder, ensure R.drawable.profile exists -->
 
     </LinearLayout>
