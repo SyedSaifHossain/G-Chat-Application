@@ -13,7 +13,7 @@
         android:layout_marginTop="20dp"
         android:text="好友请求"
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
