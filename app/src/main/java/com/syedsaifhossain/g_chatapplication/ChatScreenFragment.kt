@@ -67,6 +67,8 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.LinearLayout
+import com.google.firebase.database.FirebaseDatabase
+import androidx.appcompat.app.AlertDialog
 
 // Ensure the class declaration includes the interface implementation from your original
 class ChatScreenFragment : Fragment(){
@@ -311,7 +313,7 @@ class ChatScreenFragment : Fragment(){
         }
 
         binding.callIcon.setOnClickListener {
-            findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment)
+            initiateVoiceCall()
         }
 
         // Update camera button click event
@@ -400,8 +402,8 @@ class ChatScreenFragment : Fragment(){
             findNavController().navigate(R.id.action_chatScreenFragment_to_chatScreenPageMoreOptionFragment)
         }
 
-    } // End of onViewCreated
-
+        listenForIncomingCalls()
+    }
 
     private fun sendTextMessage(messageText: String) {
         // Generate message ID first
@@ -462,8 +464,6 @@ class ChatScreenFragment : Fragment(){
             }
     }
 
-
-
     // --- NEW METHOD: Create a unique chat node ID ---
     private fun getChatNodeId(userId1: String, userId2: String): String {
         // Sort the user IDs alphabetically to ensure the same chat ID
@@ -513,7 +513,7 @@ class ChatScreenFragment : Fragment(){
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
             Log.e("ChatScreenFragment", "User not logged in")
-            Toast.makeText(requireContext(), "请先登录", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Please login first", Toast.LENGTH_SHORT).show()
             return
         }
         val senderId = currentUser.uid
@@ -1213,7 +1213,7 @@ class ChatScreenFragment : Fragment(){
             Toast.makeText(requireContext(), "PlayPause Clicked", Toast.LENGTH_SHORT).show()
             Log.d("VoiceDebug", "PlayPause Clicked")
             if (recordedFilePath.isNullOrEmpty() || !File(recordedFilePath!!).exists()) {
-                Toast.makeText(requireContext(), "录音文件不存在，无法播放", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Audio file does not exist, cannot play", Toast.LENGTH_SHORT).show()
                 Log.e("VoiceDebug", "录音文件不存在: $recordedFilePath")
                 return@setOnClickListener
             }
@@ -1264,7 +1264,7 @@ class ChatScreenFragment : Fragment(){
             }
         }
         // 录音完成时弹Toast
-        Toast.makeText(requireContext(), "录音完成，文件: $recordedFilePath, 存在: ${File(recordedFilePath ?: "").exists()}", Toast.LENGTH_LONG).show()
+        // Toast.makeText(requireContext(), "录音完成，文件: $recordedFilePath, 存在: ${File(recordedFilePath ?: "").exists()}", Toast.LENGTH_LONG).show()
         Log.d("VoiceDebug", "录音完成，文件: $recordedFilePath, 存在: ${File(recordedFilePath ?: "").exists()}")
     }
 
@@ -1292,6 +1292,106 @@ class ChatScreenFragment : Fragment(){
         }.addOnFailureListener {
             Toast.makeText(requireContext(), "语音上传失败: ${it.message}", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // 新增：发起语音通话请求（微信式）
+    private fun initiateVoiceCall() {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val otherId = otherUserId ?: return
+        val callId = FirebaseDatabase.getInstance().getReference("calls").push().key ?: return
+        val callRequest = mapOf(
+            "from" to currentUserId,
+            "to" to otherId,
+            "callType" to "voice",
+            "status" to "pending",
+            "timestamp" to System.currentTimeMillis()
+        )
+        FirebaseDatabase.getInstance().getReference("calls").child(callId).setValue(callRequest)
+        showWaitingDialog(callId)
+    }
+
+    // 新增：等待对方响应的弹窗和监听
+    private fun showWaitingDialog(callId: String) {
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Calling...")
+            .setMessage("Waiting for the other user to accept")
+            .setNegativeButton("Cancel") { d, _ ->
+                FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("ended")
+                d.dismiss()
+            }
+            .setCancelable(false)
+            .create()
+        dialog.show()
+        FirebaseDatabase.getInstance().getReference("calls").child(callId)
+            .addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+                override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                    val status = snapshot.child("status").getValue(String::class.java)
+                    when (status) {
+                        "accepted" -> {
+                            dialog.dismiss()
+                            val bundle = Bundle().apply { putString("callId", callId) }
+                            findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment, bundle)
+                        }
+                        "rejected" -> {
+                            dialog.dismiss()
+                            Toast.makeText(requireContext(), "Call rejected", Toast.LENGTH_SHORT).show()
+                        }
+                        "ended" -> {
+                            dialog.dismiss()
+                            Toast.makeText(requireContext(), "Call ended", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+            })
+    }
+
+    // 新增：监听calls节点，弹窗接受/拒绝
+    private fun listenForIncomingCalls() {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        Log.d("CallDebug", "listenForIncomingCalls: currentUserId=$currentUserId")
+        val callsRef = FirebaseDatabase.getInstance().getReference("calls")
+        callsRef.orderByChild("to").equalTo(currentUserId)
+            .addChildEventListener(object : com.google.firebase.database.ChildEventListener {
+                override fun onChildAdded(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {
+                    val status = snapshot.child("status").getValue(String::class.java)
+                    val callId = snapshot.key ?: return
+                    val fromUser = snapshot.child("from").getValue(String::class.java) ?: "Unknown"
+                    Log.d("CallDebug", "onChildAdded: status=$status, callId=$callId, fromUser=$fromUser")
+                    if (status == "pending") {
+                        showIncomingCallDialog(callId, fromUser)
+                    }
+                }
+                override fun onChildChanged(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
+                override fun onChildRemoved(snapshot: com.google.firebase.database.DataSnapshot) {}
+                override fun onChildMoved(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
+                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                    Log.e("CallDebug", "listenForIncomingCalls: onCancelled: ${error.message}")
+                }
+            })
+    }
+
+    // 新增：弹窗显示接受/拒绝
+    private fun showIncomingCallDialog(callId: String, fromUser: String) {
+        Log.d("CallDebug", "showIncomingCallDialog: callId=$callId, fromUser=$fromUser")
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Incoming Call")
+            .setMessage("User $fromUser is calling you.")
+            .setPositiveButton("Accept") { d, _ ->
+                Log.d("CallDebug", "showIncomingCallDialog: Accept clicked for callId=$callId")
+                FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("accepted")
+                d.dismiss()
+                val bundle = Bundle().apply { putString("callId", callId) }
+                findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment, bundle)
+            }
+            .setNegativeButton("Reject") { d, _ ->
+                Log.d("CallDebug", "showIncomingCallDialog: Reject clicked for callId=$callId")
+                FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("rejected")
+                d.dismiss()
+            }
+            .setCancelable(false)
+            .create()
+        dialog.show()
     }
 
     override fun onDestroyView() {
