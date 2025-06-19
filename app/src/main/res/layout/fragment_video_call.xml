@@ -19,12 +19,12 @@
 
         <ImageView
             android:id="@+id/videoCallBackArrow"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="30dp"
-            android:padding="10dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginStart="20dp"
             android:src="@drawable/leftarrow" />
 
         <TextView
@@ -32,13 +32,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="50dp"
             android:text="User Name"
-            android:textColor="#8ad8d0"
-            android:padding="10dp"
+            android:textColor="#81d8d0"
             android:fontFamily="@font/roboto_bold"
             android:layout_centerHorizontal="true"
-            android:textSize="22sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
 
@@ -55,11 +54,11 @@
 
         <ImageView
             android:id="@+id/videoCallAddContact"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="40dp"
             android:src="@drawable/addcontact"
             app:tint="#81d8d0" />
 
