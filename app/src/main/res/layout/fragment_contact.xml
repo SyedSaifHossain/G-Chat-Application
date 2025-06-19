@@ -38,7 +38,6 @@
             android:layout_marginTop="30dp"
             android:fontFamily="@font/poppins_regular"
             android:gravity="center"
-            android:padding="12dp"
             android:text="Contacts"
             android:textColor="#81d8d0"
             android:textSize="20sp"
