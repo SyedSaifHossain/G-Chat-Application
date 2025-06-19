@@ -233,8 +233,8 @@ class VoiceCallFragment : Fragment() {
                     Log.e("VoiceCall", "Error response body: $errorBody")
                     requireActivity().runOnUiThread {
                         when (response.code) {
-                            404 -> Toast.makeText(requireContext(), "服务器暂时不可用，请稍后再试", Toast.LENGTH_LONG).show()
-                            else -> Toast.makeText(requireContext(), "服务器错误: ${response.code}", Toast.LENGTH_LONG).show()
+                            404 -> Toast.makeText(requireContext(), "Server temporarily unavailable, please try again later", Toast.LENGTH_LONG).show()
+                            else -> Toast.makeText(requireContext(), "Server error: ${response.code}", Toast.LENGTH_LONG).show()
                         }
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                     }
@@ -370,99 +370,99 @@ class VoiceCallFragment : Fragment() {
 
     private fun endCall() {
         try {
-            Log.d("VoiceCall", "开始结束通话...")
+            Log.d("VoiceCall", "Starting to end call...")
             
-            // 1. 停止计时器
-            Log.d("VoiceCall", "停止计时器")
+            // 1. Stop timer
+            Log.d("VoiceCall", "Stopping timer")
             stopCallTimer()
             
-            // 2. 离开频道
-            Log.d("VoiceCall", "准备离开频道")
+            // 2. Leave channel
+            Log.d("VoiceCall", "Preparing to leave channel")
             try {
                 agoraEngine?.leaveChannel()
-                Log.d("VoiceCall", "已离开频道")
+                Log.d("VoiceCall", "Left channel")
             } catch (e: Exception) {
-                Log.e("VoiceCall", "离开频道时出错: ${e.message}")
+                Log.e("VoiceCall", "Error leaving channel: ${e.message}")
             }
             
-            // 3. 销毁引擎
-            Log.d("VoiceCall", "准备销毁引擎")
+            // 3. Destroy engine
+            Log.d("VoiceCall", "Preparing to destroy engine")
             try {
                 RtcEngine.destroy()
                 agoraEngine = null
-                Log.d("VoiceCall", "引擎已销毁")
+                Log.d("VoiceCall", "Engine destroyed")
             } catch (e: Exception) {
-                Log.e("VoiceCall", "销毁引擎时出错: ${e.message}")
+                Log.e("VoiceCall", "Error destroying engine: ${e.message}")
             }
             
-            // 4. 显示提示
+            // 4. Show toast
             if (isAdded) {
                 try {
                     Toast.makeText(requireContext(), "Voice call ended", Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
-                    Log.e("VoiceCall", "显示Toast时出错: ${e.message}")
+                    Log.e("VoiceCall", "Error showing toast: ${e.message}")
                 }
             }
             
-            // 5. 返回
-            Log.d("VoiceCall", "准备返回")
+            // 5. Return
+            Log.d("VoiceCall", "Preparing to return")
             if (isAdded) {
                 try {
                     requireActivity().onBackPressedDispatcher.onBackPressed()
-                    Log.d("VoiceCall", "已触发返回")
+                    Log.d("VoiceCall", "Back pressed triggered")
                 } catch (e: Exception) {
-                    Log.e("VoiceCall", "返回时出错: ${e.message}")
+                    Log.e("VoiceCall", "Error returning: ${e.message}")
                 }
             }
             
         } catch (e: Exception) {
-            Log.e("VoiceCall", "结束通话时发生错误: ${e.message}")
+            Log.e("VoiceCall", "Error ending call: ${e.message}")
             e.printStackTrace()
             if (isAdded) {
                 try {
                     requireActivity().onBackPressedDispatcher.onBackPressed()
                 } catch (e2: Exception) {
-                    Log.e("VoiceCall", "错误处理时返回失败: ${e2.message}")
+                    Log.e("VoiceCall", "Error handling return: ${e2.message}")
                 }
             }
         }
     }
 
     override fun onDestroyView() {
-        Log.d("VoiceCall", "onDestroyView 开始")
+        Log.d("VoiceCall", "onDestroyView starting")
         try {
-            // 1. 停止计时器
-            Log.d("VoiceCall", "停止计时器")
+            // 1. Stop timer
+            Log.d("VoiceCall", "Stopping timer")
             stopCallTimer()
             
-            // 2. 离开频道
-            Log.d("VoiceCall", "准备离开频道")
+            // 2. Leave channel
+            Log.d("VoiceCall", "Preparing to leave channel")
             try {
                 agoraEngine?.leaveChannel()
-                Log.d("VoiceCall", "已离开频道")
+                Log.d("VoiceCall", "Left channel")
             } catch (e: Exception) {
-                Log.e("VoiceCall", "离开频道时出错: ${e.message}")
+                Log.e("VoiceCall", "Error leaving channel: ${e.message}")
             }
             
-            // 3. 销毁引擎
-            Log.d("VoiceCall", "准备销毁引擎")
+            // 3. Destroy engine
+            Log.d("VoiceCall", "Preparing to destroy engine")
             try {
                 RtcEngine.destroy()
                 agoraEngine = null
-                Log.d("VoiceCall", "引擎已销毁")
+                Log.d("VoiceCall", "Engine destroyed")
             } catch (e: Exception) {
-                Log.e("VoiceCall", "销毁引擎时出错: ${e.message}")
+                Log.e("VoiceCall", "Error destroying engine: ${e.message}")
             }
             
-            // 4. 清理绑定
-            Log.d("VoiceCall", "清理绑定")
+            // 4. Clean up binding
+            Log.d("VoiceCall", "Cleaning up binding")
             _binding = null
             
         } catch (e: Exception) {
-            Log.e("VoiceCall", "onDestroyView 发生错误: ${e.message}")
+            Log.e("VoiceCall", "onDestroyView error: ${e.message}")
             e.printStackTrace()
         }
-        Log.d("VoiceCall", "onDestroyView 结束")
+        Log.d("VoiceCall", "onDestroyView ending")
         super.onDestroyView()
     }
 

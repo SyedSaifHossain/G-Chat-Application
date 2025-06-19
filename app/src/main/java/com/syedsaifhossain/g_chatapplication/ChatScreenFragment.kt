@@ -513,7 +513,7 @@ class ChatScreenFragment : Fragment(){
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
             Log.e("ChatScreenFragment", "User not logged in")
-            Toast.makeText(requireContext(), "请先登录", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Please login first", Toast.LENGTH_SHORT).show()
             return
         }
         val senderId = currentUser.uid
@@ -1213,7 +1213,7 @@ class ChatScreenFragment : Fragment(){
             Toast.makeText(requireContext(), "PlayPause Clicked", Toast.LENGTH_SHORT).show()
             Log.d("VoiceDebug", "PlayPause Clicked")
             if (recordedFilePath.isNullOrEmpty() || !File(recordedFilePath!!).exists()) {
-                Toast.makeText(requireContext(), "录音文件不存在，无法播放", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Audio file does not exist, cannot play", Toast.LENGTH_SHORT).show()
                 Log.e("VoiceDebug", "录音文件不存在: $recordedFilePath")
                 return@setOnClickListener
             }
@@ -1264,7 +1264,7 @@ class ChatScreenFragment : Fragment(){
             }
         }
         // 录音完成时弹Toast
-        Toast.makeText(requireContext(), "录音完成，文件: $recordedFilePath, 存在: ${File(recordedFilePath ?: "").exists()}", Toast.LENGTH_LONG).show()
+        // Toast.makeText(requireContext(), "录音完成，文件: $recordedFilePath, 存在: ${File(recordedFilePath ?: "").exists()}", Toast.LENGTH_LONG).show()
         Log.d("VoiceDebug", "录音完成，文件: $recordedFilePath, 存在: ${File(recordedFilePath ?: "").exists()}")
     }
 

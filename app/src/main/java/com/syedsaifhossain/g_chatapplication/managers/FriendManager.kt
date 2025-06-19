@@ -15,7 +15,7 @@ class FriendManager {
     private val usersRef = database.getReference("users")
 
     fun sendFriendRequest(receiverId: String, onComplete: (Boolean, String) -> Unit) {
-        val currentUser = auth.currentUser ?: return onComplete(false, "用户未登录")
+        val currentUser = auth.currentUser ?: return onComplete(false, "User not logged in")
         
         // 检查是否已经发送过请求
         friendRequestsRef
@@ -26,7 +26,7 @@ class FriendManager {
                     for (requestSnapshot in snapshot.children) {
                         val request = requestSnapshot.getValue(FriendRequest::class.java)
                         if (request?.receiverId == receiverId && request.status == "pending") {
-                            onComplete(false, "已经发送过好友请求")
+                            onComplete(false, "already sent friend request")
                             return
                         }
                     }
@@ -48,17 +48,17 @@ class FriendManager {
                             // 保存请求
                             friendRequestsRef.child(requestId).setValue(request)
                                 .addOnSuccessListener {
-                                    onComplete(true, "好友请求已发送")
+                                    onComplete(true, "friend request sent")
                                 }
                                 .addOnFailureListener {
-                                    onComplete(false, "发送好友请求失败")
+                                    onComplete(false, "failed to send friend request")
                                 }
                         }
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    onComplete(false, "数据库错误")
+                    onComplete(false, "database error")
                 }
             })
     }
@@ -77,17 +77,17 @@ class FriendManager {
                         usersRef.child(currentUser.uid).child("friends").child(request.senderId).setValue(true)
                         usersRef.child(request.senderId).child("friends").child(currentUser.uid).setValue(true)
                             .addOnSuccessListener {
-                                onComplete(true, "已接受好友请求")
+                                onComplete(true, "accepted friend request")
                             }
                             .addOnFailureListener {
-                                onComplete(false, "接受好友请求失败")
+                                onComplete(false, "failed to accept friend request")
                             }
                     }
                     .addOnFailureListener {
-                        onComplete(false, "更新请求状态失败")
+                        onComplete(false, "failed to update request status")
                     }
             } else {
-                onComplete(false, "请求不存在")
+                onComplete(false, "request does not exist")
             }
         }
     }
@@ -95,10 +95,10 @@ class FriendManager {
     fun rejectFriendRequest(requestId: String, onComplete: (Boolean, String) -> Unit) {
         friendRequestsRef.child(requestId).child("status").setValue("rejected")
             .addOnSuccessListener {
-                onComplete(true, "已拒绝好友请求")
+                onComplete(true, "rejected friend request")
             }
             .addOnFailureListener {
-                onComplete(false, "拒绝好友请求失败")
+                onComplete(false, "failed to reject friend request")
             }
     }
 
