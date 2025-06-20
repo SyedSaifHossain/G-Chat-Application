@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/bg_gradient"
     tools:context=".ProfileSettingFragment">
 
@@ -18,23 +18,24 @@
         android:layout_marginTop="50dp"
         android:src="@drawable/leftarrow" />
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profileImage"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="110dp"
+        android:layout_marginTop="130dp"
+        android:scaleType="centerCrop"
         android:src="@drawable/profileicon" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/addImageButton"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_below="@id/profileImage"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="-35dp"
-        android:layout_marginEnd="160dp"
+        android:layout_marginTop="-41dp"
+        android:layout_marginEnd="130dp"
         android:src="@drawable/addcirclebutton"
         app:civ_circle_background_color="#000000" />
 
@@ -84,9 +85,9 @@
         android:layout_alignParentEnd="true"
         android:layout_marginHorizontal="50dp"
         android:alpha="0.7"
-        android:inputType="text"
         android:fontFamily="@font/poppins_regular"
         android:hint="Your first name"
+        android:inputType="text"
         android:padding="10dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#6b6b6b"
