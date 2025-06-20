@@ -206,6 +206,16 @@ class ChatScreenFragment : Fragment(){
         }
     }
 
+    private var isFragmentDestroying = false
+    
+    // For incoming calls
+    private var incomingCallsRef: com.google.firebase.database.Query? = null
+    private var incomingCallListener: com.google.firebase.database.ChildEventListener? = null
+
+    // For outgoing calls (waiting dialog)
+    private var waitingCallRef: com.google.firebase.database.DatabaseReference? = null
+    private var waitingCallListener: com.google.firebase.database.ValueEventListener? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -309,7 +319,7 @@ class ChatScreenFragment : Fragment(){
             findNavController().popBackStack()
         }
         binding.videoIcon.setOnClickListener {
-            findNavController().navigate(R.id.action_chatScreenFragment_to_videoCallFragment)
+            initiateVideoCall()
         }
 
         binding.callIcon.setOnClickListener {
@@ -1310,9 +1320,30 @@ class ChatScreenFragment : Fragment(){
         showWaitingDialog(callId)
     }
 
+    // 新增：发起视频通话请求（微信式）
+    private fun initiateVideoCall() {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val otherId = otherUserId ?: return
+        val callId = FirebaseDatabase.getInstance().getReference("calls").push().key ?: return
+        val callRequest = mapOf(
+            "from" to currentUserId,
+            "to" to otherId,
+            "callType" to "video",
+            "status" to "pending",
+            "timestamp" to System.currentTimeMillis()
+        )
+        FirebaseDatabase.getInstance().getReference("calls").child(callId).setValue(callRequest)
+        showWaitingDialog(callId)
+    }
+
     // 新增：等待对方响应的弹窗和监听
     private fun showWaitingDialog(callId: String) {
-        val dialog = AlertDialog.Builder(requireContext())
+        if (!isAdded || context == null) {
+            Log.w("CallDebug", "showWaitingDialog: Fragment not attached")
+            return
+        }
+        
+        val dialog = AlertDialog.Builder(context!!)
             .setTitle("Calling...")
             .setMessage("Waiting for the other user to accept")
             .setNegativeButton("Cancel") { d, _ ->
@@ -1322,81 +1353,155 @@ class ChatScreenFragment : Fragment(){
             .setCancelable(false)
             .create()
         dialog.show()
-        FirebaseDatabase.getInstance().getReference("calls").child(callId)
-            .addValueEventListener(object : com.google.firebase.database.ValueEventListener {
-                override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-                    val status = snapshot.child("status").getValue(String::class.java)
-                    when (status) {
-                        "accepted" -> {
-                            dialog.dismiss()
-                            val bundle = Bundle().apply { putString("callId", callId) }
-                            findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment, bundle)
+        
+        // --- 正确管理监听器 ---
+        waitingCallListener?.let { waitingCallRef?.removeEventListener(it) } // 移除旧的监听器
+
+        waitingCallRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
+        waitingCallListener = object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                if (isFragmentDestroying || !isAdded || context == null) {
+                    Log.w("CallDebug", "showWaitingDialog onDataChange: Fragment not attached")
+                    return
+                }
+                
+                val status = snapshot.child("status").getValue(String::class.java)
+                val callType = snapshot.child("callType").getValue(String::class.java)
+                when (status) {
+                    "accepted" -> {
+                        dialog.dismiss()
+                        val bundle = Bundle().apply { putString("callId", callId) }
+                        try {
+                            when (callType) {
+                                "voice" -> findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment, bundle)
+                                "video" -> findNavController().navigate(R.id.action_chatScreenFragment_to_videoCallFragment, bundle)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("CallDebug", "Navigation failed: ${e.message}")
                         }
-                        "rejected" -> {
-                            dialog.dismiss()
-                            Toast.makeText(requireContext(), "Call rejected", Toast.LENGTH_SHORT).show()
-                        }
-                        "ended" -> {
-                            dialog.dismiss()
-                            Toast.makeText(requireContext(), "Call ended", Toast.LENGTH_SHORT).show()
+                    }
+                    "rejected", "ended" -> {
+                        dialog.dismiss()
+                        val message = if (status == "rejected") "Call rejected" else "Call ended"
+                        context?.let { ctx ->
+                            Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
-                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
-            })
+            }
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                Log.e("CallDebug", "showWaitingDialog onCancelled: ${error.message}")
+            }
+        }
+        waitingCallRef?.addValueEventListener(waitingCallListener!!)
     }
 
     // 新增：监听calls节点，弹窗接受/拒绝
     private fun listenForIncomingCalls() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         Log.d("CallDebug", "listenForIncomingCalls: currentUserId=$currentUserId")
-        val callsRef = FirebaseDatabase.getInstance().getReference("calls")
-        callsRef.orderByChild("to").equalTo(currentUserId)
-            .addChildEventListener(object : com.google.firebase.database.ChildEventListener {
-                override fun onChildAdded(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {
-                    val status = snapshot.child("status").getValue(String::class.java)
-                    val callId = snapshot.key ?: return
-                    val fromUser = snapshot.child("from").getValue(String::class.java) ?: "Unknown"
-                    Log.d("CallDebug", "onChildAdded: status=$status, callId=$callId, fromUser=$fromUser")
-                    if (status == "pending") {
-                        showIncomingCallDialog(callId, fromUser)
-                    }
+        
+        // --- 正确管理监听器 ---
+        incomingCallListener?.let { incomingCallsRef?.removeEventListener(it) } // 移除旧的
+
+        incomingCallsRef = FirebaseDatabase.getInstance().getReference("calls").orderByChild("to").equalTo(currentUserId)
+        incomingCallListener = object : com.google.firebase.database.ChildEventListener {
+            override fun onChildAdded(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {
+                if (isFragmentDestroying || !isAdded || context == null) {
+                    Log.w("CallDebug", "listenForIncomingCalls onChildAdded: Fragment not attached")
+                    return
                 }
-                override fun onChildChanged(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
-                override fun onChildRemoved(snapshot: com.google.firebase.database.DataSnapshot) {}
-                override fun onChildMoved(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
-                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
-                    Log.e("CallDebug", "listenForIncomingCalls: onCancelled: ${error.message}")
+                
+                val status = snapshot.child("status").getValue(String::class.java)
+                val callId = snapshot.key ?: return
+                val fromUser = snapshot.child("from").getValue(String::class.java) ?: "Unknown"
+                Log.d("CallDebug", "onChildAdded: status=$status, callId=$callId, fromUser=$fromUser")
+                if (status == "pending") {
+                    showIncomingCallDialog(callId, fromUser)
                 }
-            })
+            }
+            override fun onChildChanged(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
+            override fun onChildRemoved(snapshot: com.google.firebase.database.DataSnapshot) {}
+            override fun onChildMoved(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                Log.e("CallDebug", "listenForIncomingCalls: onCancelled: ${error.message}")
+            }
+        }
+        incomingCallsRef?.addChildEventListener(incomingCallListener!!)
     }
 
     // 新增：弹窗显示接受/拒绝
     private fun showIncomingCallDialog(callId: String, fromUser: String) {
+        if (!isAdded || context == null) {
+            Log.w("CallDebug", "showIncomingCallDialog: Fragment not attached")
+            return
+        }
+        
         Log.d("CallDebug", "showIncomingCallDialog: callId=$callId, fromUser=$fromUser")
-        val dialog = AlertDialog.Builder(requireContext())
-            .setTitle("Incoming Call")
-            .setMessage("User $fromUser is calling you.")
-            .setPositiveButton("Accept") { d, _ ->
-                Log.d("CallDebug", "showIncomingCallDialog: Accept clicked for callId=$callId")
-                FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("accepted")
-                d.dismiss()
-                val bundle = Bundle().apply { putString("callId", callId) }
-                findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment, bundle)
+        
+        // 获取通话类型
+        val callRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
+        callRef.addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                if (isFragmentDestroying || !isAdded || context == null) {
+                    Log.w("CallDebug", "showIncomingCallDialog onDataChange: Fragment not attached")
+                    return
+                }
+                
+                val callType = snapshot.child("callType").getValue(String::class.java) ?: "voice"
+                val callTypeText = if (callType == "video") "Video Call" else "Voice Call"
+                
+                val dialog = AlertDialog.Builder(context!!)
+                    .setTitle("Incoming $callTypeText")
+                    .setMessage("User $fromUser is calling you.")
+                    .setPositiveButton("Accept") { d, _ ->
+                        Log.d("CallDebug", "showIncomingCallDialog: Accept clicked for callId=$callId")
+                        FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("accepted")
+                        d.dismiss()
+                        val bundle = Bundle().apply { putString("callId", callId) }
+                        try {
+                            when (callType) {
+                                "voice" -> findNavController().navigate(R.id.action_chatScreenFragment_to_voiceCallFragment, bundle)
+                                "video" -> findNavController().navigate(R.id.action_chatScreenFragment_to_videoCallFragment, bundle)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("CallDebug", "Navigation failed: ${e.message}")
+                        }
+                    }
+                    .setNegativeButton("Reject") { d, _ ->
+                        Log.d("CallDebug", "showIncomingCallDialog: Reject clicked for callId=$callId")
+                        FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("rejected")
+                        d.dismiss()
+                    }
+                    .setCancelable(false)
+                    .create()
+                dialog.show()
             }
-            .setNegativeButton("Reject") { d, _ ->
-                Log.d("CallDebug", "showIncomingCallDialog: Reject clicked for callId=$callId")
-                FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("rejected")
-                d.dismiss()
+            
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                Log.e("CallDebug", "showIncomingCallDialog: onCancelled: ${error.message}")
             }
-            .setCancelable(false)
-            .create()
-        dialog.show()
+        })
     }
 
     override fun onDestroyView() {
+        Log.d("CallDebug", "onDestroyView called")
+        isFragmentDestroying = true
+        
+        // --- 正确移除监听器 ---
+        incomingCallListener?.let { listener ->
+            incomingCallsRef?.removeEventListener(listener)
+            incomingCallListener = null
+            incomingCallsRef = null
+        }
+        
+        waitingCallListener?.let { listener ->
+            waitingCallRef?.removeEventListener(listener)
+            waitingCallListener = null
+            waitingCallRef = null
+        }
+        
         super.onDestroyView()
-        // --- 新增：移除消息监听，防止内存泄漏和回调访问已销毁的 UI ---
         chatValueEventListener?.let { chatRef?.removeEventListener(it) }
         chatValueEventListener = null
         chatRef = null
@@ -1405,5 +1510,10 @@ class ChatScreenFragment : Fragment(){
         audioFile?.delete()
         audioFile = null
         _binding = null
+    }
+    
+    override fun onDestroy() {
+        Log.d("CallDebug", "onDestroy called")
+        super.onDestroy()
     }
 }
