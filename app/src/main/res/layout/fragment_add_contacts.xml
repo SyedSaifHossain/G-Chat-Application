@@ -23,7 +23,7 @@
             android:gravity="center_horizontal"
             android:text="Add contact"
             android:textColor="#81d8d0"
-            android:textSize="26dp"
+            android:textSize="20dp"
             android:layout_marginTop="35dp"
             android:textStyle="bold"
             android:fontFamily="@font/poppins_regular"/>
@@ -36,8 +36,8 @@
         <!-- Profile Image Placeholder -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/profileImage"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:layout_marginTop="50dp"
             android:layout_marginBottom="35dp"
             android:src="@drawable/addcontactimg"
@@ -65,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
-                android:textSize="22sp"
+                android:textSize="18sp"
                 android:textColor="#6b6b6b"
                 android:gravity="center"
                 android:fontFamily="@font/roboto_regular"
@@ -87,7 +87,7 @@
             android:textAllCaps="false"
             android:textColor="#000000"
             android:fontFamily="@font/roboto_bold"
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:layout_marginTop="30dp"/>
 
     </LinearLayout>

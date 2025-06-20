@@ -9,17 +9,18 @@
 
     <ImageView
         android:id="@+id/signupBackArrow"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="30dp"
         android:layout_marginStart="20dp"
         android:src="@drawable/leftarrow"/>
+
     <ImageView
         android:id="@+id/signupPageImg"
-        android:layout_width="110dp"
-        android:layout_height="110dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="110dp"
@@ -34,7 +35,7 @@
         android:text="Create Account"
         android:layout_marginTop="50dp"
         android:textColor="#6b6b6b"
-        android:textSize="26sp"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:fontFamily="@font/roboto_bold" />
 
@@ -53,7 +54,7 @@
         android:textColor="#FFFFFF"
         android:textColorHint="#6b6b6b"
         android:fontFamily="@font/roboto_bold"
-        android:textSize="22sp"
+        android:textSize="18sp"
         android:alpha="0.7"
         android:drawableTint="#6b6b6b"
         android:drawableEnd="@drawable/arrowforward"/>
@@ -71,7 +72,7 @@
         android:drawableTint="#6b6b6b"
         android:hint="Phone"
         android:padding="15dp"
-        android:paddingVertical="22dp"
+        android:paddingVertical="18dp"
         android:textColor="#FFFFFF"
         android:textColorHint="#6b6b6b"
         android:fontFamily="@font/roboto_bold"
@@ -89,7 +90,7 @@
         android:textAllCaps="false"
         android:textColor="#6b6b6b"
         android:fontFamily="@font/roboto_bold"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="15dp"/>
 
@@ -109,6 +110,6 @@
         android:textAllCaps="false"
         android:textColor="#000000"
         android:layout_below="@+id/signupViaEmailTxt"
-        android:textSize="26dp" />
+        android:textSize="18dp" />
 
 </RelativeLayout>
