@@ -51,7 +51,8 @@
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:maxWidth="240dp"
-                android:layout_marginLeft="15dp"
+
+                android:layout_marginLeft="10dp"
                 android:text="Received message text" />
 
             <TextView
@@ -62,7 +63,8 @@
                 android:layout_marginTop="4dp"
                 android:layout_gravity="end"
                 android:textColor="#000000"
-                android:text="10:00 AM"/>
+                android:text="10:00 AM"
+                android:paddingBottom="10dp"/>
 
             <!-- 语音消息气泡（微信风格） -->
             <LinearLayout
