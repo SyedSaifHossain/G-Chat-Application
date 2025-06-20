@@ -2,17 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:padding="16dp"
     android:gravity="center_vertical">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/contactItemImg"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:scaleType="centerCrop"
         android:src="@drawable/cityimg"
-        android:background="@drawable/avatar_circle_bg" />
+        android:background="@drawable/avatar_circle_bg"
+        app:shapeAppearanceOverlay="@style/RoundedImageViewStyle"/>
 
     <TextView
         android:id="@+id/contactName"

@@ -12,7 +12,7 @@ tools:context=".ProfileFragment">
     android:id="@+id/profilePageHeader"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="30dp"
+    android:layout_marginTop="50dp"
     android:layout_alignParentStart="true"
     android:layout_alignParentEnd="true"
     android:layout_alignParentTop="true"
@@ -20,8 +20,8 @@ tools:context=".ProfileFragment">
 
     <ImageView
         android:id="@+id/profileBackImg"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginStart="20dp"
         android:src="@drawable/leftarrow"
         android:layout_centerVertical="true"
@@ -36,7 +36,7 @@ tools:context=".ProfileFragment">
         android:fontFamily="@font/poppins_regular"
         android:text="Profile"
         android:textColor="#81d8d0"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:paddingTop="5dp"
         android:layout_marginStart="15dp"
@@ -72,16 +72,15 @@ tools:context=".ProfileFragment">
         android:fontFamily="@font/roboto_regular"
         android:text="Profile Photo"
         android:textColor="#81d8d0"
-
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginStart="20dp"
         android:layout_centerVertical="true"/>
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profilePhotoImg"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_marginStart="40dp"
         android:src="@drawable/profileimage"
         android:layout_centerVertical="true"
@@ -92,8 +91,8 @@ tools:context=".ProfileFragment">
 
     <ImageView
         android:id="@+id/profilePhotoArrow"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:src="@drawable/newarrowright"
@@ -105,7 +104,7 @@ tools:context=".ProfileFragment">
         android:layout_height="1dp"
         android:background="#81d8d0"
         android:layout_below="@+id/profilePhotoArrow"
-        android:layout_marginTop="45dp"
+        android:layout_marginTop="40dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_marginHorizontal="20dp"
@@ -130,7 +129,7 @@ tools:context=".ProfileFragment">
             android:fontFamily="@font/roboto_regular"
             android:text="Name"
             android:textColor="#81d8d0"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="20dp"
             android:layout_centerVertical="true"/>
@@ -146,12 +145,12 @@ tools:context=".ProfileFragment">
             android:text="Aaron Loeb"
             android:textColor="#81d8d0"
             android:fontFamily="@font/roboto_regular"
-            android:textSize="22sp"/>
+            android:textSize="18sp"/>
 
         <ImageView
             android:id="@+id/nameArrow"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
@@ -187,13 +186,12 @@ tools:context=".ProfileFragment">
             android:fontFamily="@font/roboto_regular"
             android:text="Gender"
             android:textColor="#81d8d0"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="20dp"
             android:layout_centerVertical="true"/>
 
         <TextView
-
             android:id="@+id/genderNameTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -204,12 +202,12 @@ tools:context=".ProfileFragment">
             android:text="Female"
             android:textColor="#81d8d0"
             android:fontFamily="@font/roboto_regular"
-            android:textSize="22sp"/>
+            android:textSize="18sp"/>
 
         <ImageView
             android:id="@+id/genderArrow"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
@@ -245,7 +243,7 @@ tools:context=".ProfileFragment">
             android:fontFamily="@font/roboto_regular"
             android:text="Phone"
             android:textColor="#81d8d0"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="20dp"
             android:layout_centerVertical="true"/>
@@ -261,12 +259,12 @@ tools:context=".ProfileFragment">
             android:text="0123456767"
             android:textColor="#81d8d0"
             android:fontFamily="@font/roboto_regular"
-            android:textSize="22sp"/>
+            android:textSize="18sp"/>
 
         <ImageView
             android:id="@+id/phoneArrow"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
@@ -302,7 +300,7 @@ tools:context=".ProfileFragment">
             android:fontFamily="@font/roboto_regular"
             android:text="Region"
             android:textColor="#81d8d0"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="20dp"
             android:layout_centerVertical="true"/>
@@ -318,12 +316,12 @@ tools:context=".ProfileFragment">
             android:text="Sydney, Australia"
             android:textColor="#81d8d0"
             android:fontFamily="@font/roboto_regular"
-            android:textSize="22sp"/>
+            android:textSize="18sp"/>
 
         <ImageView
             android:id="@+id/regionArrow"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
@@ -335,7 +333,7 @@ tools:context=".ProfileFragment">
             android:layout_height="1dp"
             android:background="#81d8d0"
             android:layout_below="@+id/regionArrow"
-            android:layout_marginTop="45dp"
+            android:layout_marginTop="40dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginHorizontal="20dp"
@@ -359,15 +357,15 @@ tools:context=".ProfileFragment">
             android:fontFamily="@font/roboto_regular"
             android:text="My QR Code"
             android:textColor="#81d8d0"
-            android:textSize="24sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="20dp"
             android:layout_centerVertical="true"/>
 
         <ImageView
             android:id="@+id/myqrCodeImg"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_marginStart="40dp"
             android:src="@drawable/qcode"
             android:layout_centerVertical="true"
@@ -377,8 +375,8 @@ tools:context=".ProfileFragment">
 
         <ImageView
             android:id="@+id/qrcodeArrow"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"

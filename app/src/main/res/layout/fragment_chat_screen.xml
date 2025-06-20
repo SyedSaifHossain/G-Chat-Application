@@ -5,8 +5,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    tools:context=".ChatScreenFragment">
+    android:background="@drawable/bg_gradient"
+    tools:context=".ChatScreenFragment"
+    android:fitsSystemWindows="true">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/chatscreenbg"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerCrop"
+        android:layout_alignParentEnd="true"/>
 
     <!-- Chat Message Toolbar -->
     <RelativeLayout
@@ -23,8 +34,8 @@
 
         <ImageView
             android:id="@+id/chatMessage_back_img"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginStart="10dp"
@@ -44,13 +55,13 @@
             android:text="User Name"
             android:textColor="#81d8d0"
             android:fontFamily="@font/poppins_regular"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/videoIcon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_toStartOf="@+id/callIcon"
@@ -58,8 +69,8 @@
 
         <ImageView
             android:id="@+id/callIcon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_toStartOf="@+id/more_icon"
@@ -67,12 +78,12 @@
 
         <ImageView
             android:id="@+id/more_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="12dp"
+            android:padding="8dp"
             android:src="@drawable/optionicon"
             app:tint="#81d8d0" />
 
@@ -120,7 +131,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:gravity="center_vertical"
-        android:layout_marginBottom="35dp">
+        android:layout_marginBottom="0dp">
 
         <EditText
             android:id="@+id/chatMessage_input"
@@ -138,13 +149,13 @@
             android:inputType="text"
             android:paddingLeft="60dp"
             android:textColorHint="#6b6b6b"
-            android:textSize="24sp"
+            android:textSize="18sp"
             android:fontFamily="@font/poppins_regular"/>
 
         <ImageView
             android:id="@+id/imo_button"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignStart="@id/chatMessage_input"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="10dp"
@@ -153,24 +164,24 @@
 
         <ImageView
             android:id="@+id/cameraIcon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_toStartOf="@id/chatAdd_button"
             android:layout_centerVertical="true"
             android:src="@drawable/camera" />
 
         <ImageView
             android:id="@+id/chatAdd_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_toStartOf="@id/chat_mic_button"
             android:layout_centerVertical="true"
             android:src="@drawable/addbutton" />
 
         <ImageView
             android:id="@+id/chat_mic_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_toStartOf="@id/chat_send_button"
             android:layout_centerVertical="true"
 
@@ -187,7 +198,7 @@
             android:layout_marginEnd="10dp"
             android:background="@drawable/round_shape_bg"
             android:backgroundTint="#81d8d0"
-            android:padding="8dp"
+            android:padding="10dp"
             android:src="@drawable/send"
             app:tint="#000000" />
     </RelativeLayout>

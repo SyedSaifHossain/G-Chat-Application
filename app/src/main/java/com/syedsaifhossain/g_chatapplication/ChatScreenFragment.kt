@@ -52,6 +52,7 @@ import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.DataSource
 import android.graphics.drawable.Drawable
+import android.view.WindowManager
 import com.syedsaifhossain.g_chatapplication.adapter.ChatAdapter
 import com.syedsaifhossain.g_chatapplication.models.Chats
 import kotlinx.coroutines.Dispatchers
@@ -413,6 +414,8 @@ class ChatScreenFragment : Fragment(){
         }
 
         listenForIncomingCalls()
+
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
     }
 
     private fun sendTextMessage(messageText: String) {

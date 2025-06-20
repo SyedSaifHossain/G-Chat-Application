@@ -4,14 +4,15 @@
         <rotate
             android:fromDegrees="45"
             android:pivotX="100%"
-            android:pivotY="0%"
+            android:pivotY="100%"
             android:toDegrees="0" >
             <shape android:shape="rectangle" >
                 <solid android:color="#81d8d0" />
             </shape>
         </rotate>
     </item>
-    <item android:right="16dp">
+
+    <item android:bottom="10dp">
         <shape android:shape="rectangle" >
             <solid android:color="#81d8d0" />
             <corners android:radius="8dp" />
