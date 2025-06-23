@@ -45,7 +45,7 @@
             android:id="@+id/callTimerText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0:30"
+            android:text="0:00"
             android:layout_centerHorizontal="true"
             android:textColor="#81d8d0"
             android:textSize="18sp"
@@ -64,8 +64,9 @@
 
     </RelativeLayout>
 
+    <!-- 全屏显示远程视频 -->
     <FrameLayout
-        android:id="@+id/local_video_view_container"
+        android:id="@+id/remote_video_view_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
@@ -73,14 +74,8 @@
         android:layout_above="@+id/videoCallFooter"
         android:layout_below="@+id/videoCallHeader"/>
 
-    <FrameLayout
-        android:id="@+id/remote_video_view_container"
-        android:layout_width="120dp"
-        android:layout_height="130dp"
-        android:layout_alignParentStart="true"
-        android:layout_margin="16dp"
-        android:background="#111"
-        android:layout_below="@+id/videoCallHeader"/>
+    <!-- 左上角悬浮显示本地视频（放在后面，且加elevation） -->
+
 
     <LinearLayout
         android:id="@+id/videoCallFooter"
@@ -127,4 +122,15 @@
             android:scaleType="fitCenter"
             android:src="@drawable/callend" />
     </LinearLayout>
+
+
+    <FrameLayout
+        android:id="@+id/local_video_view_container"
+        android:layout_width="120dp"
+        android:layout_height="130dp"
+        android:layout_alignParentStart="true"
+        android:layout_margin="16dp"
+        android:background="#111"
+        android:layout_below="@+id/videoCallHeader"
+        android:elevation="10dp"/>
 </RelativeLayout>
