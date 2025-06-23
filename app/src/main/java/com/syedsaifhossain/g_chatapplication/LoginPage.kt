@@ -71,9 +71,12 @@ class LoginPage : Fragment() {
                                 getUserInfo(user.uid) { userInfo ->
                                     if (_binding == null) return@getUserInfo
                                     if (userInfo != null) {
-                                        Log.d("LoginPage", "User logged in successfully: ${userInfo.name}")
+                                        Log.d("LoginPage", "User logged in successfully: "+userInfo.name)
                                         Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
-                                        findNavController().navigate(R.id.action_loginPage_to_homeFragment)
+                                        val navController = findNavController()
+                                        if (navController.currentDestination?.id == R.id.loginPage) {
+                                            navController.navigate(R.id.action_loginPage_to_homeFragment)
+                                        }
                                     } else {
                                         Log.e("LoginPage", "Failed to get user info")
                                         Toast.makeText(requireContext(), "Failed to get user info", Toast.LENGTH_SHORT).show()
