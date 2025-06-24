@@ -166,6 +166,8 @@ class GroupChatFragment : Fragment() {
         }
     }
 
+    private var groupCallListener: ChildEventListener? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -210,6 +212,8 @@ class GroupChatFragment : Fragment() {
         fetchMyUserInfo()
         Log.d(TAG, "onViewCreated: Calling setSoftInputMode.")
         requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        Log.d(TAG, "onViewCreated: Calling listenForGroupCalls.")
+        listenForGroupCalls()
         Log.d(TAG, "onViewCreated: Finished.")
     }
 
@@ -1154,11 +1158,39 @@ class GroupChatFragment : Fragment() {
     }
 
     private fun initiateGroupVideoCall() {
-        Toast.makeText(requireContext(), "群组视频通话功能开发中", Toast.LENGTH_SHORT).show()
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val groupId = this.groupId ?: return
+        val callId = FirebaseDatabase.getInstance().getReference("group_calls").child(groupId).push().key ?: return
+        val callRequest = mapOf(
+            "initiator" to currentUserId,
+            "groupId" to groupId,
+            "callType" to "video",
+            "status" to "pending",
+            "timestamp" to System.currentTimeMillis(),
+            "members" to mapOf(currentUserId to "invited")
+        )
+        FirebaseDatabase.getInstance().getReference("group_calls").child(groupId).child(callId).setValue(callRequest)
+        // 自己直接进入通话界面
+        val bundle = Bundle().apply { putString("callId", callId); putString("groupId", groupId) }
+        findNavController().navigate(R.id.action_groupChatFragment_to_videoCallFragment, bundle)
     }
 
     private fun initiateGroupVoiceCall() {
-        Toast.makeText(requireContext(), "群组语音通话功能开发中", Toast.LENGTH_SHORT).show()
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val groupId = this.groupId ?: return
+        val callId = FirebaseDatabase.getInstance().getReference("group_calls").child(groupId).push().key ?: return
+        val callRequest = mapOf(
+            "initiator" to currentUserId,
+            "groupId" to groupId,
+            "callType" to "voice",
+            "status" to "pending",
+            "timestamp" to System.currentTimeMillis(),
+            "members" to mapOf(currentUserId to "invited")
+        )
+        FirebaseDatabase.getInstance().getReference("group_calls").child(groupId).child(callId).setValue(callRequest)
+        // 自己直接进入通话界面
+        val bundle = Bundle().apply { putString("callId", callId); putString("groupId", groupId) }
+        findNavController().navigate(R.id.action_groupChatFragment_to_voiceCallFragment, bundle)
     }
 
     private fun checkAndRequestGalleryPermission() {
@@ -1257,6 +1289,53 @@ class GroupChatFragment : Fragment() {
             .show()
     }
 
+    private fun listenForGroupCalls() {
+        val groupId = this.groupId ?: return
+        val groupCallsRef = FirebaseDatabase.getInstance().getReference("group_calls").child(groupId)
+        groupCallListener = object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val callType = snapshot.child("callType").getValue(String::class.java) ?: return
+                val status = snapshot.child("status").getValue(String::class.java) ?: return
+                val callId = snapshot.key ?: return
+                val members = snapshot.child("members").children.map { it.key }
+                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+                if (status == "pending" && members.contains(currentUserId)) {
+                    // 弹窗提示加入群聊通话
+                    showGroupCallDialog(callId, callType)
+                }
+            }
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onChildRemoved(snapshot: DataSnapshot) {}
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onCancelled(error: DatabaseError) {}
+        }
+        groupCallsRef.addChildEventListener(groupCallListener!!)
+    }
+
+    private fun showGroupCallDialog(callId: String, callType: String) {
+        if (!isAdded || context == null) return
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle(if (callType == "video") "群组视频通话邀请" else "群组语音通话邀请")
+        builder.setMessage("有新的群聊通话邀请，是否加入？")
+        builder.setPositiveButton("加入") { _, _ ->
+            // 标记自己为已加入
+            val groupId = this.groupId ?: return@setPositiveButton
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setPositiveButton
+            val memberRef = FirebaseDatabase.getInstance().getReference("group_calls").child(groupId).child(callId).child("members").child(currentUserId)
+            memberRef.setValue("joined")
+            // 跳转到通话界面
+            val bundle = Bundle().apply { putString("callId", callId); putString("groupId", groupId) }
+            if (callType == "video") {
+                findNavController().navigate(R.id.action_groupChatFragment_to_videoCallFragment, bundle)
+            } else {
+                findNavController().navigate(R.id.action_groupChatFragment_to_voiceCallFragment, bundle)
+            }
+        }
+        builder.setNegativeButton("拒绝") { dialog, _ -> dialog.dismiss() }
+        builder.setCancelable(false)
+        builder.show()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         mediaRecorder?.release()
@@ -1267,5 +1346,9 @@ class GroupChatFragment : Fragment() {
         previewPlayer = null
         adapter.onDestroy()
         _binding = null
+        groupCallListener?.let {
+            val groupId = this.groupId ?: return
+            FirebaseDatabase.getInstance().getReference("group_calls").child(groupId).removeEventListener(it)
+        }
     }
 }
