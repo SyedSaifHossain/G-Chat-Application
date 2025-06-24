@@ -186,7 +186,14 @@
         android:id="@+id/groupChatFragment"
         android:name="com.syedsaifhossain.g_chatapplication.GroupChatFragment"
         android:label="fragment_group_chat"
-        tools:layout="@layout/fragment_group_chat" />
+        tools:layout="@layout/fragment_group_chat" >
+        <action
+            android:id="@+id/action_groupChatFragment_to_voiceCallFragment"
+            app:destination="@id/voiceCallFragment" />
+        <action
+            android:id="@+id/action_groupChatFragment_to_videoCallFragment"
+            app:destination="@id/videoCallFragment5" />
+    </fragment>
     <fragment
         android:id="@+id/signupPageFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignupPageFragment"

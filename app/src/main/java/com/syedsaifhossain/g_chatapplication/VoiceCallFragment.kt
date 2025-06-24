@@ -34,6 +34,9 @@ import androidx.navigation.fragment.findNavController
 import android.app.AlertDialog
 import androidx.navigation.NavController
 import com.google.firebase.database.DatabaseReference
+import android.widget.LinearLayout
+import android.widget.ImageView
+import com.bumptech.glide.Glide
 
 class VoiceCallFragment : Fragment() {
 
@@ -210,6 +213,12 @@ class VoiceCallFragment : Fragment() {
         if (callId != null) {
             listenCallStatus(callId!!)
             showWaitingIfPending(callId!!)
+        }
+
+        val groupId = arguments?.getString("groupId")
+        val callIdArg = arguments?.getString("callId")
+        if (!groupId.isNullOrEmpty() && !callIdArg.isNullOrEmpty()) {
+            listenGroupCallMembers(groupId, callIdArg)
         }
     }
 
@@ -852,5 +861,47 @@ class VoiceCallFragment : Fragment() {
             }
         }
         callStatusRef?.addValueEventListener(callStatusListener!!)
+    }
+
+    private fun listenGroupCallMembers(groupId: String, callId: String) {
+        val membersRef = FirebaseDatabase.getInstance()
+            .getReference("group_calls")
+            .child(groupId)
+            .child(callId)
+            .child("members")
+        val avatarLayout = view?.findViewById<LinearLayout>(R.id.groupCallAvatarsLayout)
+        membersRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                avatarLayout?.removeAllViews()
+                for (memberSnap in snapshot.children) {
+                    val userId = memberSnap.key ?: continue
+                    val status = memberSnap.getValue(String::class.java)
+                    if (status == "joined") {
+                        FirebaseDatabase.getInstance().getReference("users").child(userId)
+                            .addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(userSnap: DataSnapshot) {
+                                    val avatarUrl = userSnap.child("profileImageUrl").getValue(String::class.java)
+                                        ?: userSnap.child("avatarUrl").getValue(String::class.java)
+                                        ?: ""
+                                    val imageView = ImageView(requireContext())
+                                    val size = resources.getDimensionPixelSize(R.dimen.avatar_size)
+                                    val params = LinearLayout.LayoutParams(size, size)
+                                    params.setMargins(8, 0, 8, 0)
+                                    imageView.layoutParams = params
+                                    imageView.setImageResource(R.drawable.default_avatar)
+                                    Glide.with(this@VoiceCallFragment)
+                                        .load(avatarUrl)
+                                        .placeholder(R.drawable.default_avatar)
+                                        .circleCrop()
+                                        .into(imageView)
+                                    avatarLayout?.addView(imageView)
+                                }
+                                override fun onCancelled(error: DatabaseError) {}
+                            })
+                    }
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 }
