@@ -974,7 +974,7 @@ class ChatScreenFragment : Fragment(){
         
         // Set menu items visibility based on message status
         popupMenu.menu.findItem(R.id.menu_recall)?.isVisible = !message.deleted
-        popupMenu.menu.findItem(R.id.menu_edit)?.isVisible = !message.deleted && message.type == "text"
+        popupMenu.menu.findItem(R.id.editMessage)?.isVisible = !message.deleted && message.type == "text"
         
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
@@ -982,8 +982,16 @@ class ChatScreenFragment : Fragment(){
                     recallMessage(message)
                     true
                 }
-                R.id.menu_edit -> {
+                R.id.editMessage -> {
                     editMessage(message)
+                    true
+                }
+                R.id.deleteMessage -> {
+                    deleteMessage(message)
+                    true
+                }
+                R.id.copyMessage -> {
+                    copyMessageToClipboard(message)
                     true
                 }
                 else -> false
@@ -1055,6 +1063,28 @@ class ChatScreenFragment : Fragment(){
             .addOnFailureListener { e ->
                 Toast.makeText(requireContext(), "Update failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun deleteMessage(message: ChatModel) {
+        if (otherUserId == null) return
+
+        val chatNodeId = getChatNodeId(currentUserId, otherUserId!!)
+        val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
+
+        chatRef.child(message.messageId).removeValue()
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Message deleted", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Failed to delete: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun copyMessageToClipboard(message: ChatModel) {
+        val clipboard = requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        val clip = android.content.ClipData.newPlainText("message", message.message)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(requireContext(), "Message copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
     // 录音时和录音后都显示底部气泡
@@ -1346,7 +1376,7 @@ class ChatScreenFragment : Fragment(){
             return
         }
         
-        val dialog = AlertDialog.Builder(context!!)
+        val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Calling...")
             .setMessage("Waiting for the other user to accept")
             .setNegativeButton("Cancel") { d, _ ->
@@ -1454,7 +1484,7 @@ class ChatScreenFragment : Fragment(){
                 val callType = snapshot.child("callType").getValue(String::class.java) ?: "voice"
                 val callTypeText = if (callType == "video") "Video Call" else "Voice Call"
                 
-                val dialog = AlertDialog.Builder(context!!)
+                val dialog = AlertDialog.Builder(requireContext())
                     .setTitle("Incoming $callTypeText")
                     .setMessage("User $fromUser is calling you.")
                     .setPositiveButton("Accept") { d, _ ->

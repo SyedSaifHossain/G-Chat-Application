@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/menu_recall"
-        android:title="Recall Message" />
+        android:id="@+id/editMessage"
+        android:title="编辑消息" />
     <item
-        android:id="@+id/menu_edit"
-        android:title="Edit Message" />
+        android:id="@+id/deleteMessage"
+        android:title="删除消息" />
+    <item
+        android:id="@+id/copyMessage"
+        android:title="复制消息" />
+    <item
+        android:id="@+id/menu_recall"
+        android:title="撤回消息" />
 </menu> 
