@@ -206,7 +206,7 @@
         layout="@layout/layout_voice_preview"
         android:layout_width="match_parent"
         android:layout_height="75dp"
-        android:layout_above="@id/chatScreen_bottom_layout"
+        android:layout_above="@id/groupchat_bottom_layout"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="8dp"
         android:visibility="gone" />

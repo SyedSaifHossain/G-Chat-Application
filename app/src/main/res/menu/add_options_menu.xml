@@ -12,7 +12,7 @@
             android:layout_height="100dp" />
     </group>
 
-    <group android:id="@+id/documentyGroup">
+    <group android:id="@+id/filesGroup">
         <item
             android:id="@+id/documentId"
             android:icon="@drawable/document"
