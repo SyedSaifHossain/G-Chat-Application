@@ -12,37 +12,64 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical">
+
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/profileSend"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
             android:src="@drawable/profileimage"
-            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle"/>
+            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
-        <com.vanniktech.emoji.EmojiTextView
-            android:id="@+id/sentMessageText"
+        <!-- LinearLayout for text and time side by side -->
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_chat_sent"
-            android:textColor="#000"
-            android:maxWidth="240dp"
-            android:paddingBottom="20dp"
-            android:paddingTop="5dp"
-            android:paddingHorizontal="15dp"
-            android:gravity="center"
-            android:layout_centerVertical="true"
+            android:orientation="horizontal"
+            android:gravity="end"
             android:layout_marginEnd="8dp"
+            android:padding="8dp"
             android:layout_alignParentTop="true"
-            android:layout_toStartOf="@+id/profileSend"/>
+            android:layout_toStartOf="@+id/profileSend"
+            android:background="@drawable/bg_chat_sent">
+
+            <!-- Sent message text -->
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/sentMessageText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000"
+                android:maxWidth="240dp"
+                android:paddingBottom="8dp"
+                android:paddingTop="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="start"
+                android:text="This is text message"
+                android:layout_centerVertical="true"
+                android:layout_alignParentTop="true"/>
+
+            <!-- Sent message time (next to text) -->
+            <TextView
+                android:id="@+id/sentMessageTime"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="15dp"
+                android:layout_toEndOf="@+id/sentMessageText"
+                android:text="10:00 am"
+                android:textColor="#AAA"
+                android:textSize="10sp" />
+        </RelativeLayout>
 
         <ImageView
             android:id="@+id/sentMessageImage"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@id/sentMessageText"
             android:layout_toStartOf="@+id/profileSend"
+            android:layout_alignParentTop="true"
             android:layout_marginEnd="8dp"
             android:adjustViewBounds="true"
             android:maxWidth="240dp"
@@ -54,7 +81,7 @@
             android:id="@+id/sentVideoContainer"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@id/sentMessageText"
+            android:layout_alignParentTop="true"
             android:layout_toStartOf="@+id/profileSend"
             android:layout_marginEnd="8dp"
             android:visibility="gone">
@@ -77,6 +104,7 @@
 
         </FrameLayout>
 
+        <!-- LinearLayout for sent voice message -->
         <LinearLayout
             android:id="@+id/sentMessageVoice"
             android:layout_width="wrap_content"
@@ -97,6 +125,7 @@
                 android:src="@drawable/ic_play_circle"
                 android:layout_marginEnd="8dp"/>
 
+            <!-- Sent voice duration (next to play button) -->
             <TextView
                 android:id="@+id/sentVoiceDuration"
                 android:layout_width="wrap_content"
@@ -105,6 +134,17 @@
                 android:textColor="#000"
                 android:textSize="14sp"/>
 
+            <!-- Sent voice time (next to the voice duration) -->
+            <TextView
+                android:id="@+id/sentVoiceTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                android:textColor="#AAA"
+                android:text="10:00 am"
+                android:layout_marginStart="8dp"
+                android:gravity="end"
+                android:layout_alignParentTop="true"/>
         </LinearLayout>
 
     </RelativeLayout>
@@ -135,14 +175,5 @@
             android:maxWidth="200dp"/>
 
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/sentMessageTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="10sp"
-        android:textColor="#AAA"
-        android:layout_gravity="end"
-        android:layout_marginTop="2dp"/>
 
 </LinearLayout>
