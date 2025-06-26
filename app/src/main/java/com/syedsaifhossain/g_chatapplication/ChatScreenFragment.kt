@@ -416,6 +416,25 @@ class ChatScreenFragment : Fragment(){
         listenForIncomingCalls()
 
         requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
+        binding.chatSendButton.setOnClickListener {
+            val message = binding.chatMessageInput.text.toString().trim()
+
+            // Send text message
+            if (message.isNotEmpty()) {
+                sendMessageToFirebase(message)
+                binding.chatMessageInput.setText("") // Clear the input field
+            }
+            // Send voice message
+            else if (outputFile.isNotEmpty() && File(outputFile).exists()) {
+                sendVoiceMessageWithCoroutine(outputFile) // Send voice message
+                outputFile = "" // Clear the voice message file path
+            }
+            else {
+                Toast.makeText(requireContext(), "Please enter a message, record a voice, or upload a file", Toast.LENGTH_SHORT).show()
+            }
+        }
+
     }
 
     private fun sendTextMessage(messageText: String) {
