@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -17,48 +16,67 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentStart="true"
-            android:src="@drawable/profileimage"
-            android:layout_marginEnd="8dp"
-
-            android:layout_marginTop="15dp"
             android:layout_alignParentTop="true"
-
-
-            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle"/>
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/profileimage"
+            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
         <TextView
             android:id="@+id/receivedSenderName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/receivedSenderAvatar"
             android:layout_alignParentTop="true"
-            android:text="发送者"
-            android:textSize="12sp"
-            android:textColor="#666"
             android:layout_marginBottom="2dp"
-            android:visibility="gone"/>
+            android:layout_toEndOf="@+id/receivedSenderAvatar"
+            android:text="发送者"
+            android:textColor="#666"
+            android:textSize="12sp"
+            android:visibility="gone" />
 
-        <com.vanniktech.emoji.EmojiTextView
-            android:id="@+id/receivedMessageText"
+        <!-- Horizontal LinearLayout to contain message text and time -->
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/receivedSenderAvatar"
-            android:background="@drawable/bg_chat_received"
-            android:gravity="center"
-            android:maxWidth="240dp"
-            android:paddingHorizontal="15dp"
-            android:paddingTop="5dp"
-            android:text="This is receive message"
-            android:paddingBottom="20dp"
             android:layout_alignParentTop="true"
             android:layout_marginTop="10dp"
-            android:textColor="#000" />
+            android:layout_toEndOf="@+id/receivedSenderAvatar"
+            android:background="@drawable/bg_chat_received"
+            android:maxWidth="240dp"
+            android:orientation="horizontal"
+            android:padding="8dp">
 
+            <!-- Message Text -->
+            <com.vanniktech.emoji.EmojiTextView
+                android:id="@+id/receivedMessageText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingHorizontal="8dp"
+                android:text="This is receive message"
+                android:textColor="#000" />
+
+            <!-- Time Text -->
+            <TextView
+                android:id="@+id/receivedMessageTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:layout_toEndOf="@+id/receivedMessageText"
+                android:text="10:00AM"
+                android:textColor="#AAA"
+                android:textSize="10sp"
+                android:paddingBottom="5dp"/>
+
+        </RelativeLayout>
+
+        <!-- Other message components (Image, Video, etc.) -->
         <ImageView
             android:id="@+id/receivedMessageImage"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@id/receivedMessageText"
             android:layout_toEndOf="@+id/receivedSenderAvatar"
             android:adjustViewBounds="true"
             android:maxWidth="240dp"
@@ -70,7 +88,6 @@
             android:id="@+id/receivedVideoContainer"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@id/receivedMessageText"
             android:layout_toEndOf="@+id/receivedSenderAvatar"
             android:visibility="gone">
 
@@ -89,28 +106,27 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_play_circle"
                 app:tint="@android:color/white" />
-
         </FrameLayout>
 
         <LinearLayout
             android:id="@+id/receivedMessageVoice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/bg_chat_received"
-            android:padding="10dp"
-            android:gravity="center_vertical"
-            android:visibility="gone"
-            android:layout_toEndOf="@+id/receivedSenderAvatar"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@+id/receivedSenderAvatar"
+            android:background="@drawable/bg_chat_received"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="gone">
 
             <ImageView
                 android:id="@+id/receivedVoicePlayButton"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_play_circle"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_play_circle" />
 
             <TextView
                 android:id="@+id/receivedVoiceDuration"
@@ -118,7 +134,7 @@
                 android:layout_height="wrap_content"
                 android:text="0s"
                 android:textColor="#000"
-                android:textSize="14sp"/>
+                android:textSize="14sp" />
 
         </LinearLayout>
 
@@ -128,36 +144,27 @@
         android:id="@+id/receivedMessageFile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:background="@drawable/bg_chat_received"
-        android:padding="10dp"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp"
         android:visibility="gone">
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/document"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/document" />
 
         <TextView
             android:id="@+id/receivedFileName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxWidth="200dp"
             android:text="文件"
             android:textColor="#000"
-            android:textSize="14sp"
-            android:maxWidth="200dp"/>
+            android:textSize="14sp" />
 
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/receivedMessageTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="10sp"
-        android:textColor="#AAA"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="2dp"/>
 
 </LinearLayout>
