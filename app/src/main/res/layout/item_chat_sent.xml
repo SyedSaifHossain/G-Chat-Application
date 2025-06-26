@@ -7,7 +7,6 @@
     android:paddingBottom="8dp"
     android:paddingEnd="16dp"
     android:background="@android:color/transparent">
-
     <!-- Recall message -->
     <TextView
         android:id="@+id/tv_recall_message"
@@ -28,7 +27,27 @@
         android:layout_alignParentEnd="true"
         android:gravity="end"
         android:orientation="horizontal">
+        <!-- Video message -->
+        <FrameLayout
+            android:id="@+id/video_container"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="6dp"
+            android:visibility="gone">
 
+            <ImageView
+                android:id="@+id/iv_video_thumb"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+
+            <ImageView
+                android:id="@+id/iv_play"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_play_circle" />
+        </FrameLayout>
         <!-- Message bubble layout -->
         <LinearLayout
             android:id="@+id/layout_message_bubble"
@@ -71,11 +90,14 @@
                 android:id="@+id/tv_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
+                android:gravity="start|top"
                 android:layout_marginStart="10dp"
                 android:paddingTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:maxWidth="240dp"
+                android:maxLines="5"
+                android:ellipsize="end"
+                android:maxLength="100"
                 android:text="Sent message text"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
@@ -86,7 +108,7 @@
                 android:id="@+id/tv_timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
+                android:layout_gravity="end|bottom"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="8dp"
@@ -108,36 +130,13 @@
                 android:scaleType="centerCrop"
                 android:visibility="gone" />
 
-            <!-- Video message -->
-            <FrameLayout
-                android:id="@+id/video_container"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
-                android:layout_marginTop="6dp"
-                android:visibility="gone">
-
-                <ImageView
-                    android:id="@+id/iv_video_thumb"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop" />
-
-                <ImageView
-                    android:id="@+id/iv_play"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_play_circle" />
-            </FrameLayout>
-
         </LinearLayout>
-
         <!-- Avatar on the right -->
         <ImageView
             android:id="@+id/iv_avatar"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="end|bottom"
             android:layout_marginStart="10dp"
             android:layout_marginTop="15dp"
             android:scaleType="centerCrop"
