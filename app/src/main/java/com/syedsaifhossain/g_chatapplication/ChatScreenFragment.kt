@@ -52,6 +52,8 @@ import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.DataSource
 import android.graphics.drawable.Drawable
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.WindowManager
 import com.syedsaifhossain.g_chatapplication.adapter.ChatAdapter
 import com.syedsaifhossain.g_chatapplication.models.Chats
@@ -438,6 +440,29 @@ class ChatScreenFragment : Fragment(){
                 Toast.makeText(requireContext(), "Please enter a message, record a voice, or upload a file", Toast.LENGTH_SHORT).show()
             }
         }
+
+
+        binding.chatMessageInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(charSequence: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(charSequence: CharSequence?, start: Int, before: Int, after: Int) {
+                // If there's text in the EditText, make the buttons invisible
+                if (charSequence.isNullOrEmpty()) {
+                    // Show the buttons if the input is empty
+                    binding.cameraIcon.visibility = View.VISIBLE
+                    binding.chatAddButton.visibility = View.VISIBLE
+                    binding.chatMicButton.visibility = View.VISIBLE
+                } else {
+                    // Hide the buttons if there's text
+                    binding.cameraIcon.visibility = View.INVISIBLE
+                    binding.chatAddButton.visibility = View.INVISIBLE
+                    binding.chatMicButton.visibility = View.INVISIBLE
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable?) {}
+        })
+
 
     }
 

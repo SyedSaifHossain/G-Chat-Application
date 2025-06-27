@@ -6,18 +6,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient"
-    tools:context=".ChatScreenFragment"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context=".ChatScreenFragment">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/chatscreenbg"
         android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:scaleType="centerCrop"
-        android:layout_alignParentEnd="true"/>
+        android:src="@drawable/chatscreenbg" />
 
     <!-- Chat Message Toolbar -->
     <RelativeLayout
@@ -51,10 +51,10 @@
             android:layout_marginEnd="8dp"
             android:layout_toStartOf="@+id/videoIcon"
             android:layout_toEndOf="@id/chatMessage_back_img"
+            android:fontFamily="@font/poppins_regular"
             android:maxLines="1"
             android:text="User Name"
             android:textColor="#81d8d0"
-            android:fontFamily="@font/poppins_regular"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -65,7 +65,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_toStartOf="@+id/callIcon"
-            android:src="@drawable/videocamera"/>
+            android:src="@drawable/videocamera" />
 
         <ImageView
             android:id="@+id/callIcon"
@@ -74,7 +74,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_toStartOf="@+id/more_icon"
-            android:src="@drawable/call"/>
+            android:src="@drawable/call" />
 
         <ImageView
             android:id="@+id/more_icon"
@@ -93,11 +93,11 @@
         android:id="@+id/horizontalLine"
         android:layout_width="match_parent"
         android:layout_height="3dp"
+        android:layout_below="@id/chatMessageLayout"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:background="#81d8d0"
         android:layout_marginHorizontal="20dp"
-        android:layout_below="@id/chatMessageLayout" />
+        android:background="#81d8d0" />
 
     <!-- RecyclerView for Chat Messages -->
     <androidx.recyclerview.widget.RecyclerView
@@ -109,8 +109,8 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:clipToPadding="false"
-        android:paddingBottom="8dp"
-        android:paddingTop="8dp" />
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
 
     <!-- ProgressBar for Loading -->
     <ProgressBar
@@ -128,64 +128,70 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:layout_marginBottom="0dp"
         android:gravity="center_vertical"
-        android:layout_marginBottom="0dp">
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
 
         <EditText
             android:id="@+id/chatMessage_input"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:layout_toStartOf="@+id/chat_send_button"
             android:background="@drawable/rounded_edit_field"
+            android:fontFamily="@font/poppins_regular"
             android:hint="Message"
             android:imeOptions="actionSend"
-            android:inputType="text"
-            android:paddingLeft="60dp"
+            android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+            android:maxLength="1000"
+            android:maxLines="5"
+            android:minLines="1"
+            android:paddingLeft="55dp"
+            android:paddingRight="20dp"
+            android:scrollbars="vertical"
             android:textColorHint="#6b6b6b"
-            android:textSize="18sp"
-            android:fontFamily="@font/poppins_regular"/>
+            android:textSize="18sp" />
+
 
         <ImageView
             android:id="@+id/imo_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignStart="@id/chatMessage_input"
+            android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="10dp"
-            android:layout_centerVertical="true"
-            android:src="@drawable/imoji"/>
+            android:src="@drawable/imoji" />
 
         <ImageView
             android:id="@+id/cameraIcon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_toStartOf="@id/chatAdd_button"
             android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/chatAdd_button"
             android:src="@drawable/camera" />
 
         <ImageView
             android:id="@+id/chatAdd_button"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_toStartOf="@id/chat_mic_button"
             android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/chat_mic_button"
             android:src="@drawable/addbutton" />
 
         <ImageView
             android:id="@+id/chat_mic_button"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_toStartOf="@id/chat_send_button"
             android:layout_centerVertical="true"
-
             android:layout_marginEnd="20dp"
+
+            android:layout_toStartOf="@id/chat_send_button"
             android:backgroundTint="#81d8d0"
             android:src="@drawable/voicemike" />
 
@@ -208,38 +214,38 @@
         layout="@layout/layout_voice_preview"
         android:layout_width="match_parent"
         android:layout_height="75dp"
-        android:layout_alignParentBottom="true"
         android:layout_above="@id/chatScreen_bottom_layout"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="8dp"
         android:visibility="gone" />
 
     <!-- Recording Indicator Layout (hidden initially) -->
-<!--    <RelativeLayout-->
-<!--        android:id="@+id/recordingIndicatorLayout"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:gravity="center_horizontal"-->
-<!--        android:visibility="gone"-->
-<!--        android:layout_alignParentBottom="true">-->
+    <!--    <RelativeLayout-->
+    <!--        android:id="@+id/recordingIndicatorLayout"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:gravity="center_horizontal"-->
+    <!--        android:visibility="gone"-->
+    <!--        android:layout_alignParentBottom="true">-->
 
-<!--        <ImageView-->
-<!--            android:id="@+id/recordingMicIcon"-->
-<!--            android:layout_width="60dp"-->
-<!--            android:layout_height="60dp"-->
-<!--            android:layout_centerHorizontal="true"-->
-<!--            android:src="@drawable/micon"-->
-<!--            android:visibility="gone"-->
-<!--            android:layout_marginBottom="8dp" />-->
+    <!--        <ImageView-->
+    <!--            android:id="@+id/recordingMicIcon"-->
+    <!--            android:layout_width="60dp"-->
+    <!--            android:layout_height="60dp"-->
+    <!--            android:layout_centerHorizontal="true"-->
+    <!--            android:src="@drawable/micon"-->
+    <!--            android:visibility="gone"-->
+    <!--            android:layout_marginBottom="8dp" />-->
 
-<!--        <TextView-->
-<!--            android:id="@+id/recordingStatusText"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Recording..."-->
-<!--            android:textSize="18sp"-->
-<!--            android:textColor="#FF0000"-->
-<!--            android:visibility="gone"-->
-<!--            android:layout_centerHorizontal="true" />-->
-<!--    </RelativeLayout>-->
+    <!--        <TextView-->
+    <!--            android:id="@+id/recordingStatusText"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:text="Recording..."-->
+    <!--            android:textSize="18sp"-->
+    <!--            android:textColor="#FF0000"-->
+    <!--            android:visibility="gone"-->
+    <!--            android:layout_centerHorizontal="true" />-->
+    <!--    </RelativeLayout>-->
 
 </RelativeLayout>
