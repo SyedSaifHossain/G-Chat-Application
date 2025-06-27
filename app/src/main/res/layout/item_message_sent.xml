@@ -59,7 +59,7 @@
                 android:layout_marginTop="15dp"
                 android:layout_toEndOf="@+id/sentMessageText"
                 android:text="10:00 am"
-                android:textColor="#AAA"
+                android:textColor="#2C2C2C"
                 android:textSize="10sp" />
         </RelativeLayout>
 
@@ -130,7 +130,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0s"
-                android:textColor="#000"
+                android:textColor="#2C2C2C"
                 android:textSize="14sp"/>
 
             <!-- Sent voice time (next to the voice duration) -->
