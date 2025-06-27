@@ -70,6 +70,10 @@ import android.widget.TextView
 import android.widget.LinearLayout
 import com.google.firebase.database.FirebaseDatabase
 import androidx.appcompat.app.AlertDialog
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 
 // Ensure the class declaration includes the interface implementation from your original
 class ChatScreenFragment : Fragment(){
@@ -568,8 +572,9 @@ class ChatScreenFragment : Fragment(){
         Log.d("ChatScreenFragment", "Created message object: $message")
 
         chatRef.child(messageId).setValue(message)
-            .addOnSuccessListener { 
+            .addOnSuccessListener {
                 Log.d("ChatScreenFragment", "Message sent successfully to path: chats/$chatNodeId/$messageId")
+                sendPushToUser(otherUserId!!, messageText)
             }
             .addOnFailureListener { e ->
                 Log.e("ChatScreenFragment", "Failed to send message to path: chats/$chatNodeId/$messageId", e)
@@ -577,6 +582,39 @@ class ChatScreenFragment : Fragment(){
             }
     }
     // --- END MODIFICATION ---
+
+    private fun sendPushToUser(receiverId: String, message: String) {
+        val usersRef = FirebaseDatabase.getInstance().getReference("users").child(receiverId)
+        usersRef.child("fcmToken").addListenerForSingleValueEvent(object : com.google.firebase.database.ValueEventListener {
+            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                val token = snapshot.getValue(String::class.java) ?: return
+                sendFcmNotification(token, message)
+            }
+            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
+        })
+    }
+
+    private fun sendFcmNotification(token: String, message: String) {
+        val json = """
+            {
+              \"to\": \"$token\",
+              \"notification\": {
+                \"title\": \"新消息\",
+                \"body\": \"$message\"
+              }
+            }
+        """.trimIndent()
+        val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
+        val request = Request.Builder()
+            .url("https://fcm.googleapis.com/fcm/send")
+            .addHeader("Authorization", "key=AAAAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            .post(body)
+            .build()
+        OkHttpClient().newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {}
+            override fun onResponse(call: Call, response: Response) {}
+        })
+    }
 
     // --- MODIFIED: Listen for messages from specific chat node ---
     private fun listenForMessages() {
