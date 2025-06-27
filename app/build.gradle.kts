@@ -83,6 +83,9 @@ dependencies {
     implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-firestore:24.9.0")
 
+    // Firebase Cloud Messaging
+    implementation("com.google.firebase:firebase-messaging-ktx")
+
     // Agora SDK
     implementation(libs.full.sdk)
 

@@ -42,6 +42,7 @@ class MePageFragment : Fragment() {
         database.child("users").child(userId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    if (_binding == null) return
                     val name = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
                     val imageUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
                         ?: snapshot.child("avatarUrl").getValue(String::class.java)
