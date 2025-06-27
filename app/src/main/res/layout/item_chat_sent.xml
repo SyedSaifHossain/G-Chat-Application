@@ -3,20 +3,20 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
     android:paddingTop="8dp"
-    android:paddingBottom="8dp"
     android:paddingEnd="16dp"
-    android:background="@android:color/transparent">
+    android:paddingBottom="8dp">
     <!-- Recall message -->
     <TextView
         android:id="@+id/tv_recall_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
         android:textColor="#999999"
         android:textSize="14sp"
-        android:gravity="center"
-        android:visibility="gone"
-        android:layout_centerInParent="true"/>
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/layout_content"
@@ -54,9 +54,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:padding="5dp"
             android:background="@drawable/bg_chat_sent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="5dp">
 
             <!-- Voice message layout (hidden by default) -->
             <LinearLayout
@@ -90,18 +90,24 @@
                 android:id="@+id/tv_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="start|top"
                 android:layout_marginStart="10dp"
-                android:paddingTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:maxWidth="240dp"
-                android:maxLines="5"
                 android:ellipsize="end"
-                android:maxLength="100"
+                android:gravity="start|top"
+                android:lineSpacingExtra="2dp"
+                android:lineSpacingMultiplier="1.2"
+                android:maxWidth="240dp"
+                android:maxLength="1000"
+                android:maxLines="5"
+                android:paddingStart="10dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="5dp"
+                android:scrollbars="vertical"
                 android:text="Sent message text"
                 android:textColor="@android:color/black"
-                android:textSize="16sp"
-                android:paddingBottom="5dp"/>
+                android:textSize="16sp" />
+
 
             <!-- Timestamp below text message -->
             <TextView
@@ -112,11 +118,11 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="8dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="5dp"
                 android:text="10:01 AM"
                 android:textColor="#000000"
-                android:textSize="10sp"
-                android:paddingTop="20dp"
-                android:paddingBottom="5dp"/>
+                android:textSize="10sp" />
 
             <!-- Image message -->
             <ImageView
