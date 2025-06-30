@@ -30,7 +30,8 @@
         android:gravity="center_vertical"
         android:minHeight="?attr/actionBarSize"
         android:paddingStart="8dp"
-        android:paddingTop="30dp">
+        android:paddingTop="30dp"
+        android:background="#000000">
 
         <ImageView
             android:id="@+id/groupchat_back_img"
