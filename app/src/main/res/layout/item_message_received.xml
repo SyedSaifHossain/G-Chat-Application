@@ -1,5 +1,6 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
 
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -20,6 +21,7 @@
             android:layout_marginTop="15dp"
             android:layout_marginEnd="8dp"
             android:src="@drawable/profileimage"
+            android:layout_alignBottom="@+id/bubbleGroupChatReceive"
             app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
         <TextView
@@ -36,6 +38,7 @@
 
         <!-- Horizontal LinearLayout to contain message text and time -->
         <RelativeLayout
+            android:id="@+id/bubbleGroupChatReceive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
@@ -51,11 +54,12 @@
                 android:id="@+id/receivedMessageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
                 android:gravity="center"
                 android:paddingHorizontal="8dp"
                 android:text="This is receive message"
                 android:textColor="#000"
-                android:layout_alignParentTop="true"/>
+                android:layout_alignParentStart="true" />
 
             <!-- Time Text -->
             <TextView
@@ -90,7 +94,8 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@+id/receivedSenderAvatar"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:layout_alignParentTop="true">
 
             <ImageView
                 android:id="@+id/receivedMessageVideo"
@@ -106,7 +111,7 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_play_circle"
-                app:tint="@android:color/white" />
+                app:tint="@color/white" />
         </FrameLayout>
 
         <LinearLayout
