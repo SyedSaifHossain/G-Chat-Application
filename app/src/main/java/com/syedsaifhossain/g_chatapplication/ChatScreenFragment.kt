@@ -416,7 +416,7 @@ class ChatScreenFragment : Fragment(){
         binding.tvToolbarUserName.text = otherUserName
 
         binding.moreIcon.setOnClickListener {
-            findNavController().navigate(R.id.action_chatScreenFragment_to_chatScreenPageMoreOptionFragment)
+            findNavController().navigate(R.id.action_chatScreenFragment_to_chatScreenMoreOptionFragment)
         }
 
         listenForIncomingCalls()

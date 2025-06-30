@@ -6,21 +6,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import com.syedsaifhossain.g_chatapplication.databinding.FragmentTopUpMoreOptionPageBinding
+import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatScreenMoreOptionBinding
 
-class TopUpMoreOptionPageFragment : Fragment() {
-private lateinit var binding: FragmentTopUpMoreOptionPageBinding
+class ChatScreenMoreOptionFragment : Fragment() {
+    private lateinit var binding: FragmentChatScreenMoreOptionBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
 
-        binding = FragmentTopUpMoreOptionPageBinding.inflate(inflater, container, false)
+        binding = FragmentChatScreenMoreOptionBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.topUpMoreOptionBackImg.setOnClickListener {
+        binding.chatScreenMoreOptionBackImg.setOnClickListener {
             findNavController().popBackStack()
         }
     }
