@@ -18,7 +18,7 @@ class TopUpFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        binding = FragmentTopUpBinding.inflate(inflater,container, false)
+        binding = FragmentTopUpBinding.inflate(inflater, container, false)
 
 
         binding.topUpBackImg.setOnClickListener {
@@ -26,7 +26,7 @@ class TopUpFragment : Fragment() {
         }
 
         binding.topUpMoreOption.setOnClickListener {
-            findNavController().navigate(R.id.action_topUpFragment_to_topUpMoreOptionPageFragment)
+
         }
         return binding.root
     }
