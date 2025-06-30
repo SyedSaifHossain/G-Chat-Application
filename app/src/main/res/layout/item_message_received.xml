@@ -54,7 +54,8 @@
                 android:gravity="center"
                 android:paddingHorizontal="8dp"
                 android:text="This is receive message"
-                android:textColor="#000" />
+                android:textColor="#000"
+                android:layout_alignParentTop="true"/>
 
             <!-- Time Text -->
             <TextView
