@@ -6,22 +6,70 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatScreenMoreOptionBinding
+import com.syedsaifhossain.g_chatapplication.databinding.FragmentMePageBinding
 
 class ChatScreenMoreOptionFragment : Fragment() {
-    private lateinit var binding: FragmentChatScreenMoreOptionBinding
+    private var _binding: FragmentChatScreenMoreOptionBinding? = null
+    private val binding get() = _binding!!
+    private val auth = FirebaseAuth.getInstance()
+    private val database = FirebaseDatabase.getInstance().reference
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
 
-        binding = FragmentChatScreenMoreOptionBinding.inflate(inflater, container, false)
+        _binding = FragmentChatScreenMoreOptionBinding.inflate(inflater, container, false)
         return binding.root
+
+
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.chatScreenMoreOptionBackImg.setOnClickListener {
             findNavController().popBackStack()
         }
+
+        loadUserData()
     }
+
+    private fun loadUserData() {
+        val userId = auth.currentUser?.uid ?: return
+
+        database.child("users").child(userId)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (_binding == null) return
+                    val name = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
+                    val imageUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
+                        ?: snapshot.child("avatarUrl").getValue(String::class.java)
+                    binding.userNameProfile.text = name
+
+                    Glide.with(requireContext())
+                        .load(imageUrl)
+                        .placeholder(R.drawable.default_avatar)
+                        .override(70,70)
+                        .into(binding.moreOptionProfileImg)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // Handle error if needed
+                }
+            })
+    }
+
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 }

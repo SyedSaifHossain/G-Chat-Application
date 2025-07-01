@@ -13,6 +13,7 @@ import com.syedsaifhossain.g_chatapplication.databinding.FragmentMePageBinding
 
 class MePageFragment : Fragment() {
 
+
     private var _binding: FragmentMePageBinding? = null
     private val binding get() = _binding!!
     private val auth = FirebaseAuth.getInstance()
