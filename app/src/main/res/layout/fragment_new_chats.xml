@@ -17,7 +17,8 @@
         android:layout_marginTop="15dp"
         android:padding="8dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true">
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true">
 
         <ImageView
             android:id="@+id/backIcon"
@@ -62,7 +63,7 @@
         android:layout_marginHorizontal="10dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/searchbar_bg"
-        android:drawableStart="@drawable/searchicon"
+        android:drawableStart="@drawable/searchimg"
         android:drawablePadding="10dp"
         android:fontFamily="@font/roboto_regular"
         android:hint="Search"

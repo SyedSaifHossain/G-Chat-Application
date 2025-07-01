@@ -341,4 +341,13 @@
         android:name="com.syedsaifhossain.g_chatapplication.ChatScreenMoreOptionFragment"
         android:label="fragment_chat_screen_more_option"
         tools:layout="@layout/fragment_chat_screen_more_option" />
+    <fragment
+        android:id="@+id/discoverPageFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.DiscoverPageFragment"
+        android:label="fragment_discover_page"
+        tools:layout="@layout/fragment_discover_page" >
+        <action
+            android:id="@+id/action_discoverPageFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 </navigation>

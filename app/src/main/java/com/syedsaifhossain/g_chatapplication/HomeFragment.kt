@@ -43,7 +43,7 @@ class HomeFragment : Fragment() {
                     true
                 }
                 R.id.nav_discover -> {
-                    replaceFragment(DiscoverFragment()) // Replace with DiscoverFragment
+                    replaceFragment(DiscoverPageFragment()) // Replace with DiscoverFragment
                     true
                 }
                 R.id.nav_me -> {
