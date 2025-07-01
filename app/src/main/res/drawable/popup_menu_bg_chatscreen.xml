@@ -3,9 +3,10 @@
 
     <!-- Arrow triangle (rotated square) -->
     <item
-        android:left="50dp"
+
+        android:right="120dp"
         android:bottom="20dp"
-        android:gravity="left|bottom">
+        android:gravity="right|bottom">
         <rotate
             android:fromDegrees="45"
             android:pivotX="50%"
