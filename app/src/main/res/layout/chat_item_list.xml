@@ -52,7 +52,7 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <!-- 语音消息气泡（微信风格） -->
+        <!-- Voice message bubble (WeChat style) -->
         <LinearLayout
             android:id="@+id/voice_layout"
             android:layout_width="wrap_content"

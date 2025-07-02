@@ -15,7 +15,7 @@
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:src="@android:drawable/ic_menu_delete"
-        android:contentDescription="删除录音"
+        android:contentDescription="Delete recording"
         android:clickable="true"
         android:focusable="true"
         app:tint="#FFF" />
@@ -30,7 +30,7 @@
         android:layout_height="28dp"
         android:src="@android:drawable/ic_media_play"
         android:tint="#FFF"
-        android:contentDescription="播放/暂停"
+        android:contentDescription="Play/Pause"
         android:clickable="true"
         android:focusable="true" />
 
@@ -38,7 +38,7 @@
         android:layout_width="8dp"
         android:layout_height="0dp" />
 
-    <!-- 波形动画区域，可用自定义View或第三方库替换 -->
+    <!-- Waveform animation area, can be replaced with custom View or third-party library -->
     <View
         android:id="@+id/voiceWave"
         android:layout_width="0dp"
@@ -67,7 +67,7 @@
         android:background="@drawable/bg_send_btn"
         android:tint="#FFF"
         android:layout_marginStart="4dp"
-        android:contentDescription="发送录音"
+        android:contentDescription="Send recording"
         android:clickable="true"
         android:focusable="true" />
 

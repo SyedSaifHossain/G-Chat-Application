@@ -129,7 +129,7 @@ class GroupChatFragment : Fragment() {
                 } else if (mimeType.startsWith("video")) {
                     uploadVideoToFirebase(uri)
                 } else {
-                    Toast.makeText(requireContext(), "不支持的文件类型", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Unsupported file type", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -189,7 +189,7 @@ class GroupChatFragment : Fragment() {
 
         if (groupId == null) {
             Log.e(TAG, "onViewCreated: Group ID is null, finishing.")
-            Toast.makeText(requireContext(), "群组ID缺失", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Group ID missing", Toast.LENGTH_SHORT).show()
             findNavController().popBackStack()
             return
         }
@@ -225,7 +225,7 @@ class GroupChatFragment : Fragment() {
         ) { permissions ->
             Log.d(TAG, "PERMISSION: General permissions result: $permissions")
             if (permissions[Manifest.permission.RECORD_AUDIO] != true) {
-                Toast.makeText(requireContext(), "需要录音权限", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Audio permission required", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -268,7 +268,7 @@ class GroupChatFragment : Fragment() {
                     showPermissionRationaleDialog()
                 } else {
                     Log.d(TAG, "PERMISSION: Should not show rationale, user permanently denied")
-                    Toast.makeText(requireContext(), "需要存储权限才能访问图库，请在设置中手动开启", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Storage permission required to access gallery, please enable it in settings", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -280,7 +280,7 @@ class GroupChatFragment : Fragment() {
             if (isGranted) {
                 openCamera()
             } else {
-                Toast.makeText(requireContext(), "相机权限被拒绝", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
             }
         }
         
@@ -306,7 +306,7 @@ class GroupChatFragment : Fragment() {
     private fun setupGroupInfo() {
         val groupRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId!!)
         groupRef.child("name").get().addOnSuccessListener { snapshot ->
-            groupName = snapshot.getValue(String::class.java) ?: "群聊"
+            groupName = snapshot.getValue(String::class.java) ?: "Group Chat"
             binding.groupChatToolbarUserName.text = groupName
         }
     }
@@ -458,7 +458,7 @@ class GroupChatFragment : Fragment() {
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e(TAG, "RECEIVE: Firebase listener cancelled", error.toException())
-                Toast.makeText(requireContext(), "加载消息失败", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -654,7 +654,7 @@ class GroupChatFragment : Fragment() {
                                 btnPlayPause.setImageResource(android.R.drawable.ic_media_play)
                                 isPreviewPlaying = false
                                 Log.d("VoiceDebug", "播放完成")
-                                Toast.makeText(requireContext(), "播放完成", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), "Playback finished", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -662,9 +662,9 @@ class GroupChatFragment : Fragment() {
                     btnPlayPause.setImageResource(android.R.drawable.ic_media_pause)
                     isPreviewPlaying = true
                     Log.d("VoiceDebug", "开始播放")
-                    Toast.makeText(requireContext(), "开始播放", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Playback started", Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "播放失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Playback failed: ${e.message}", Toast.LENGTH_SHORT).show()
                     Log.e("VoiceDebug", "播放失败: ${e.message}")
                     e.printStackTrace()
                 }
@@ -682,7 +682,7 @@ class GroupChatFragment : Fragment() {
             binding.groupchatBottomLayout.visibility = View.VISIBLE
             recordedFilePath?.let {
                 val deleted = File(it).delete()
-                Toast.makeText(requireContext(), "录音文件删除: $deleted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Recording file deleted: $deleted", Toast.LENGTH_SHORT).show()
                 Log.d("VoiceDebug", "录音文件删除: $deleted, 路径: $it")
             }
         }
@@ -777,14 +777,14 @@ class GroupChatFragment : Fragment() {
                 sendVoiceMessage(uri.toString(), duration)
             }
         }.addOnFailureListener {
-            Toast.makeText(requireContext(), "语音上传失败: ${it.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Voice upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun showCameraOptions() {
-        val options = arrayOf("拍照", "录制视频")
+        val options = arrayOf("Take Photo", "Record Video")
         AlertDialog.Builder(requireContext())
-            .setTitle("选择操作")
+            .setTitle("Choose Action")
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> {
@@ -854,7 +854,7 @@ class GroupChatFragment : Fragment() {
             intent.type = "*/*"
             intent.putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
             intent.addCategory(Intent.CATEGORY_OPENABLE)
-            galleryLauncher.launch(Intent.createChooser(intent, "选择图片或视频"))
+            galleryLauncher.launch(Intent.createChooser(intent, "Select Image or Video"))
         } else {
             Log.d(TAG, "GALLERY: No permission, requesting permissions")
             checkAndRequestGalleryPermission()
@@ -872,7 +872,7 @@ class GroupChatFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "上传图片失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Image upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -895,7 +895,7 @@ class GroupChatFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "UPLOAD: Upload failed.", e)
-                Toast.makeText(requireContext(), "上传视频失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Video upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -911,7 +911,7 @@ class GroupChatFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "上传文件失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "File upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -1012,11 +1012,11 @@ class GroupChatFragment : Fragment() {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
                     intent.type = "*/*"
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
-                    filePickerLauncher.launch(Intent.createChooser(intent, "选择文件"))
+                    filePickerLauncher.launch(Intent.createChooser(intent, "Select File"))
                     true
                 }
                 R.id.contactId -> {
-                    Toast.makeText(requireContext(), "联系人功能开发中", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Contact feature under development", Toast.LENGTH_SHORT).show()
                     true
                 }
                 else -> false
@@ -1051,7 +1051,7 @@ class GroupChatFragment : Fragment() {
 
     private fun showEditMessageDialog(message: GroupMessage) {
         if (message.senderId != auth.uid) {
-            Toast.makeText(requireContext(), "只能编辑自己的消息", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "You can only edit your own messages", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -1060,15 +1060,15 @@ class GroupChatFragment : Fragment() {
         editText.setSelection(editText.text.length)
 
         AlertDialog.Builder(requireContext())
-            .setTitle("编辑消息")
+            .setTitle("Edit Message")
             .setView(editText)
-            .setPositiveButton("保存") { _, _ ->
+            .setPositiveButton("Save") { _, _ ->
                 val newText = editText.text.toString().trim()
                 if (newText.isNotEmpty()) {
                     editMessage(message, newText)
                 }
             }
-            .setNegativeButton("取消", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
@@ -1080,46 +1080,46 @@ class GroupChatFragment : Fragment() {
         )
         chatRef.child(message.messageId).updateChildren(updates)
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "消息已编辑", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Message edited", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "编辑失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Edit failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun deleteMessage(message: GroupMessage) {
         if (message.senderId != auth.uid) {
-            Toast.makeText(requireContext(), "只能删除自己的消息", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "You can only delete your own messages", Toast.LENGTH_SHORT).show()
             return
         }
 
         AlertDialog.Builder(requireContext())
-            .setTitle("删除消息")
-            .setMessage("确定要删除这条消息吗？")
-            .setPositiveButton("删除") { _, _ ->
+            .setTitle("Delete Message")
+            .setMessage("Are you sure you want to delete this message?")
+            .setPositiveButton("Delete") { _, _ ->
                 chatRef.child(message.messageId).removeValue()
                     .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "消息已删除", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Message deleted", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(requireContext(), "删除失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Delete failed: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
             }
-            .setNegativeButton("取消", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
     private fun copyMessageToClipboard(message: GroupMessage) {
         val clipboard = requireContext().getSystemService(AppCompatActivity.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        val clip = android.content.ClipData.newPlainText("消息", message.text ?: "")
+        val clip = android.content.ClipData.newPlainText("Message", message.text ?: "")
         clipboard.setPrimaryClip(clip)
-        Toast.makeText(requireContext(), "消息已复制到剪贴板", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Message copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
     private fun showGroupOptionsMenu() {
-        val options = arrayOf("群组信息", "群成员", "退出群组")
+        val options = arrayOf("Group Info", "Group Members", "Leave Group")
         AlertDialog.Builder(requireContext())
-            .setTitle("群组选项")
+            .setTitle("Group Options")
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> showGroupInfo()
@@ -1131,29 +1131,29 @@ class GroupChatFragment : Fragment() {
     }
 
     private fun showGroupInfo() {
-        Toast.makeText(requireContext(), "群组信息功能开发中", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Group Info feature under development", Toast.LENGTH_SHORT).show()
     }
 
     private fun showGroupMembers() {
-        Toast.makeText(requireContext(), "群成员功能开发中", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Group Members feature under development", Toast.LENGTH_SHORT).show()
     }
 
     private fun leaveGroup() {
         AlertDialog.Builder(requireContext())
-            .setTitle("退出群组")
-            .setMessage("确定要退出这个群组吗？")
-            .setPositiveButton("退出") { _, _ ->
+            .setTitle("Leave Group")
+            .setMessage("Are you sure you want to leave this group?")
+            .setPositiveButton("Leave") { _, _ ->
                 val groupRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId!!)
                 groupRef.child("members").child(auth.uid!!).removeValue()
                     .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "已退出群组", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Left group", Toast.LENGTH_SHORT).show()
                         findNavController().popBackStack()
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(requireContext(), "退出失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Leave failed: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
             }
-            .setNegativeButton("取消", null)
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
@@ -1219,7 +1219,7 @@ class GroupChatFragment : Fragment() {
             Log.d(TAG, "PERMISSION: Permission request launched successfully")
         } catch (e: Exception) {
             Log.e(TAG, "PERMISSION: Failed to launch permission request", e)
-            Toast.makeText(requireContext(), "权限请求失败: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Permission request failed: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -1275,15 +1275,15 @@ class GroupChatFragment : Fragment() {
 
     private fun showPermissionRationaleDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle("需要权限")
-            .setMessage("应用需要访问您的相册和视频库才能发送图片和视频。请在接下来的对话框中允许权限。")
-            .setPositiveButton("确定") { _, _ ->
+            .setTitle("Permission Required")
+            .setMessage("The app needs access to your gallery and video library to send images and videos. Please allow the permissions in the next dialog box.")
+            .setPositiveButton("OK") { _, _ ->
                 Log.d(TAG, "PERMISSION: User confirmed rationale, requesting permissions again")
                 checkAndRequestGalleryPermission()
             }
-            .setNegativeButton("取消") { _, _ ->
+            .setNegativeButton("Cancel") { _, _ ->
                 Log.d(TAG, "PERMISSION: User cancelled rationale dialog")
-                Toast.makeText(requireContext(), "权限被拒绝，无法访问图库", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Permission denied, cannot access gallery", Toast.LENGTH_SHORT).show()
             }
             .setCancelable(false)
             .show()
@@ -1315,9 +1315,9 @@ class GroupChatFragment : Fragment() {
     private fun showGroupCallDialog(callId: String, callType: String) {
         if (!isAdded || context == null) return
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle(if (callType == "video") "群组视频通话邀请" else "群组语音通话邀请")
-        builder.setMessage("有新的群聊通话邀请，是否加入？")
-        builder.setPositiveButton("加入") { _, _ ->
+        builder.setTitle(if (callType == "video") "Group Video Call Invitation" else "Group Voice Call Invitation")
+        builder.setMessage("New group call invitation, do you want to join?")
+        builder.setPositiveButton("Join") { _, _ ->
             // 标记自己为已加入
             val groupId = this.groupId ?: return@setPositiveButton
             val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setPositiveButton
@@ -1331,7 +1331,7 @@ class GroupChatFragment : Fragment() {
                 findNavController().navigate(R.id.action_groupChatFragment_to_voiceCallFragment, bundle)
             }
         }
-        builder.setNegativeButton("拒绝") { dialog, _ -> dialog.dismiss() }
+        builder.setNegativeButton("Decline") { dialog, _ -> dialog.dismiss() }
         builder.setCancelable(false)
         builder.show()
     }
