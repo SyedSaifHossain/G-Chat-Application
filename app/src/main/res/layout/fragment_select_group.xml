@@ -43,7 +43,7 @@
             android:textSize="20sp" />
     </RelativeLayout>
 
-    <!-- 搜索框 -->
+    <!-- Search box -->
     <EditText
         android:id="@+id/et_search_group"
         android:layout_width="match_parent"

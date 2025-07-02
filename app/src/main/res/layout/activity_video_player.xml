@@ -22,7 +22,7 @@
         android:layout_margin="20dp"
         android:background="@drawable/circle_shape"
         android:src="@drawable/cancelicon"
-        android:contentDescription="关闭"
+        android:contentDescription="Close"
         android:alpha="0.7"
         android:scaleType="fitCenter"
         android:padding="8dp" />

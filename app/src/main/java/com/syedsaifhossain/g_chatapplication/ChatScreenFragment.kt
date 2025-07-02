@@ -1001,34 +1001,25 @@ class ChatScreenFragment : Fragment() {
     private fun openCamera() {
         try {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            val activities = requireActivity().packageManager.queryIntentActivities(
-                intent,
-                PackageManager.MATCH_DEFAULT_ONLY
-            )
-            Log.d("CameraDebug", "Camera activities: $activities")
-            if (activities.isNotEmpty()) {
-                val photoFile: File? = try {
-                    createImageFile()
-                } catch (ex: java.io.IOException) {
-                    Log.e("ChatScreenFragment", "Error creating image file", ex); null
-                }
-                photoFile?.also {
-                    val photoURI: Uri = FileProvider.getUriForFile(
-                        requireContext(),
-                        "${requireContext().packageName}.fileprovider",
-                        it
-                    )
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                    cameraLauncher.launch(intent)
-                } ?: run {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error preparing camera",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            } else {
-                Toast.makeText(requireContext(), "No camera app found", Toast.LENGTH_SHORT).show()
+            val photoFile: File? = try {
+                createImageFile()
+            } catch (ex: java.io.IOException) {
+                Log.e("ChatScreenFragment", "Error creating image file", ex); null
+            }
+            photoFile?.also {
+                val photoURI: Uri = FileProvider.getUriForFile(
+                    requireContext(),
+                    "${requireContext().packageName}.fileprovider",
+                    it
+                )
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                cameraLauncher.launch(intent)
+            } ?: run {
+                Toast.makeText(
+                    requireContext(),
+                    "Error preparing camera",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         } catch (e: Exception) {
             Toast.makeText(

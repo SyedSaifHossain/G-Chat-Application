@@ -44,7 +44,7 @@
             android:background="#81d8d0"
             app:shapeAppearanceOverlay="@style/RoundedImageViewStyle"/>
 
-        <!-- 合并后的输入框 -->
+        <!-- Merged input box -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"

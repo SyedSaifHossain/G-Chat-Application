@@ -43,7 +43,7 @@
                     android:textStyle="bold"
                     android:layout_marginEnd="8dp"/>
 
-                <!-- 收藏按钮放在标题右侧 -->
+                <!-- Favorite button on the right side of the title -->
                 <ImageButton
                     android:id="@+id/btnFavorite"
                     android:layout_width="32dp"
@@ -88,7 +88,7 @@
                     android:text="$399.0"
                     android:textColor="#AAAAAA"
                     android:textSize="12sp" />
-                <!-- 删除线效果将在 Adapter 中设置 -->
+                <!-- Strikethrough effect will be set in Adapter -->
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

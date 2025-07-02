@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:backgroundTint="#0ABAB5"
-                android:text="接受"
+                android:text="Accept"
                 android:textColor="#FFFFFF" />
 
             <Button
@@ -52,7 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#FF4444"
-                android:text="拒绝"
+                android:text="Reject"
                 android:textColor="#FFFFFF" />
 
         </LinearLayout>
