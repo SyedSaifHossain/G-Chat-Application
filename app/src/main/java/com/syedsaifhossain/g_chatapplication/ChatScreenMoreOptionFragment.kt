@@ -18,8 +18,10 @@ import com.syedsaifhossain.g_chatapplication.databinding.FragmentMePageBinding
 class ChatScreenMoreOptionFragment : Fragment() {
     private var _binding: FragmentChatScreenMoreOptionBinding? = null
     private val binding get() = _binding!!
-    private val auth = FirebaseAuth.getInstance()
-    private val database = FirebaseDatabase.getInstance().reference
+
+
+    private var otherUserName: String? = null
+    private var otherUserAvatarUrl: String? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
@@ -28,8 +30,6 @@ class ChatScreenMoreOptionFragment : Fragment() {
         _binding = FragmentChatScreenMoreOptionBinding.inflate(inflater, container, false)
         return binding.root
 
-
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,39 +37,28 @@ class ChatScreenMoreOptionFragment : Fragment() {
             findNavController().popBackStack()
         }
 
-        loadUserData()
+        arguments?.let {
+            otherUserName = it.getString("otherUserName")
+            otherUserAvatarUrl = it.getString("otherUserAvatarUrl")
+        }
+
+        // Display the other user's name and profile image
+        otherUserName?.let {
+            binding.userNameProfile.text = it
+        }
+
+        otherUserAvatarUrl?.let {
+            Glide.with(requireContext())
+                .load(it)
+                .placeholder(R.drawable.default_avatar) // Placeholder if no image URL
+
+                .into(binding.moreOptionProfileImg) // ImageView to display profile picture
+        }
     }
-
-    private fun loadUserData() {
-        val userId = auth.currentUser?.uid ?: return
-
-        database.child("users").child(userId)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (_binding == null) return
-                    val name = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
-                    val imageUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
-                        ?: snapshot.child("avatarUrl").getValue(String::class.java)
-                    binding.userNameProfile.text = name
-
-                    Glide.with(requireContext())
-                        .load(imageUrl)
-                        .placeholder(R.drawable.default_avatar)
-                        .override(70,70)
-                        .into(binding.moreOptionProfileImg)
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    // Handle error if needed
-                }
-            })
-    }
-
 
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
 }
