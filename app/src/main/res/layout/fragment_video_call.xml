@@ -64,7 +64,7 @@
 
     </RelativeLayout>
 
-    <!-- 全屏显示远程视频 -->
+    <!-- Full screen remote video -->
     <FrameLayout
         android:id="@+id/remote_video_view_container"
         android:layout_width="match_parent"
@@ -74,7 +74,7 @@
         android:layout_above="@+id/videoCallFooter"
         android:layout_below="@+id/videoCallHeader"/>
 
-    <!-- 左上角悬浮显示本地视频（放在后面，且加elevation） -->
+    <!-- Floating local video at top left (placed later, with elevation) -->
 
 
     <LinearLayout
