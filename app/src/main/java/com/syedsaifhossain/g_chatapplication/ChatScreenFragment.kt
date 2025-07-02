@@ -393,36 +393,16 @@ class ChatScreenFragment : Fragment() {
                 .show()
         }
 
+
         binding.chatAddButton.setOnClickListener { view ->
             val popupMenu = PopupMenu(
-                requireContext(),
-                view,
-                Gravity.NO_GRAVITY,
+                view.context, view, Gravity.NO_GRAVITY,
                 0,
                 R.style.PopupMenuStyle
             )
-
-            popupMenu.inflate(R.menu.add_options_menu)
-
-            // Force icons to show using reflection
-            try {
-                val fields = popupMenu.javaClass.declaredFields
-                for (field in fields) {
-                    if (field.name == "mPopup") {
-                        field.isAccessible = true
-                        val menuPopupHelper = field.get(popupMenu)
-                        val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
-                        val setForceIcons = classPopupHelper.getMethod(
-                            "setForceShowIcon",
-                            Boolean::class.javaPrimitiveType
-                        )
-                        setForceIcons.invoke(menuPopupHelper, true)
-                        break
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace() // Or log it using Log.e(...)
-            }
+            val inflater = popupMenu.menuInflater
+            inflater.inflate(R.menu.add_options_menu, popupMenu.menu)
+            popupMenu.show()
 
             popupMenu.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
@@ -444,8 +424,6 @@ class ChatScreenFragment : Fragment() {
                     else -> false
                 }
             }
-
-            popupMenu.show()
         }
 
         requestPermissionsIfNeeded()
