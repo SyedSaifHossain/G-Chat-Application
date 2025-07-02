@@ -25,10 +25,11 @@
 
         <!-- LinearLayout for text and time side by side -->
         <RelativeLayout
+            android:id="@+id/qroupChatReceiveTextBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="end"
+            android:gravity="end|bottom"
             android:layout_marginEnd="8dp"
             android:padding="8dp"
             android:layout_alignParentTop="true"
@@ -41,15 +42,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#000"
+                android:ellipsize="end"
                 android:maxWidth="200dp"
                 android:paddingBottom="8dp"
                 android:paddingTop="5dp"
                 android:layout_marginStart="5dp"
-                android:gravity="start"
+                android:gravity="start|top"
+                android:lineSpacingExtra="2dp"
+                android:lineSpacingMultiplier="1.2"
+                android:maxLength="1000"
+                android:maxLines="5"
+                android:scrollbars="vertical"
                 android:text="This is text message"
                 android:layout_centerVertical="true"
                 android:layout_alignParentTop="true"/>
-
             <!-- Sent message time (next to text) -->
             <TextView
                 android:id="@+id/sentMessageTime"
@@ -123,7 +129,7 @@
                 android:id="@+id/sentVoicePlayButton"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_play_circle"
+                android:src="@drawable/ic_voice_msg"
                 android:layout_marginEnd="8dp"/>
 
             <!-- Sent voice duration (next to play button) -->
@@ -131,7 +137,6 @@
                 android:id="@+id/sentVoiceDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0s"
                 android:textColor="#2C2C2C"
                 android:textSize="14sp"/>
 
