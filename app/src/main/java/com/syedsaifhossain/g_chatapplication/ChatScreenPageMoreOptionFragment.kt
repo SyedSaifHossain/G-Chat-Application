@@ -6,16 +6,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatScreenPageMoreOptionBinding
 
 class ChatScreenPageMoreOptionFragment : Fragment() {
-    private lateinit var binding: FragmentChatScreenPageMoreOptionBinding
+    private var _binding: FragmentChatScreenPageMoreOptionBinding? = null
+
+    private val binding get() = _binding!!
+
+    private var otherUserName: String? = null
+    private var otherUserAvatarUrl: String? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
 
-        binding = FragmentChatScreenPageMoreOptionBinding.inflate(inflater, container, false)
+
+        _binding = FragmentChatScreenPageMoreOptionBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -24,6 +31,30 @@ class ChatScreenPageMoreOptionFragment : Fragment() {
         binding.moreOptionBackImg.setOnClickListener {
             findNavController().popBackStack()
         }
-    }
 
+        arguments?.let {
+            otherUserName = it.getString("otherUserName")
+            otherUserAvatarUrl = it.getString("otherUserAvatarUrl")
+        }
+
+        // Display the other user's name and profile image
+        otherUserName?.let {
+            binding.userNameProfile.text = it
+        }
+
+        otherUserAvatarUrl?.let {
+            Glide.with(requireContext())
+                .load(it)
+                .placeholder(R.drawable.default_avatar) // Placeholder if no image URL
+
+                .into(binding.moreOptionProfileImg) // ImageView to display profile picture
+
+        }
+
+
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

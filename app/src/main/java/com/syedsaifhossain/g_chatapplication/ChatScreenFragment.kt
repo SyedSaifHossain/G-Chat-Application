@@ -518,7 +518,7 @@ class ChatScreenFragment : Fragment() {
                 putString("otherUserName", otherUserName)
                 putString("otherUserAvatarUrl", otherUserAvatarUrl)
             }
-            findNavController().navigate(R.id.chatScreenMoreOptionFragment, bundle)
+            findNavController().navigate(R.id.chatScreenPageMoreOptionFragment, bundle)
         }
     }
 
