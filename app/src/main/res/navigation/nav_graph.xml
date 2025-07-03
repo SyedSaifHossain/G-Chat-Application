@@ -224,8 +224,8 @@
             android:id="@+id/action_chatScreenFragment_to_voiceCallFragment"
             app:destination="@id/voiceCallFragment" />
         <action
-            android:id="@+id/action_chatScreenFragment_to_chatScreenMoreOptionFragment"
-            app:destination="@id/chatScreenMoreOptionFragment" />
+            android:id="@+id/action_chatScreenFragment_to_chatScreenPageMoreOptionFragment"
+            app:destination="@id/chatScreenPageMoreOptionFragment" />
     </fragment>
     <fragment
         android:id="@+id/videoCallFragment5"

@@ -13,14 +13,15 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_gradient"
             android:orientation="vertical"
-            android:paddingTop="70dp"
+            android:paddingTop="50dp"
             tools:context=".ChatScreenPageMoreOptionFragment">
 
             <ImageView
@@ -115,73 +116,6 @@
                 android:background="#8ad8d0" />
 
             <TextView
-                android:id="@+id/customisationTxt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="8dp"
-                android:fontFamily="@font/poppins_regular"
-                android:text="Customisation"
-                android:textColor="#81d8d0"
-                android:textSize="16dp" />
-
-            <LinearLayout
-                android:id="@+id/themeLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/themeImg"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="40dp"
-                    android:src="@drawable/themeicon" />
-
-                <TextView
-                    android:id="@+id/themeTxt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="15dp"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Theme"
-                    android:textColor="#81d8d0"
-                    android:textSize="14dp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/nikeNameLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/nikeNameImg"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="40dp"
-                    android:src="@drawable/textimg" />
-
-                <TextView
-                    android:id="@+id/nikeNameTxt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="15dp"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Nickname"
-                    android:textColor="#81d8d0"
-                    android:textSize="14dp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <TextView
                 android:id="@+id/moreActionTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -191,34 +125,6 @@
                 android:text="More actions"
                 android:textColor="#81d8d0"
                 android:textSize="16dp" />
-
-            <LinearLayout
-                android:id="@+id/createGroupChatLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/createGroupChatImg"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="40dp"
-                    android:src="@drawable/addcontacticon" />
-
-                <TextView
-                    android:id="@+id/createGroupChatTxt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="15dp"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Create group chat with Aaron Loeb"
-                    android:textColor="#81d8d0"
-                    android:textSize="14dp"
-                    android:textStyle="bold" />
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/viewLayout"
@@ -276,33 +182,6 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/shareLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/shareImg"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="40dp"
-                    android:src="@drawable/shareicon" />
-
-                <TextView
-                    android:id="@+id/shareTxt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="15dp"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Share contact"
-                    android:textColor="#81d8d0"
-                    android:textSize="14dp"
-                    android:textStyle="bold" />
-            </LinearLayout>
 
             <TextView
                 android:id="@+id/privacySupportTxt"
@@ -342,33 +221,6 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/reportLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/reportImg"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="40dp"
-                    android:src="@drawable/reporticon" />
-
-                <TextView
-                    android:id="@+id/reportTxt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="15dp"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Report"
-                    android:textColor="#81d8d0"
-                    android:textSize="14dp"
-                    android:textStyle="bold" />
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/deleteChatLayout"
