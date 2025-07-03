@@ -121,6 +121,8 @@ class GroupMessageAdapter(
                     binding.sentMessageImage.visibility = View.GONE
                     binding.sentMessageVideo.visibility = View.GONE
                     binding.sentMessageFile.visibility = View.GONE
+                    binding.qroupChatSendTextBox.visibility = View.GONE
+                    binding.sentMessageTime.visibility = View.VISIBLE
                     
                     binding.sentVoiceDuration.text = "${message.duration}s"
                     if (isPlaying && playingPosition == adapterPosition) {

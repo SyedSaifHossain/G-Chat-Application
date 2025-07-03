@@ -2,6 +2,7 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="end"
@@ -17,15 +18,14 @@
             android:id="@+id/profileSend"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="5dp"
             android:src="@drawable/profileimage"
+            android:layout_alignBottom="@+id/qroupChatSendTextBox"
             app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
         <!-- LinearLayout for text and time side by side -->
         <RelativeLayout
-            android:id="@+id/qroupChatReceiveTextBox"
+            android:id="@+id/qroupChatSendTextBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -59,16 +59,16 @@
             <!-- Sent message time (next to text) -->
             <TextView
                 android:id="@+id/sentMessageTime"
-                android:layout_width="55dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="15dp"
                 android:layout_toEndOf="@+id/sentMessageText"
+                android:gravity="bottom|end"
                 android:text="10:00 am"
                 android:textColor="#2C2C2C"
-                android:textSize="10sp"
-                android:layout_marginStart="8dp"
-                android:gravity="bottom|end"/>
+                android:textSize="10sp" />
         </RelativeLayout>
 
         <ImageView
@@ -118,9 +118,9 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:background="@drawable/bg_chat_sent"
-            android:padding="10dp"
-            android:gravity="center_vertical"
+            android:gravity="bottom|end"
             android:visibility="gone"
+            android:padding="15dp"
             android:layout_toStartOf="@+id/profileSend"
             android:layout_alignParentTop="true"
             android:layout_marginEnd="8dp">
@@ -149,8 +149,9 @@
                 android:textColor="#2C2C2C"
                 android:text="10:00 am"
                 android:layout_marginStart="8dp"
-                android:gravity="end"
+                android:gravity="end|bottom"
                 android:layout_alignParentTop="true"/>
+
         </LinearLayout>
 
     </RelativeLayout>
