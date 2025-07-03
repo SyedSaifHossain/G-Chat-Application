@@ -136,6 +136,7 @@ class ChatMessageAdapter(
                     }
                     "image" -> {
                         imageView?.visibility = View.VISIBLE
+                        bubbleLayout.visibility = View.GONE
                         imageView?.setImageResource(android.R.color.transparent)
                         if (!message.imageUrl.isNullOrEmpty()) {
                             Glide.with(itemView.context)
