@@ -13,3 +13,17 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Android release files (large files that should not be in Git)
+*.aab
+*.apk
+*.aab.bak
+*.apk.bak
+
+# Additional Android build outputs
+app/release/
+app/debug/
+app/build/outputs/
+
+# Kotlin build cache
+.kotlin/
