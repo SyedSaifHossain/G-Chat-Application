@@ -395,17 +395,26 @@ class ChatScreenFragment : Fragment() {
 
 
         binding.chatAddButton.setOnClickListener { view ->
-            val popupMenu = PopupMenu(view.context,
+            val popupMenu = PopupMenu(
+                view.context,
                 view,
                 Gravity.NO_GRAVITY,
                 0,
                 R.style.PopupMenuStyle
             )
+
             val inflater = popupMenu.menuInflater
             inflater.inflate(R.menu.add_options_menu, popupMenu.menu)
-            popupMenu.show()
 
-            // Force icons to show using reflection
+            // ✅ Resize icon
+            for (i in 0 until popupMenu.menu.size()) {
+                val item = popupMenu.menu.getItem(i)
+                val icon = item.icon
+                icon?.setBounds(0, 0, 60, 60) // <-- You can adjust 60dp to whatever pixel size you need
+                item.icon = icon
+            }
+
+            // ✅ Force icons to show using reflection
             try {
                 val fields = popupMenu.javaClass.declaredFields
                 for (field in fields) {
@@ -413,16 +422,13 @@ class ChatScreenFragment : Fragment() {
                         field.isAccessible = true
                         val menuPopupHelper = field.get(popupMenu)
                         val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
-                        val setForceIcons = classPopupHelper.getMethod(
-                            "setForceShowIcon",
-                            Boolean::class.javaPrimitiveType
-                        )
+                        val setForceIcons = classPopupHelper.getMethod("setForceShowIcon", Boolean::class.javaPrimitiveType)
                         setForceIcons.invoke(menuPopupHelper, true)
                         break
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace() // Or log it using Log.e(...)
+                e.printStackTrace()
             }
 
             popupMenu.setOnMenuItemClickListener { menuItem ->
@@ -431,20 +437,19 @@ class ChatScreenFragment : Fragment() {
                         checkAndRequestGalleryPermission()
                         true
                     }
-
                     R.id.documentId -> {
                         // Handle Document action
                         true
                     }
-
                     R.id.contactId -> {
                         // Handle Contact action
                         true
                     }
-
                     else -> false
                 }
             }
+
+            popupMenu.show()
         }
 
 
