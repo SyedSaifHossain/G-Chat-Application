@@ -2,34 +2,22 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <group android:id="@+id/galleryGroup">
         <item
             android:id="@+id/galleryId"
-            android:icon="@drawable/galleryicon"
+            android:icon="@drawable/popupgalleryicon"
             android:title="Gallery"
-            app:showAsAction="always"
-            android:layout_width="100dp"
-            android:layout_height="100dp" />
-    </group>
+            app:showAsAction="always" />
 
-    <group android:id="@+id/filesGroup">
         <item
             android:id="@+id/documentId"
-            android:icon="@drawable/document"
+            android:icon="@drawable/popupdocument"
             android:title="Documents"
-            app:showAsAction="always"
-            android:layout_width="100dp"
-            android:layout_height="100dp" />
-    </group>
+            app:showAsAction="always" />
 
-    <group android:id="@+id/contactGroup">
         <item
             android:id="@+id/contactId"
-            android:icon="@drawable/addcontact"
+            android:icon="@drawable/popupcontact"
             android:title="Contact"
-            app:showAsAction="always"
-            android:layout_width="100dp"
-            android:layout_height="100dp" />
-    </group>
+            app:showAsAction="always" />
 
 </menu>
