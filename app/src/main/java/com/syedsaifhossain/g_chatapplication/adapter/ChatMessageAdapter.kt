@@ -302,6 +302,7 @@ class ChatMessageAdapter(
                         }
                         timeText.visibility = View.VISIBLE
                         timeText.text = formatTime(message.timestamp)
+                        bubbleLayout.visibility = View.GONE
                     }
                     "voice" -> {
                         voiceLayout?.visibility = View.VISIBLE

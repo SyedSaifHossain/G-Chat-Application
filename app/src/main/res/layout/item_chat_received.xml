@@ -38,6 +38,20 @@
             android:src="@drawable/profileimage"
             android:layout_gravity="bottom|left"/>
 
+        <ImageView
+            android:id="@+id/iv_image"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="6dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:adjustViewBounds="true"
+            android:maxWidth="200dp"
+            android:maxHeight="200dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_message"
+            app:layout_constraintStart_toStartOf="@id/tv_message"
+            app:layout_constraintEnd_toEndOf="@id/tv_message" />
+
         <LinearLayout
             android:id="@+id/layout_message_bubble"
             android:layout_width="wrap_content"
@@ -99,20 +113,6 @@
                 android:paddingTop="20dp"
                 android:layout_marginStart="8dp"
                 android:paddingBottom="5dp" />
-
-            <ImageView
-                android:id="@+id/iv_image"
-                android:layout_width="180dp"
-                android:layout_height="180dp"
-                android:layout_marginTop="6dp"
-                android:scaleType="centerCrop"
-                android:visibility="gone"
-                android:adjustViewBounds="true"
-                android:maxWidth="200dp"
-                android:maxHeight="200dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_message"
-                app:layout_constraintStart_toStartOf="@id/tv_message"
-                app:layout_constraintEnd_toEndOf="@id/tv_message" />
 
             <!-- 视频消息缩略图和播放按钮 -->
             <FrameLayout
