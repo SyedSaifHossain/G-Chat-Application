@@ -405,16 +405,6 @@ class ChatScreenFragment : Fragment() {
 
             val inflater = popupMenu.menuInflater
             inflater.inflate(R.menu.add_options_menu, popupMenu.menu)
-
-            // ✅ Resize icon
-            for (i in 0 until popupMenu.menu.size()) {
-                val item = popupMenu.menu.getItem(i)
-                val icon = item.icon
-                icon?.setBounds(0, 0, 60, 60) // <-- You can adjust 60dp to whatever pixel size you need
-                item.icon = icon
-            }
-
-            // ✅ Force icons to show using reflection
             try {
                 val fields = popupMenu.javaClass.declaredFields
                 for (field in fields) {
