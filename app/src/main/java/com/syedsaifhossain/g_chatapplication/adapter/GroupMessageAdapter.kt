@@ -128,7 +128,7 @@ class GroupMessageAdapter(
                     if (isPlaying && playingPosition == adapterPosition) {
                         binding.sentVoicePlayButton.setImageResource(android.R.drawable.ic_media_pause)
                     } else {
-                        binding.sentVoicePlayButton.setImageResource(R.drawable.ic_play_circle)
+                        binding.sentVoicePlayButton.setImageResource(R.drawable.ic_voice_msg)
                     }
                     binding.sentVoicePlayButton.setOnClickListener {
                         handleVoiceClick(message, adapterPosition, this)
@@ -265,7 +265,7 @@ class GroupMessageAdapter(
                     if (isPlaying && playingPosition == adapterPosition) {
                         binding.receivedVoicePlayButton.setImageResource(android.R.drawable.ic_media_pause)
                     } else {
-                        binding.receivedVoicePlayButton.setImageResource(R.drawable.ic_play_circle)
+                        binding.receivedVoicePlayButton.setImageResource(R.drawable.ic_voice_msg)
                     }
                     binding.receivedVoicePlayButton.setOnClickListener {
                         handleVoiceClick(message, adapterPosition, this)

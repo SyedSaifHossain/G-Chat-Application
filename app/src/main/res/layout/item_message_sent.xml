@@ -116,21 +116,23 @@
             android:id="@+id/sentMessageVoice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/bg_chat_sent"
-            android:gravity="bottom|end"
-            android:visibility="gone"
-            android:padding="15dp"
-            android:layout_toStartOf="@+id/profileSend"
             android:layout_alignParentTop="true"
-            android:layout_marginEnd="8dp">
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@+id/profileSend"
+            android:background="@drawable/bg_chat_sent"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="10dp"
+            android:visibility="gone">
 
             <ImageView
                 android:id="@+id/sentVoicePlayButton"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_voice_msg"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_voice_msg" />
 
             <!-- Sent voice duration (next to play button) -->
             <TextView
@@ -138,19 +140,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#2C2C2C"
-                android:textSize="14sp"/>
+                android:textSize="14sp" />
 
             <!-- Sent voice time (next to the voice duration) -->
             <TextView
                 android:id="@+id/sentVoiceTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="10sp"
-                android:textColor="#2C2C2C"
-                android:text="10:00 am"
+                android:layout_alignParentTop="true"
                 android:layout_marginStart="8dp"
                 android:gravity="end|bottom"
-                android:layout_alignParentTop="true"/>
+                android:text="10:00 am"
+                android:textColor="#2C2C2C"
+                android:textSize="10sp" />
 
         </LinearLayout>
 
