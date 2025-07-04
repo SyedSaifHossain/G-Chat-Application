@@ -3,6 +3,7 @@ package com.syedsaifhossain.g_chatapplication
 import android.Manifest
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -70,6 +71,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.LinearLayout
+import android.widget.PopupWindow
 import com.google.firebase.database.FirebaseDatabase
 import androidx.appcompat.app.AlertDialog
 import okhttp3.*
@@ -243,6 +245,7 @@ class ChatScreenFragment : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("MissingInflatedId")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d("VoiceDebug", "onViewCreated called")
@@ -395,53 +398,48 @@ class ChatScreenFragment : Fragment() {
 
 
         binding.chatAddButton.setOnClickListener { view ->
-            val popupMenu = PopupMenu(
-                view.context,
-                view,
-                Gravity.NO_GRAVITY,
-                0,
-                R.style.PopupMenuStyle
+
+            val popupView = LayoutInflater.from(view.context).inflate(R.layout.layout_custom_popup_bottom, null)
+
+            // 测量 popup 高度
+            popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+            val popupHeight = popupView.measuredHeight
+            val popupWidth = popupView.measuredWidth
+
+            val popupWindow = PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
             )
 
-            val inflater = popupMenu.menuInflater
-            inflater.inflate(R.menu.add_options_menu, popupMenu.menu)
-            try {
-                val fields = popupMenu.javaClass.declaredFields
-                for (field in fields) {
-                    if (field.name == "mPopup") {
-                        field.isAccessible = true
-                        val menuPopupHelper = field.get(popupMenu)
-                        val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
-                        val setForceIcons = classPopupHelper.getMethod("setForceShowIcon", Boolean::class.javaPrimitiveType)
-                        setForceIcons.invoke(menuPopupHelper, true)
-                        break
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            popupWindow.isOutsideTouchable = true
+            popupWindow.elevation = 10f
 
-            popupMenu.setOnMenuItemClickListener { menuItem ->
-                when (menuItem.itemId) {
-                    R.id.galleryId -> {
-                        checkAndRequestGalleryPermission()
-                        true
-                    }
-                    R.id.documentId -> {
-                        // Handle Document action
-                        true
-                    }
-                    R.id.contactId -> {
-                        // Handle Contact action
-                        true
-                    }
-                    else -> false
-                }
-            }
+            // 获取锚点位置
+            val location = IntArray(2)
+            view.getLocationOnScreen(location)
+            val anchorX = location[0]
+            val anchorY = location[1]
 
-            popupMenu.show()
+            // 显示在按钮上方右对齐
+            val offsetX = anchorX + view.width - popupWidth
+            val offsetY = anchorY - popupHeight
+
+            popupWindow.showAtLocation(view, Gravity.NO_GRAVITY, offsetX, offsetY)
+
+            // 点击事件
+            popupView.findViewById<LinearLayout>(R.id.item_gallery).setOnClickListener {
+                popupWindow.dismiss()
+                checkAndRequestGalleryPermission()
+            }
+            popupView.findViewById<LinearLayout>(R.id.item_document).setOnClickListener {
+                popupWindow.dismiss()
+            }
+            popupView.findViewById<LinearLayout>(R.id.item_contact).setOnClickListener {
+                popupWindow.dismiss()
+            }
         }
-
 
         requestPermissionsIfNeeded()
 

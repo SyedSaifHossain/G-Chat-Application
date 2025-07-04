@@ -4,19 +4,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
         <item
             android:id="@+id/galleryId"
-            android:icon="@drawable/popupgalleryicon"
+            android:icon="@drawable/galleryicon"
             android:title="Gallery"
             app:showAsAction="always" />
 
         <item
             android:id="@+id/documentId"
-            android:icon="@drawable/popupdocument"
+            android:icon="@drawable/document"
             android:title="Documents"
             app:showAsAction="always" />
 
         <item
             android:id="@+id/contactId"
-            android:icon="@drawable/popupcontact"
+            android:icon="@drawable/addcontact"
             android:title="Contact"
             app:showAsAction="always" />
 
