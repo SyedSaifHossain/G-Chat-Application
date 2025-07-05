@@ -19,4 +19,14 @@ open class BaseActivity : AppCompatActivity() {
         // 恢复为原始实现
         super.attachBaseContext(LocaleHelper.onAttach(newBase))
     }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            window.decorView.systemUiVisibility =
+                android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+        }
+    }
 }

@@ -13,3 +13,76 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Android release files (large files that should not be in Git)
+*.aab
+*.apk
+*.aab.bak
+*.apk.bak
+
+# Additional Android build outputs
+app/release/
+app/debug/
+app/build/outputs/
+
+# Kotlin build cache
+.kotlin/
+
+# Additional large files to ignore
+*.aar
+*.jar
+*.dex
+*.so
+*.dll
+*.dylib
+
+# Build artifacts
+**/build/
+**/outputs/
+**/reports/
+**/test-results/
+
+# Large media files
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.mkv
+*.webm
+*.m4v
+
+# Large audio files
+*.wav
+*.flac
+*.aiff
+*.m4a
+*.wma
+
+# Large image files
+*.psd
+*.ai
+*.eps
+*.tiff
+*.bmp
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+*.log.*
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini

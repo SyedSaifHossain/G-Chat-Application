@@ -4,7 +4,10 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.PopupWindow
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -243,52 +246,30 @@ class ChatFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun showPopupMenu(view: View) {
-        val popupMenu = PopupMenu(
-            requireContext(),
-            view,
-            Gravity.NO_GRAVITY,
-            0,
-            R.style.MyPopupMenuStyle
-        )
-        popupMenu.inflate(R.menu.popup_menu)
+        val inflater = LayoutInflater.from(context)
+        val popupView = inflater.inflate(R.layout.layout_custom_popup_menu, null)
 
-        try {
-            val fields = popupMenu.javaClass.declaredFields
-            for (field in fields) {
-                if ("mPopup" == field.name) {
-                    field.isAccessible = true
-                    val menuPopupHelper = field.get(popupMenu)
-                    val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
-                    val setForceIcons = classPopupHelper.getMethod("setForceShowIcon", Boolean::class.javaPrimitiveType)
-                    setForceIcons.invoke(menuPopupHelper, true)
-                    break
-                }
-            }
-        } catch (e: Exception) {
-            Log.w("ChatFragment", "Failed to force show popup menu icons", e)
+        val popupWindow = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
+        popupWindow.isOutsideTouchable = true
+        popupWindow.elevation = 10f
+
+        // 设置点击事件
+        popupView.findViewById<LinearLayout>(R.id.item_new_chats).setOnClickListener {
+            popupWindow.dismiss()
+            findNavController().navigate(R.id.newChatsFragment)
         }
-
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.newChats -> {
-                    findNavController().navigate(R.id.newChatsFragment)
-                    true
-                }
-                R.id.addContacts -> {
-                    findNavController().navigate(R.id.action_homeFragment_to_addContactsFragment)
-                    true
-                }
-                R.id.scan -> {
-                    findNavController().navigate(R.id.action_homeFragment_to_scanFragment)
-                    true
-                }
-                else -> false
-            }
-
+        popupView.findViewById<LinearLayout>(R.id.item_add_contacts).setOnClickListener {
+            popupWindow.dismiss()
+            findNavController().navigate(R.id.action_homeFragment_to_addContactsFragment)
         }
-
-        popupMenu.show()
+        popupView.findViewById<LinearLayout>(R.id.item_scan).setOnClickListener {
+            popupWindow.dismiss()
+            findNavController().navigate(R.id.action_homeFragment_to_scanFragment)
+        }
+        // 显示在按钮下方
+        popupWindow.showAsDropDown(view, 0, 0)
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
