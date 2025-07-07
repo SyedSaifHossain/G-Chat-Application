@@ -70,7 +70,8 @@ class GroupMessageAdapter(
                     binding.sentMessageVideo.visibility = View.GONE
                     binding.sentMessageVoice.visibility = View.GONE
                     binding.sentMessageFile.visibility = View.GONE
-                    
+                    binding.qroupChatSendTextBox.visibility = View.GONE
+
                     Glide.with(binding.root.context)
                         .load(message.imageUrl)
                         .placeholder(R.drawable.default_image)
@@ -83,6 +84,7 @@ class GroupMessageAdapter(
                     binding.sentMessageImage.visibility = View.GONE
                     binding.sentMessageVoice.visibility = View.GONE
                     binding.sentMessageFile.visibility = View.GONE
+                    binding.qroupChatSendTextBox.visibility = View.GONE
 
                     Glide.with(binding.root.context)
                         .load(message.videoUrl)
