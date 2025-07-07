@@ -5,10 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginStart="20dp"
     android:gravity="end"
     android:orientation="vertical"
-    android:padding="8dp"
-    android:layout_marginStart="20dp">
+    android:padding="8dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -18,9 +18,9 @@
             android:id="@+id/profileSend"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_alignBottom="@+id/qroupChatSendTextBox"
             android:layout_alignParentEnd="true"
             android:src="@drawable/profileimage"
-            android:layout_alignBottom="@+id/qroupChatSendTextBox"
             app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
         <!-- LinearLayout for text and time side by side -->
@@ -28,34 +28,69 @@
             android:id="@+id/qroupChatSendTextBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end|bottom"
-            android:layout_marginEnd="8dp"
-            android:padding="8dp"
             android:layout_alignParentTop="true"
+            android:layout_marginEnd="8dp"
             android:layout_toStartOf="@+id/profileSend"
-            android:background="@drawable/bg_chat_sent">
+            android:background="@drawable/bg_chat_sent"
+            android:gravity="end|bottom"
+            android:minWidth="120dp"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <LinearLayout
+                android:id="@+id/sentMessageVoice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="3dp"
+                android:layout_toStartOf="@+id/sentMessageTime"
+                android:gravity="start|top"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="10dp"
+
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/sentVoicePlayButton"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_voice_msg" />
+
+                <!-- Sent voice duration (next to play button) -->
+                <TextView
+                    android:id="@+id/sentVoiceDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="3s"
+                    android:textColor="#2C2C2C"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
 
             <!-- Sent message text -->
             <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/sentMessageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#000"
-                android:ellipsize="end"
-                android:maxWidth="200dp"
-                android:paddingBottom="8dp"
-                android:paddingTop="5dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerVertical="true"
                 android:layout_marginStart="5dp"
+                android:ellipsize="end"
                 android:gravity="start|top"
                 android:lineSpacingExtra="2dp"
                 android:lineSpacingMultiplier="1.2"
+                android:maxWidth="200dp"
                 android:maxLength="1000"
                 android:maxLines="5"
+                android:paddingTop="5dp"
+                android:paddingBottom="8dp"
                 android:scrollbars="vertical"
                 android:text="This is text message"
-                android:layout_centerVertical="true"
-                android:layout_alignParentTop="true"/>
+                android:textColor="#000" />
             <!-- Sent message time (next to text) -->
             <TextView
                 android:id="@+id/sentMessageTime"
@@ -75,9 +110,9 @@
             android:id="@+id/sentMessageImage"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@+id/profileSend"
             android:layout_alignParentTop="true"
             android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@+id/profileSend"
             android:adjustViewBounds="true"
             android:maxWidth="240dp"
             android:maxHeight="300dp"
@@ -89,8 +124,8 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_toStartOf="@+id/profileSend"
             android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@+id/profileSend"
             android:visibility="gone">
 
             <ImageView
@@ -111,50 +146,6 @@
 
         </FrameLayout>
 
-        <!-- LinearLayout for sent voice message -->
-        <LinearLayout
-            android:id="@+id/sentMessageVoice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginEnd="8dp"
-            android:layout_toStartOf="@+id/profileSend"
-            android:background="@drawable/bg_chat_sent"
-            android:orientation="horizontal"
-            android:paddingStart="15dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="15dp"
-            android:paddingBottom="10dp"
-            android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/sentVoicePlayButton"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="8dp"
-                android:src="@drawable/ic_voice_msg" />
-
-            <!-- Sent voice duration (next to play button) -->
-            <TextView
-                android:id="@+id/sentVoiceDuration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#2C2C2C"
-                android:textSize="14sp" />
-
-            <!-- Sent voice time (next to the voice duration) -->
-            <TextView
-                android:id="@+id/sentVoiceTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="8dp"
-                android:gravity="end|bottom"
-                android:text="10:00 am"
-                android:textColor="#2C2C2C"
-                android:textSize="10sp" />
-
-        </LinearLayout>
 
     </RelativeLayout>
 
@@ -162,26 +153,26 @@
         android:id="@+id/sentMessageFile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:background="@drawable/bg_chat_sent"
-        android:padding="10dp"
         android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp"
         android:visibility="gone">
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/document"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/document" />
 
         <TextView
             android:id="@+id/sentFileName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxWidth="200dp"
             android:text="File"
             android:textColor="#000000"
-            android:textSize="14sp"
-            android:maxWidth="200dp"/>
+            android:textSize="14sp" />
 
     </LinearLayout>
 
