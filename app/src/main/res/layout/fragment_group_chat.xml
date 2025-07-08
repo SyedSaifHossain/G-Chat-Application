@@ -133,12 +133,12 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp">
 
+
         <EditText
             android:id="@+id/message_input"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
@@ -147,8 +147,13 @@
             android:fontFamily="@font/poppins_regular"
             android:hint="Message"
             android:imeOptions="actionSend"
-            android:inputType="text"
-            android:paddingLeft="60dp"
+            android:inputType="textCapSentences|textAutoCorrect"
+            android:maxLength="1000"
+            android:maxLines="5"
+            android:minLines="1"
+            android:paddingLeft="55dp"
+            android:paddingRight="20dp"
+            android:scrollbars="vertical"
             android:textColorHint="#6b6b6b"
             android:textSize="18sp" />
 

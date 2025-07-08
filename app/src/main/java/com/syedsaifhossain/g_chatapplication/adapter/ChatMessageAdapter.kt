@@ -23,7 +23,9 @@ class ChatMessageAdapter(
     // --- ADDED: Avatar URLs ---
     private val myAvatarUrl: String?,
     private val otherUserAvatarUrl: String?,
-    private val onMessageLongClick: (ChatModel, View) -> Unit // Added: long click callback
+    private val onMessageLongClick: (ChatModel, View) -> Unit, // Added: long click callback
+    private val onImageClick: ((String) -> Unit)? // Add image click callback here
+
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -147,6 +149,14 @@ class ChatMessageAdapter(
                         }
                         timeText.visibility = View.VISIBLE
                         timeText.text = formatTime(message.timestamp)
+
+
+                        imageView?.setOnClickListener {
+                            message.imageUrl?.let { imageUrl ->
+                                onImageClick?.invoke(imageUrl)  // Trigger the click listener for image URL
+                            }
+                        }
+
                     }
                     "voice" -> {
                         voiceLayout?.visibility = View.VISIBLE
@@ -303,6 +313,12 @@ class ChatMessageAdapter(
                         timeText.visibility = View.VISIBLE
                         timeText.text = formatTime(message.timestamp)
                         bubbleLayout.visibility = View.GONE
+
+                        imageView?.setOnClickListener {
+                            message.imageUrl?.let { imageUrl ->
+                                onImageClick?.invoke(imageUrl)  // Trigger the click listener for image URL
+                            }
+                        }
                     }
                     "voice" -> {
                         voiceLayout?.visibility = View.VISIBLE
