@@ -193,6 +193,9 @@
         <action
             android:id="@+id/action_groupChatFragment_to_videoCallFragment"
             app:destination="@id/videoCallFragment5" />
+        <action
+            android:id="@+id/action_groupChatFragment_to_fullScreenImageFragment"
+            app:destination="@id/fullScreenImageFragment" />
     </fragment>
     <fragment
         android:id="@+id/signupPageFragment"
@@ -350,4 +353,9 @@
             android:id="@+id/action_discoverPageFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/fullScreenImageFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.FullScreenImageFragment"
+        android:label="fragment_full_screen_image"
+        tools:layout="@layout/fragment_full_screen_image" />
 </navigation>

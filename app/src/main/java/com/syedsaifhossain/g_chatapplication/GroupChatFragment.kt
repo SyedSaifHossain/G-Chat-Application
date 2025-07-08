@@ -386,13 +386,29 @@ class GroupChatFragment : Fragment() {
         }
     }
 
+
     private fun setupRecyclerView() {
-        adapter = GroupMessageAdapter(groupMessages, auth.uid.orEmpty()) { message, view ->
-            showMessageOptionsMenu(message, view)
-        }
+        adapter = GroupMessageAdapter(
+            messages = groupMessages,
+            currentUserId = auth.uid.orEmpty(),
+            onMessageLongClick = { message, view ->
+                showMessageOptionsMenu(message, view)
+            },
+            onImageClick = { imageUrl -> openImageInFragment(imageUrl)
+            }
+        )
         binding.groupChatRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.groupChatRecyclerView.adapter = adapter
     }
+
+
+    private fun openImageInFragment(imageUrl: String) {
+        val bundle = Bundle().apply {
+            putString("image_url", imageUrl)
+        }
+        findNavController().navigate(R.id.action_groupChatFragment_to_fullScreenImageFragment, bundle)
+    }
+
 
     private fun sendTextMessage() {
         val text = binding.messageInput.text.toString().trim()

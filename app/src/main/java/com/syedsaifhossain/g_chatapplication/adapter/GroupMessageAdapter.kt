@@ -24,13 +24,16 @@ import java.util.Locale
 import android.content.Intent
 import android.net.Uri
 import android.content.ActivityNotFoundException
+import android.os.Bundle
+import com.syedsaifhossain.g_chatapplication.FullScreenImageFragment
 import com.syedsaifhossain.g_chatapplication.VideoPlayerActivity
-
 
 class GroupMessageAdapter(
     private val messages: List<GroupMessage>,
     private val currentUserId: String,
-    private val onMessageLongClick: ((GroupMessage, View) -> Unit)? = null
+    private val onMessageLongClick: ((GroupMessage, View) -> Unit)? = null,
+    private val onImageClick: ((String) -> Unit)? = null
+
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -76,6 +79,11 @@ class GroupMessageAdapter(
                         .load(message.imageUrl)
                         .placeholder(R.drawable.default_image)
                         .into(binding.sentMessageImage)
+
+                    binding.sentMessageImage.setOnClickListener {
+                        message.imageUrl?.let { url -> onImageClick?.invoke(url) }
+                    }
+
                 }
                 "video" -> {
                     Log.d(TAG, "DISPLAY [SENT, position $adapterPosition]: Handling as VIDEO. URL: ${message.videoUrl}")
@@ -215,6 +223,9 @@ class GroupMessageAdapter(
                         .load(message.imageUrl)
                         .placeholder(R.drawable.default_image)
                         .into(binding.receivedMessageImage)
+                    binding.receivedMessageImage.setOnClickListener {
+                        message.imageUrl?.let { url -> onImageClick?.invoke(url) }
+                    }
                 }
                 "video" -> {
                     Log.d(TAG, "DISPLAY [RECEIVED, position $adapterPosition]: Handling as VIDEO. URL: ${message.videoUrl}")
