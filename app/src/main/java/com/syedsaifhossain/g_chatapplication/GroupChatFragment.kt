@@ -37,6 +37,8 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 import android.os.Environment
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
@@ -215,6 +217,40 @@ class GroupChatFragment : Fragment() {
         Log.d(TAG, "onViewCreated: Calling listenForGroupCalls.")
         listenForGroupCalls()
         Log.d(TAG, "onViewCreated: Finished.")
+
+        // Inside onViewCreated method
+        binding.messageInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(charSequence: CharSequence?, start: Int, count: Int, after: Int) {
+                // Do nothing
+            }
+
+            override fun onTextChanged(charSequence: CharSequence?, start: Int, before: Int, count: Int) {
+                if (!charSequence.isNullOrEmpty()) {
+                    binding.groupCameraIcon.visibility = View.GONE
+                    binding.groupChatAddButton.visibility = View.GONE
+                    binding.micButton.visibility = View.GONE
+                } else {
+                    binding.groupCameraIcon.visibility = View.VISIBLE
+                    binding.groupChatAddButton.visibility = View.VISIBLE
+                    binding.micButton.visibility = View.VISIBLE
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable?) {
+                // Do nothing
+            }
+        })
+
+        // In onViewCreated()
+        binding.messageInput.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEND || (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)) {
+                sendTextMessage() // Call your function to send a message
+                return@setOnEditorActionListener true
+            }
+            false
+        }
+
+
     }
 
     private fun initializePermissionLaunchers() {
@@ -409,7 +445,6 @@ class GroupChatFragment : Fragment() {
         findNavController().navigate(R.id.action_groupChatFragment_to_fullScreenImageFragment, bundle)
     }
 
-
     private fun sendTextMessage() {
         val text = binding.messageInput.text.toString().trim()
         if (text.isNotEmpty()) {
@@ -424,8 +459,8 @@ class GroupChatFragment : Fragment() {
                 senderName = myName,
                 senderAvatarUrl = myAvatarUrl
             )
-            chatRef.child(messageId).setValue(message)
-            binding.messageInput.text?.clear()
+            chatRef.child(messageId).setValue(message)  // Send message to Firebase
+            binding.messageInput.text?.clear()  // Clear the input field after sending
         }
     }
 

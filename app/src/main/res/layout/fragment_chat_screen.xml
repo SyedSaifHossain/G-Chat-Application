@@ -137,7 +137,6 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp">
 
-
         <EditText
             android:id="@+id/chatMessage_input"
             android:layout_width="0dp"
