@@ -88,7 +88,7 @@
                     android:layout_height="24dp"
                     android:layout_marginStart="10dp"
                     android:contentDescription="voice icon"
-                    android:src="@drawable/ic_voice_msg" />
+                    android:src="@drawable/speakeron" />
 
                 <TextView
                     android:id="@+id/voice_duration"

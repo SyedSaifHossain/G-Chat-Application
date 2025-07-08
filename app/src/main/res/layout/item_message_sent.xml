@@ -73,7 +73,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginEnd="8dp"
-                    android:src="@drawable/ic_voice_msg"/>
+                    android:src="@drawable/speakeron"/>
 
                 <!-- Sent voice duration (next to play button) -->
                 <TextView
