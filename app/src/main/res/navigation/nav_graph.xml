@@ -302,7 +302,11 @@
         android:id="@+id/chatScreenPageMoreOptionFragment"
         android:name="com.syedsaifhossain.g_chatapplication.ChatScreenPageMoreOptionFragment"
         android:label="fragment_chat_screen_page_more_option"
-        tools:layout="@layout/fragment_chat_screen_page_more_option" />
+        tools:layout="@layout/fragment_chat_screen_page_more_option" >
+        <action
+            android:id="@+id/action_chatScreenPageMoreOptionFragment_to_voiceCallFragment"
+            app:destination="@id/voiceCallFragment" />
+    </fragment>
     <fragment
         android:id="@+id/profileSettingFragment"
         android:name="com.syedsaifhossain.g_chatapplication.ProfileSettingFragment"
@@ -346,7 +350,11 @@
         android:id="@+id/chatScreenMoreOptionFragment"
         android:name="com.syedsaifhossain.g_chatapplication.ChatScreenMoreOptionFragment"
         android:label="fragment_chat_screen_more_option"
-        tools:layout="@layout/fragment_chat_screen_more_option" />
+        tools:layout="@layout/fragment_chat_screen_more_option" >
+        <action
+            android:id="@+id/action_chatScreenMoreOptionFragment_to_voiceCallFragment"
+            app:destination="@id/voiceCallFragment" />
+    </fragment>
     <fragment
         android:id="@+id/discoverPageFragment"
         android:name="com.syedsaifhossain.g_chatapplication.DiscoverPageFragment"

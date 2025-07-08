@@ -14,6 +14,7 @@ class ChatScreenPageMoreOptionFragment : Fragment() {
 
     private val binding get() = _binding!!
 
+    private var otherUserId: String? = null
     private var otherUserName: String? = null
     private var otherUserAvatarUrl: String? = null
     override fun onCreateView(
@@ -27,12 +28,14 @@ class ChatScreenPageMoreOptionFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val id = arguments?.getString("otherUserId")
 
         binding.moreOptionBackImg.setOnClickListener {
             findNavController().popBackStack()
         }
 
         arguments?.let {
+            otherUserId = it.getString("otherUserId")
             otherUserName = it.getString("otherUserName")
             otherUserAvatarUrl = it.getString("otherUserAvatarUrl")
         }
@@ -51,7 +54,13 @@ class ChatScreenPageMoreOptionFragment : Fragment() {
 
         }
 
-
+        // 音频通话按钮
+        binding.audioLayout.setOnClickListener {
+            if (otherUserId.isNullOrEmpty()) {
+                return@setOnClickListener
+            }
+            CallManager.initiateVoiceCall(this, otherUserId!!)
+        }
     }
     override fun onDestroyView() {
         super.onDestroyView()

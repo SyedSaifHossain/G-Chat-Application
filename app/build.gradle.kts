@@ -18,8 +18,8 @@ android {
         applicationId = "com.syedsaifhossain.g_chatapplication"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -109,4 +109,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // ConstraintLayout
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 }

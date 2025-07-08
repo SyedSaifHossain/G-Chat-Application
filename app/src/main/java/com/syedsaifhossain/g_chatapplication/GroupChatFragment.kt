@@ -488,6 +488,7 @@ class GroupChatFragment : Fragment() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 Log.d(TAG, "RECEIVE: onDataChange triggered. Snapshot has ${snapshot.childrenCount} children.")
                 if (!snapshot.exists()) return
+                if (_binding == null) return  // 判空保护，防止 binding 为空崩溃
 
                 groupMessages.clear()
                 for (snap in snapshot.children) {
@@ -503,7 +504,7 @@ class GroupChatFragment : Fragment() {
 
                 adapter.notifyDataSetChanged()
                 if (groupMessages.isNotEmpty()) {
-                    binding.groupChatRecyclerView.scrollToPosition(groupMessages.size - 1)
+                    _binding?.groupChatRecyclerView?.scrollToPosition(groupMessages.size - 1)
                 }
             }
 

@@ -4,78 +4,67 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="start"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="start">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/receivedSenderAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/profileimage"
+        app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/receivedSenderAvatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/profileimage"
-            android:layout_alignBottom="@+id/bubbleGroupChatReceive"
-            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/receivedSenderName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginBottom="2dp"
-            android:layout_toEndOf="@+id/receivedSenderAvatar"
             android:text="发送者"
-            android:textColor="#666"
+            android:textColor="#81d8d0"
             android:textSize="12sp"
-            android:visibility="gone" />
+            android:layout_marginBottom="2dp"
+            android:visibility="visible" />
 
-        <!-- Horizontal LinearLayout to contain message text and time -->
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bubbleGroupChatReceive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="10dp"
-            android:layout_toEndOf="@+id/receivedSenderAvatar"
             android:background="@drawable/bg_chat_received"
             android:maxWidth="240dp"
-            android:orientation="horizontal"
             android:padding="8dp">
 
-            <!-- Message Text -->
             <com.vanniktech.emoji.EmojiTextView
                 android:id="@+id/receivedMessageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:gravity="center"
-                android:paddingHorizontal="8dp"
                 android:text="This is receive message"
                 android:textColor="#000"
-                android:layout_alignParentStart="true" />
+                android:paddingHorizontal="8dp"
+                android:maxWidth="180dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/receivedMessageTime"
+                app:layout_constrainedWidth="true"/>
 
-            <!-- Time Text -->
             <TextView
                 android:id="@+id/receivedMessageTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="10dp"
-                android:layout_toEndOf="@+id/receivedMessageText"
                 android:text="10:00AM"
                 android:textColor="#2C2C2C"
                 android:textSize="10sp"
-                android:paddingBottom="5dp"/>
-
-        </RelativeLayout>
+                android:paddingBottom="2dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/receivedMessageText"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Other message components (Image, Video, etc.) -->
         <ImageView
@@ -144,7 +133,7 @@
 
         </LinearLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/receivedMessageFile"
