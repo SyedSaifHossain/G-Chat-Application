@@ -229,6 +229,9 @@
         <action
             android:id="@+id/action_chatScreenFragment_to_chatScreenPageMoreOptionFragment"
             app:destination="@id/chatScreenPageMoreOptionFragment" />
+        <action
+            android:id="@+id/action_chatScreenFragment_to_fullScreenImageFragment"
+            app:destination="@id/fullScreenImageFragment" />
     </fragment>
     <fragment
         android:id="@+id/videoCallFragment5"
