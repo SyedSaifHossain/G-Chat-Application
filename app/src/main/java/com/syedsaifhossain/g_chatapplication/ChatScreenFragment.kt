@@ -287,44 +287,63 @@ class ChatScreenFragment : Fragment() {
         }
 
         // 实时获取双方头像url
+
         val usersRef = FirebaseDatabase.getInstance().getReference("users")
+
+// Fetch other user's avatar URL
         usersRef.child(otherUserId!!).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 otherUserAvatarUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
                     ?: snapshot.child("avatarUrl").getValue(String::class.java)
                             ?: ""
-                // 加载到顶部头像前加日志
-                Log.d("ChatScreenFragment", "加载到的头像URL: $otherUserAvatarUrl")
-                usersRef.child(currentUserId)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(mySnap: DataSnapshot) {
-                            myAvatarUrl =
-                                mySnap.child("profileImageUrl").getValue(String::class.java)
-                                    ?: mySnap.child("avatarUrl").getValue(String::class.java)
-                                            ?: ""
-                            // 用最新头像初始化Adapter
-                            chatMessageAdapter = ChatMessageAdapter(
-                                chatList,
-                                currentUserId,
-                                myAvatarUrl,
-                                otherUserAvatarUrl
-                            ) { message, view ->
-                                showMessageOptionsMenu(message, view)
-                            }
-                            binding.chatScreenRecyclerView.layoutManager =
-                                LinearLayoutManager(requireContext())
-                            binding.chatScreenRecyclerView.adapter = chatMessageAdapter
-                            chatMessageAdapter.notifyDataSetChanged()
-                            // 只有adapter初始化后再监听消息，避免未初始化异常
-                            listenForMessages()
-                        }
+                Log.d("ChatScreenFragment", "Other user's avatar URL: $otherUserAvatarUrl")
 
-                        override fun onCancelled(error: DatabaseError) {}
-                    })
+                // Fetch current user's avatar URL
+                usersRef.child(currentUserId).addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(mySnap: DataSnapshot) {
+                        myAvatarUrl = mySnap.child("profileImageUrl").getValue(String::class.java)
+                            ?: mySnap.child("avatarUrl").getValue(String::class.java)
+                                    ?: ""
+
+                        Log.d("ChatScreenFragment", "Current user's avatar URL: $myAvatarUrl")
+
+                        // Initialize the adapter with onImageClick implementation
+                        chatMessageAdapter = ChatMessageAdapter(
+                            chatList,
+                            currentUserId,
+                            myAvatarUrl,
+                            otherUserAvatarUrl,
+                            { message, view -> showMessageOptionsMenu(message, view) },
+                            { imageUrl ->
+                                // Handle image click here, for example navigate to FullScreenFragment
+                                val bundle = Bundle().apply {
+                                    putString("image_url", imageUrl)
+                                }
+
+                                findNavController().navigate(R.id.action_chatScreenFragment_to_fullScreenImageFragment, bundle)
+                            }
+                        )
+
+                        // Set the adapter and layout manager for the RecyclerView
+                        binding.chatScreenRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+                        binding.chatScreenRecyclerView.adapter = chatMessageAdapter
+                        chatMessageAdapter.notifyDataSetChanged()
+
+                        // Start listening for messages after the adapter is initialized
+                        listenForMessages()
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("ChatScreenFragment", "Error fetching current user data: ${error.message}")
+                    }
+                })
             }
 
-            override fun onCancelled(error: DatabaseError) {}
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ChatScreenFragment", "Error fetching other user data: ${error.message}")
+            }
         })
+
 
         // Setup Emoji Popup (Original)
         emojiPopup = EmojiPopup.Builder.fromRootView(binding.root)
