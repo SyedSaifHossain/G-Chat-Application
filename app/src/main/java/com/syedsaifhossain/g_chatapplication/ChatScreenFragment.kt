@@ -272,8 +272,6 @@ class ChatScreenFragment : Fragment() {
                 "ChatScreenFragment",
                 "Essential arguments (otherUserId or otherUserName) are missing!"
             )
-            Toast.makeText(requireContext(), "Error loading chat information.", Toast.LENGTH_SHORT)
-                .show()
             findNavController().popBackStack() // Go back if essential info is missing
             return // Stop further execution
         }
@@ -506,12 +504,12 @@ class ChatScreenFragment : Fragment() {
 
 
         binding.moreIcon.setOnClickListener {
-
             val bundle = Bundle().apply {
+                putString("otherUserId", otherUserId)
                 putString("otherUserName", otherUserName)
                 putString("otherUserAvatarUrl", otherUserAvatarUrl)
             }
-            findNavController().navigate(R.id.chatScreenPageMoreOptionFragment, bundle)
+            findNavController().navigate(R.id.action_chatScreenFragment_to_chatScreenPageMoreOptionFragment, bundle)
         }
     }
 
@@ -628,11 +626,6 @@ class ChatScreenFragment : Fragment() {
     private fun sendMessageToFirebase(messageText: String) {
         if (otherUserId == null) {
             Log.e("ChatScreenFragment", "Cannot send message, otherUserId is null.")
-            Toast.makeText(
-                requireContext(),
-                "Error: Chat partner info missing.",
-                Toast.LENGTH_SHORT
-            ).show()
             return
         }
 
@@ -640,7 +633,6 @@ class ChatScreenFragment : Fragment() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
             Log.e("ChatScreenFragment", "User not logged in")
-            Toast.makeText(requireContext(), "Please login first", Toast.LENGTH_SHORT).show()
             return
         }
         val senderId = currentUser.uid
@@ -724,14 +716,12 @@ class ChatScreenFragment : Fragment() {
     private fun listenForMessages() {
         if (otherUserId == null) {
             Log.e("ChatScreenFragment", "Cannot listen for messages, otherUserId is null.")
-            Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT).show()
             return
         }
 
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
             Log.e("ChatScreenFragment", "User not logged in")
-            Toast.makeText(requireContext(), "Please login first", Toast.LENGTH_SHORT).show()
             return
         }
         val senderId = currentUser.uid
@@ -814,22 +804,16 @@ class ChatScreenFragment : Fragment() {
     private fun uploadImageToFirebase(imageUri: Uri) {
         try {
             if (imageUri == Uri.EMPTY) {
-                Toast.makeText(requireContext(), "Invalid image selected", Toast.LENGTH_SHORT)
-                    .show(); return
+                return
             }
             val inputStream = requireContext().contentResolver.openInputStream(imageUri)
             if (inputStream == null) {
-                Toast.makeText(requireContext(), "Cannot access image", Toast.LENGTH_SHORT)
-                    .show(); return
+                return
             }
             inputStream.close()
 
             val compressedImageUri = compressImage(imageUri) ?: run {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to compress",
-                    Toast.LENGTH_SHORT
-                ).show(); return
+                return
             }
 
             val storageRef = FirebaseStorage.getInstance().reference
@@ -875,45 +859,27 @@ class ChatScreenFragment : Fragment() {
                         )
                         chatRef.child(messageId).setValue(message)
                             .addOnSuccessListener {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Image sent",
-                                    Toast.LENGTH_SHORT
-                                ).show(); Log.d("ChatScreenFragment", "Image message sent")
+                                Log.d("ChatScreenFragment", "Image message sent")
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Failed to send image message: ${e.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show(); Log.e(
-                                "ChatScreenFragment",
-                                "Failed to send image message",
-                                e
-                            )
+                                Log.e(
+                                    "ChatScreenFragment",
+                                    "Failed to send image message",
+                                    e
+                                )
                             }
                         _binding?.progressBar?.visibility = View.GONE
                     }.addOnFailureListener { e ->
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to get image URL: ${e.message}",
-                            Toast.LENGTH_SHORT
-                        ).show(); _binding?.progressBar?.visibility =
+                        _binding?.progressBar?.visibility =
                         View.GONE; Log.e("ChatScreenFragment", "Failed to get download URL", e)
                     }
                 }
                 .addOnFailureListener { e ->
                     val errorMessage = "Failed to upload: ${e.message}" // Simplified error
-                    Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
                     _binding?.progressBar?.visibility = View.GONE
                     Log.e("ChatScreenFragment", "Failed to upload image", e)
                 }
         } catch (e: Exception) {
-            Toast.makeText(
-                requireContext(),
-                "Error uploading image: ${e.message}",
-                Toast.LENGTH_SHORT
-            ).show()
             _binding?.progressBar?.visibility = View.GONE
             Log.e("ChatScreenFragment", "Exception during image upload", e)
         }
@@ -1008,18 +974,9 @@ class ChatScreenFragment : Fragment() {
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
                 cameraLauncher.launch(intent)
             } ?: run {
-                Toast.makeText(
-                    requireContext(),
-                    "Error preparing camera",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
         } catch (e: Exception) {
-            Toast.makeText(
-                requireContext(),
-                "Error opening camera: ${e.message}",
-                Toast.LENGTH_SHORT
-            ).show(); Log.e("ChatScreenFragment", "Error opening camera", e)
+            Log.e("ChatScreenFragment", "Error opening camera", e)
         }
     }
 
@@ -1074,13 +1031,6 @@ class ChatScreenFragment : Fragment() {
             recordStartTime = System.currentTimeMillis()
             Log.d("VoiceDebug", "Recording started at timestamp: $recordStartTime")
 
-            // Show recording UI
-            //    binding.recordingIndicatorLayout.visibility = View.GONE
-            //    binding.recordingStatusText.visibility = View.VISIBLE
-            //  binding.recordingMicIcon.visibility = View.VISIBLE
-//            binding.recordingStatusText.text = "Slide left to cancel"
-//            binding.recordingStatusText.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
-
             // Start timer
             startTimer()
             Log.d("VoiceDebug", "Recording UI and timer started")
@@ -1088,11 +1038,6 @@ class ChatScreenFragment : Fragment() {
         } catch (e: Exception) {
             e.printStackTrace()
             Log.e("VoiceDebug", "Failed to start recording: ${e.message}")
-            Toast.makeText(
-                requireContext(),
-                "Failed to start recording: ${e.message}",
-                Toast.LENGTH_LONG
-            ).show()
         }
     }
 
@@ -1129,7 +1074,6 @@ class ChatScreenFragment : Fragment() {
                 }
                 mediaRecorder = null
                 isRecording = false
-                //   binding.recordingIndicatorLayout.visibility = View.GONE
                 Log.d("VoiceDebug", "Recording cancelled - too short")
                 return
             }
@@ -1142,7 +1086,6 @@ class ChatScreenFragment : Fragment() {
             } finally {
                 mediaRecorder = null
                 isRecording = false
-                //  binding.recordingIndicatorLayout.visibility = View.GONE
                 recordingTimer?.cancel()
             }
 
@@ -1158,7 +1101,6 @@ class ChatScreenFragment : Fragment() {
             Log.e("VoiceDebug", "Failed to stop recording: ${e.message}")
             mediaRecorder = null
             isRecording = false
-            //    binding.recordingIndicatorLayout.visibility = View.GONE
             recordingTimer?.cancel()
         }
     }
@@ -1192,11 +1134,6 @@ class ChatScreenFragment : Fragment() {
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Log.e("VoiceDebug", "Failed to upload voice file: ${e.message}")
-                    Toast.makeText(
-                        requireContext(),
-                        "Failed to send: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
                     _binding?.progressBar?.visibility = View.GONE
                 }
             }
@@ -1244,26 +1181,10 @@ class ChatScreenFragment : Fragment() {
                     )
                     chatRef.child(messageId).setValue(message)
                         .addOnSuccessListener {
-                            Toast.makeText(
-                                requireContext(),
-                                "Video sent",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(
-                                requireContext(),
-                                "Failed to send: ${e.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
                         }
                     _binding?.progressBar?.visibility = View.GONE
                 }.addOnFailureListener { e ->
-                    Toast.makeText(
-                        requireContext(),
-                        "Failed to get video URL: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show(); _binding?.progressBar?.visibility = View.GONE
+                    _binding?.progressBar?.visibility = View.GONE
                 }
             }
             .addOnFailureListener { e ->
@@ -1326,14 +1247,6 @@ class ChatScreenFragment : Fragment() {
         chatRef.child(message.messageId).updateChildren(updates)
             .addOnSuccessListener {
                 listenForMessages()
-                Toast.makeText(requireContext(), "Message recalled", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to recall: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
             }
     }
 
@@ -1371,13 +1284,6 @@ class ChatScreenFragment : Fragment() {
         )
 
         chatRef.child(message.messageId).updateChildren(updates)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Message updated", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Update failed: ${e.message}", Toast.LENGTH_SHORT)
-                    .show()
-            }
     }
 
     private fun deleteMessage(message: ChatModel) {
@@ -1387,16 +1293,6 @@ class ChatScreenFragment : Fragment() {
         val chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatNodeId)
 
         chatRef.child(message.messageId).removeValue()
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Message deleted", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to delete: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
     }
 
     private fun copyMessageToClipboard(message: ChatModel) {
@@ -1404,7 +1300,6 @@ class ChatScreenFragment : Fragment() {
             requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         val clip = android.content.ClipData.newPlainText("message", message.message)
         clipboard.setPrimaryClip(clip)
-        Toast.makeText(requireContext(), "Message copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
     // 录音时和录音后都显示底部气泡
@@ -1560,8 +1455,6 @@ class ChatScreenFragment : Fragment() {
     }
 
     private fun stopRecordingWithBubble() {
-        Toast.makeText(requireContext(), "stopRecordingWithBubble called", Toast.LENGTH_SHORT)
-            .show()
         Log.d("VoiceDebug", "stopRecordingWithBubble called")
         stopRecording()
         recordTimer?.cancel()
@@ -1573,86 +1466,10 @@ class ChatScreenFragment : Fragment() {
         val btnDelete = bubble.findViewById<ImageView>(R.id.btnDelete)
         val btnSend = bubble.findViewById<ImageView>(R.id.btnSend)
         Log.d("VoiceDebug", "btnPlayPause=$btnPlayPause, btnSend=$btnSend, btnDelete=$btnDelete")
-        Toast.makeText(
-            requireContext(),
-            "btnPlayPause=$btnPlayPause, btnSend=$btnSend, btnDelete=$btnDelete",
-            Toast.LENGTH_LONG
-        ).show()
         tvDuration.text = String.format("%d:%02d", recordSeconds / 60, recordSeconds % 60)
         btnPlayPause.setImageResource(android.R.drawable.ic_media_pause)
         btnPlayPause.isEnabled = true
         btnSend.isEnabled = true
-
-        // 试听播放/暂停
-        var previewPlayer: MediaPlayer? = null
-        var isPreviewPlaying = false
-        btnPlayPause.setOnClickListener {
-            Toast.makeText(requireContext(), "PlayPause Clicked", Toast.LENGTH_SHORT).show()
-            Log.d("VoiceDebug", "PlayPause Clicked")
-            if (recordedFilePath.isNullOrEmpty() || !File(recordedFilePath!!).exists()) {
-                Toast.makeText(
-                    requireContext(),
-                    "Audio file does not exist, cannot play",
-                    Toast.LENGTH_SHORT
-                ).show()
-                Log.e("VoiceDebug", "录音文件不存在: $recordedFilePath")
-                return@setOnClickListener
-            }
-            if (isPreviewPlaying) {
-                previewPlayer?.pause()
-                btnPlayPause.setImageResource(android.R.drawable.ic_media_play)
-                isPreviewPlaying = false
-            } else {
-                try {
-                    if (previewPlayer == null) {
-                        previewPlayer = MediaPlayer().apply {
-                            setDataSource(recordedFilePath)
-                            prepare()
-                            setOnCompletionListener {
-                                btnPlayPause.setImageResource(android.R.drawable.ic_media_play)
-                                isPreviewPlaying = false
-                                Log.d("VoiceDebug", "播放完成")
-                                Toast.makeText(requireContext(), "播放完成", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                        }
-                    }
-                    previewPlayer?.start()
-                    btnPlayPause.setImageResource(android.R.drawable.ic_media_pause)
-                    isPreviewPlaying = true
-                    Log.d("VoiceDebug", "开始播放")
-                    Toast.makeText(requireContext(), "开始播放", Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "播放失败: ${e.message}", Toast.LENGTH_SHORT)
-                        .show()
-                    Log.e("VoiceDebug", "播放失败: ${e.message}")
-                    e.printStackTrace()
-                }
-            }
-        }
-        // 删除按钮
-        btnDelete.setOnClickListener {
-            Toast.makeText(requireContext(), "Delete Clicked", Toast.LENGTH_SHORT).show()
-            Log.d("VoiceDebug", "Delete Clicked")
-            previewPlayer?.stop()
-            previewPlayer?.release()
-            previewPlayer = null
-            isPreviewPlaying = false
-            binding.voicePreviewLayout.root.visibility = View.GONE
-            binding.chatScreenBottomLayout.visibility = View.VISIBLE
-            recordedFilePath?.let {
-                val deleted = File(it).delete()
-                Toast.makeText(requireContext(), "录音文件删除: $deleted", Toast.LENGTH_SHORT)
-                    .show()
-                Log.d("VoiceDebug", "录音文件删除: $deleted, 路径: $it")
-            }
-        }
-        // 录音完成时弹Toast
-        // Toast.makeText(requireContext(), "录音完成，文件: $recordedFilePath, 存在: ${File(recordedFilePath ?: "").exists()}", Toast.LENGTH_LONG).show()
-        Log.d(
-            "VoiceDebug",
-            "录音完成，文件: $recordedFilePath, 存在: ${File(recordedFilePath ?: "").exists()}"
-        )
     }
 
     // 录音语音消息上传并发送
@@ -1772,7 +1589,6 @@ class ChatScreenFragment : Fragment() {
                         dialog.dismiss()
                         val message = if (status == "rejected") "Call rejected" else "Call ended"
                         context?.let { ctx ->
-                            Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
