@@ -238,27 +238,19 @@ class VideoCallFragment : Fragment() {
         // Reset destruction flag
         isFragmentDestroying = false
         
-        // Safely get NavController
-        safeNavController = try { 
-            if (isAdded && parentFragmentManager.isStateSaved.not()) {
-                findNavController() 
+        // 修复：确保navController正确初始化
+        try {
+            if (isAdded && !isFragmentDestroying) {
+                navController = findNavController()
+                safeNavController = navController
+                Log.d("VideoCallDebug", "NavController initialized successfully")
             } else {
-                null
+                Log.d("VideoCallDebug", "Fragment not ready for NavController initialization")
             }
         } catch (e: Exception) { 
             Log.e("VideoCall", "Failed to get NavController: ${e.message}")
-            null 
-        }
-        
-        navController = try {
-            if (isAdded && parentFragmentManager.isStateSaved.not()) {
-                findNavController()
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            Log.e("VideoCall", "Failed to get NavController: "+e.message)
-            null
+            navController = null
+            safeNavController = null
         }
         
         callId = arguments?.getString("callId")
@@ -939,20 +931,51 @@ class VideoCallFragment : Fragment() {
             Log.d("VideoCall", "Fragment not attached or being destroyed, skipping popBackStack")
             return
         }
+        
+        Log.d("VideoCallDebug", "safePopBackStack called, navController=$navController")
+        
         try {
             if (navController != null && navController!!.currentDestination != null) {
                 Log.d("VideoCallDebug", "Using saved NavController to pop back")
+                Log.d("VideoCallDebug", "Current destination: ${navController!!.currentDestination?.label}")
                 val popped = navController!!.popBackStack()
+                Log.d("VideoCallDebug", "popBackStack result: $popped")
                 if (!popped) {
                     // popBackStack失败，强制跳转到聊天界面
                     Log.d("VideoCallDebug", "popBackStack failed, navigating to chatScreenFragment")
                     navController!!.navigate(R.id.chatScreenFragment)
+                } else {
+                    Log.d("VideoCallDebug", "popBackStack succeeded, should be back to previous screen")
                 }
                 return
+            } else {
+                Log.d("VideoCallDebug", "NavController is null or currentDestination is null")
             }
         } catch (e: Exception) {
             Log.e("VideoCall", "Failed to use saved NavController: ${e.message}")
         }
+        
+        // 兜底方案1：尝试重新获取NavController
+        try {
+            if (isAdded && !isFragmentDestroying) {
+                val freshNavController = findNavController()
+                Log.d("VideoCallDebug", "Trying fresh NavController")
+                Log.d("VideoCallDebug", "Fresh NavController current destination: ${freshNavController.currentDestination?.label}")
+                val popped = freshNavController.popBackStack()
+                Log.d("VideoCallDebug", "Fresh NavController popBackStack result: $popped")
+                if (!popped) {
+                    Log.d("VideoCallDebug", "Fresh NavController popBackStack failed, navigating to chatScreenFragment")
+                    freshNavController.navigate(R.id.chatScreenFragment)
+                } else {
+                    Log.d("VideoCallDebug", "Fresh NavController popBackStack succeeded")
+                }
+                return
+            }
+        } catch (e: Exception) {
+            Log.e("VideoCall", "Failed to use fresh NavController: ${e.message}")
+        }
+        
+        // 兜底方案2：使用Activity的onBackPressed
         try {
             if (isAdded && activity != null) {
                 Log.d("VideoCallDebug", "Using Activity's onBackPressed as fallback")
