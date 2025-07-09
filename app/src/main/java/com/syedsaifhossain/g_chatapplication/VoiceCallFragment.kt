@@ -74,9 +74,10 @@ class VoiceCallFragment : Fragment() {
     // 添加一个标志来跟踪Fragment是否正在销毁
     private var isFragmentDestroying = false
 
+    // 在所有Agora回调中补充详细日志
     private val mRtcEventHandler: IRtcEngineEventHandler = object : IRtcEngineEventHandler() {
         override fun onUserJoined(uid: Int, elapsed: Int) {
-            Log.d("AgoraJoin", "onUserJoined: remote uid=$uid")
+            Log.d("AgoraJoin", "onUserJoined: remote uid=$uid, callId=$callId")
             if (isAdded && activity != null) {
                 activity?.runOnUiThread {
                     if (isAdded && context != null) {
@@ -89,6 +90,7 @@ class VoiceCallFragment : Fragment() {
         }
 
         override fun onUserOffline(uid: Int, reason: Int) {
+            Log.d("AgoraJoin", "onUserOffline: remote uid=$uid, reason=$reason, callId=$callId")
             if (isAdded && activity != null) {
                 activity?.runOnUiThread {
                     if (isAdded && context != null) {
@@ -101,11 +103,21 @@ class VoiceCallFragment : Fragment() {
         }
 
         override fun onJoinChannelSuccess(channel: String, uid: Int, elapsed: Int) {
-            Log.d("AgoraJoin", "onJoinChannelSuccess: channel=$channel, uid=$uid")
+            Log.d("AgoraJoin", "onJoinChannelSuccess: channel=$channel, uid=$uid, callId=$callId")
+            channelJoinRetryCount = 0
             if (isAdded && activity != null) {
                 activity?.runOnUiThread {
                     if (isAdded && context != null) {
                         Log.d("AgoraVoice", "Joined channel successfully: $channel, uid: $uid")
+                        // 强制初始化音频状态
+                        try {
+                            agoraEngine?.muteLocalAudioStream(false)
+                            Log.d("AgoraVoice", "Called muteLocalAudioStream(false)")
+                            agoraEngine?.setEnableSpeakerphone(true)
+                            Log.d("AgoraVoice", "Called setEnableSpeakerphone(true)")
+                        } catch (e: Exception) {
+                            Log.e("AgoraVoice", "Error initializing audio state: ${e.message}")
+                        }
                         context?.let { ctx ->
                             Toast.makeText(ctx, "Joined channel: $channel", Toast.LENGTH_SHORT).show()
                         }
@@ -116,10 +128,10 @@ class VoiceCallFragment : Fragment() {
         }
 
         override fun onError(err: Int) {
+            Log.e("AgoraVoice", "Agora Error: $err, callId=$callId")
             if (isAdded && activity != null) {
                 activity?.runOnUiThread {
                     if (isAdded && context != null) {
-                        Log.e("AgoraVoice", "Agora Error: $err")
                         val errorMessage = when(err) {
                             Constants.ERR_INVALID_APP_ID -> "Invalid App ID. Please check your Agora App ID."
                             Constants.ERR_INVALID_TOKEN -> "Invalid or expired token. Generate a new token if required."
@@ -128,12 +140,38 @@ class VoiceCallFragment : Fragment() {
                             Constants.ERR_NO_PERMISSION -> "No audio recording permission."
                             else -> "Unknown Agora Error: $err"
                         }
-                        context?.let { ctx ->
-                            Toast.makeText(ctx, "Agora Error: $errorMessage", Toast.LENGTH_LONG).show()
+                        
+                        // Retry channel join for certain errors
+                        if (err == Constants.ERR_JOIN_CHANNEL_REJECTED || err == Constants.ERR_INVALID_TOKEN) {
+                            if (channelJoinRetryCount < maxChannelJoinRetries - 1) {
+                                channelJoinRetryCount++
+                                Log.d("VoiceCallDebug", "Retrying channel join (${channelJoinRetryCount + 1}/$maxChannelJoinRetries)")
+                                context?.let { ctx ->
+                                    Toast.makeText(ctx, "Retrying channel join...", Toast.LENGTH_SHORT).show()
+                                }
+                                // Retry after a short delay
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    if (isAdded && !isFragmentDestroying) {
+                                        fetchTokenAndJoinChannel()
+                                    }
+                                }, 2000)
+                            } else {
+                                Log.e("VoiceCallDebug", "Max channel join retries reached")
+                                context?.let { ctx ->
+                                    Toast.makeText(ctx, "Failed to join channel after $maxChannelJoinRetries attempts", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        } else {
+                            context?.let { ctx ->
+                                Toast.makeText(ctx, "Agora Error: $errorMessage", Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                 }
             }
+        }
+        override fun onConnectionStateChanged(state: Int, reason: Int) {
+            Log.d("AgoraVoice", "onConnectionStateChanged: state=$state, reason=$reason, callId=$callId")
         }
     }
 
@@ -192,11 +230,8 @@ class VoiceCallFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
-        // 重置销毁标志
-        isFragmentDestroying = false
-        
-        // 安全获取NavController
+        // 关键：每次都从arguments获取callId
+        callId = arguments?.getString("callId")
         navController = try { 
             if (isAdded && parentFragmentManager.isStateSaved.not()) {
                 findNavController() 
@@ -204,15 +239,40 @@ class VoiceCallFragment : Fragment() {
                 null
             }
         } catch (e: Exception) { 
-            Log.e("VoiceCall", "获取NavController失败: ${e.message}")
+            Log.e("VoiceCall", "Failed to get NavController: ${e.message}")
             null 
         }
         
-        callId = arguments?.getString("callId")
-        Log.d("VoiceCallDebug", "onViewCreated: callId=$callId")
+        // 打印所有参数
+        Log.d("VoiceCallDebug", "onViewCreated: callId=$callId, arguments=$arguments")
+        if (callId.isNullOrEmpty()) {
+            Log.e("VoiceCallDebug", "callId is null or empty in onViewCreated, aborting")
+            context?.let { ctx ->
+                Toast.makeText(ctx, "通话参数异常，请重试", Toast.LENGTH_LONG).show()
+            }
+            safePopBackStack()
+            return
+        }
+        
+        // Start initialization process immediately
         if (callId != null) {
             listenCallStatus(callId!!)
             showWaitingIfPending(callId!!)
+            
+            // Test token server connection first
+            testTokenServer()
+            
+            // Start permission check and initialization immediately
+            Log.d("VoiceCallDebug", "Starting permission check and initialization process")
+            if (!checkPermissions()) {
+                Log.d("PermissionDebug", "Permissions not granted, requesting...")
+                requestPermissions()
+            } else {
+                Log.d("PermissionDebug", "Permissions already granted, fetching token and initializing channel.")
+                fetchTokenAndJoinChannel()
+            }
+        } else {
+            Log.e("VoiceCallDebug", "callId is null, cannot proceed")
         }
 
         val groupId = arguments?.getString("groupId")
@@ -223,21 +283,22 @@ class VoiceCallFragment : Fragment() {
     }
 
     private fun checkPermissions(): Boolean {
-        Log.d("PermissionDebug", "Checking permissions...")
+        Log.d("VoiceCallDebug", "Checking permissions...")
         for (permission in REQUIRED_PERMISSIONS) {
             context?.let { ctx ->
                 val status = ContextCompat.checkSelfPermission(ctx, permission)
-                Log.d("PermissionDebug", "Permission $permission status: ${if (status == PackageManager.PERMISSION_GRANTED) "GRANTED" else "DENIED"}")
+                Log.d("VoiceCallDebug", "Permission $permission status: ${if (status == PackageManager.PERMISSION_GRANTED) "GRANTED" else "DENIED"}")
                 if (status != PackageManager.PERMISSION_GRANTED) {
                     return false
                 }
             } ?: return false
         }
-        Log.d("PermissionDebug", "All permissions checked and granted.")
+        Log.d("VoiceCallDebug", "All permissions granted")
         return true
     }
 
     private fun requestPermissions() {
+        Log.d("VoiceCallDebug", "Requesting permissions")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             ActivityCompat.requestPermissions(
                 requireActivity(),
@@ -253,17 +314,17 @@ class VoiceCallFragment : Fragment() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        Log.d("PermissionDebug", "onRequestPermissionsResult called. RequestCode: $requestCode")
+        Log.d("VoiceCallDebug", "Permission request result: requestCode=$requestCode")
         if (requestCode == PERMISSION_REQ_ID) {
             val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
             for (i in permissions.indices) {
-                Log.d("PermissionDebug", "Permission: ${permissions[i]}, Granted: ${grantResults[i] == PackageManager.PERMISSION_GRANTED}")
+                Log.d("VoiceCallDebug", "Permission: ${permissions[i]}, Granted: ${grantResults[i] == PackageManager.PERMISSION_GRANTED}")
             }
             if (allGranted) {
-                Log.d("PermissionDebug", "All requested permissions granted. Fetching token and initializing channel.")
+                Log.d("VoiceCallDebug", "All permissions granted, starting token fetch and channel initialization")
                 fetchTokenAndJoinChannel()
             } else {
-                Log.e("PermissionDebug", "Not all permissions granted. Cannot start voice call.")
+                Log.e("VoiceCallDebug", "Not all permissions granted, cannot start voice call")
                 context?.let { ctx ->
                     Toast.makeText(ctx, "Permissions not granted. Cannot start voice call.", Toast.LENGTH_LONG).show()
                 }
@@ -271,19 +332,24 @@ class VoiceCallFragment : Fragment() {
                     try {
                         activity?.onBackPressedDispatcher?.onBackPressed()
                     } catch (e: Exception) {
-                        Log.e("VoiceCall", "权限被拒绝时返回失败: ${e.message}")
+                        Log.e("VoiceCall", "Failed to go back when permissions denied: ${e.message}")
                     }
                 }
             }
         } else {
-            Log.d("PermissionDebug", "Unknown request code: $requestCode")
+            Log.d("VoiceCallDebug", "Unknown request code: $requestCode")
         }
     }
 
     // ----------- Token 获取逻辑（Node.js Token Server） -----------
+    private var tokenRetryCount = 0
+    private val maxTokenRetries = 3
+    
     private fun fetchTokenAndJoinChannel() {
         val currentUser = auth.currentUser
+        Log.d("VoiceCallDebug", "fetchTokenAndJoinChannel: callId=$callId, currentUser=${currentUser?.uid}")
         if (currentUser == null) {
+            Log.e("VoiceCallDebug", "User not authenticated")
             if (isAdded) {
                 context?.let { ctx ->
                     Toast.makeText(ctx, "User not authenticated. Please log in.", Toast.LENGTH_LONG).show()
@@ -292,48 +358,62 @@ class VoiceCallFragment : Fragment() {
                     try {
                         activity?.onBackPressedDispatcher?.onBackPressed()
                     } catch (e: Exception) {
-                        Log.e("VoiceCall", "用户未认证时返回失败: ${e.message}")
+                        Log.e("VoiceCall", "Failed to go back when user not authenticated: ${e.message}")
                     }
                 }
             }
             return
         }
-
+        if (callId.isNullOrEmpty()) {
+            Log.e("VoiceCallDebug", "callId is null or empty in fetchTokenAndJoinChannel, aborting")
+            context?.let { ctx ->
+                Toast.makeText(ctx, "通话参数异常，请重试", Toast.LENGTH_LONG).show()
+            }
+            safePopBackStack()
+            return
+        }
         val agoraUid = Math.abs(currentUser.uid.hashCode())
-        val channelName = CHANNEL_NAME
+        val channelName = "channel_$callId"
+        Log.d("VoiceCallDebug", "fetchTokenAndJoinChannel: channelName=$channelName, agoraUid=$agoraUid")
         val url = "https://agora-token-service-oajn.onrender.com/rtc/$channelName/publisher/uid/$agoraUid/"
-        
-        Log.d("VoiceCall", "Requesting token with parameters:")
-        Log.d("VoiceCall", "URL: $url")
-        Log.d("VoiceCall", "Channel Name: $channelName")
-        Log.d("VoiceCall", "User ID: ${currentUser.uid}")
-        Log.d("VoiceCall", "Agora UID: $agoraUid")
+        Log.d("VoiceCallDebug", "Request URL: $url")
 
         val client = OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
             .build()
             
         val request = Request.Builder().url(url).build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                if (!isAdded) {
-                    Log.d("VoiceCall", "Fragment not attached, ignoring network failure")
-                    return
-                }
-                Log.e("VoiceCall", "Network request failed: ${e.message}")
+                Log.e("VoiceCallDebug", "Failed to get token (attempt ${tokenRetryCount + 1}): ${e.message}")
                 if (isAdded && activity != null) {
                     activity?.runOnUiThread {
                         if (isAdded && context != null) {
-                            context?.let { ctx ->
-                                Toast.makeText(ctx, "Failed to get token: ${e.message}", Toast.LENGTH_LONG).show()
-                            }
-                            if (isAdded && activity != null) {
-                                try {
-                                    activity?.onBackPressedDispatcher?.onBackPressed()
-                                } catch (e2: Exception) {
-                                    Log.e("VoiceCall", "获取token失败时返回失败: ${e2.message}")
+                            if (tokenRetryCount < maxTokenRetries - 1) {
+                                tokenRetryCount++
+                                Log.d("VoiceCallDebug", "Retrying token request (${tokenRetryCount + 1}/$maxTokenRetries)")
+                                context?.let { ctx ->
+                                    Toast.makeText(ctx, "Retrying token request...", Toast.LENGTH_SHORT).show()
+                                }
+                                // Retry after a short delay
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    if (isAdded && !isFragmentDestroying) {
+                                        fetchTokenAndJoinChannel()
+                                    }
+                                }, 2000)
+                            } else {
+                                Log.e("VoiceCallDebug", "Max token retries reached")
+                                context?.let { ctx ->
+                                    Toast.makeText(ctx, "Failed to get token after $maxTokenRetries attempts", Toast.LENGTH_LONG).show()
+                                }
+                                if (isAdded && activity != null) {
+                                    try {
+                                        activity?.onBackPressedDispatcher?.onBackPressed()
+                                    } catch (e2: Exception) {
+                                        Log.e("VoiceCall", "Failed to go back when token request failed: ${e2.message}")
+                                    }
                                 }
                             }
                         }
@@ -341,110 +421,48 @@ class VoiceCallFragment : Fragment() {
                 }
             }
             override fun onResponse(call: Call, response: Response) {
-                if (!isAdded) {
-                    Log.d("VoiceCall", "Fragment not attached, ignoring network response")
-                    return
-                }
+                val responseBody = response.body?.string()
+                Log.d("VoiceCallDebug", "Token response code: ${response.code}")
+                Log.d("VoiceCallDebug", "Token response body: $responseBody")
 
-                Log.d("VoiceCall", "Server response code: ${response.code}")
-                Log.d("VoiceCall", "Server response message: ${response.message}")
-                
-                if (!response.isSuccessful) {
-                    val errorBody = response.body?.string()
-                    Log.e("VoiceCall", "Server returned error: ${response.code}")
-                    Log.e("VoiceCall", "Error response body: $errorBody")
-                    if (isAdded && activity != null) {
-                        activity?.runOnUiThread {
-                            if (isAdded && context != null) {
-                                when (response.code) {
-                                    404 -> context?.let { ctx ->
+                if (isAdded && activity != null) {
+                    activity?.runOnUiThread {
+                        if (isAdded && context != null) {
+                            when (response.code) {
+                                200 -> {
+                                    if (!responseBody.isNullOrEmpty()) {
+                                        try {
+                                            val jsonResponse = JSONObject(responseBody)
+                                            val token = jsonResponse.getString("rtcToken")
+                                            Log.d("VoiceCallDebug", "Token received successfully: $token")
+                                            Log.d("VoiceCallDebug", "Token length: ${token.length}")
+                                            Log.d("VoiceCallDebug", "Starting Agora engine initialization")
+                                            // Reset retry count on success
+                                            tokenRetryCount = 0
+                                            initializeAndJoinChannel(token, agoraUid)
+                                        } catch (e: Exception) {
+                                            Log.e("VoiceCallDebug", "Error parsing server response", e)
+                                            context?.let { ctx ->
+                                                Toast.makeText(ctx, "Error parsing server response", Toast.LENGTH_LONG).show()
+                                            }
+                                        }
+                                    } else {
+                                        Log.e("VoiceCallDebug", "Empty response from server")
+                                        context?.let { ctx ->
+                                            Toast.makeText(ctx, "Empty response from server", Toast.LENGTH_LONG).show()
+                                        }
+                                    }
+                                }
+                                404 -> {
+                                    Log.e("VoiceCallDebug", "Server temporarily unavailable")
+                                    context?.let { ctx ->
                                         Toast.makeText(ctx, "Server temporarily unavailable, please try again later", Toast.LENGTH_LONG).show()
                                     }
-                                    else -> context?.let { ctx ->
+                                }
+                                else -> {
+                                    Log.e("VoiceCallDebug", "Server error: ${response.code}")
+                                    context?.let { ctx ->
                                         Toast.makeText(ctx, "Server error: ${response.code}", Toast.LENGTH_LONG).show()
-                                    }
-                                }
-                                if (isAdded && activity != null) {
-                                    try {
-                                        activity?.onBackPressedDispatcher?.onBackPressed()
-                                    } catch (e: Exception) {
-                                        Log.e("VoiceCall", "服务器错误时返回失败: ${e.message}")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return
-                }
-
-                try {
-                    val body = response.body?.string()
-                    Log.d("VoiceCall", "Server response body: $body")
-                    
-                    if (body.isNullOrEmpty()) {
-                        Log.e("VoiceCall", "Empty response from server")
-                        if (isAdded && activity != null) {
-                            activity?.runOnUiThread {
-                                if (isAdded && context != null) {
-                                    context?.let { ctx ->
-                                        Toast.makeText(ctx, "Empty response from server", Toast.LENGTH_LONG).show()
-                                    }
-                                    if (isAdded && activity != null) {
-                                        try {
-                                            activity?.onBackPressedDispatcher?.onBackPressed()
-                                        } catch (e: Exception) {
-                                            Log.e("VoiceCall", "空响应时返回失败: ${e.message}")
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        return
-                    }
-
-                    val token = JSONObject(body).optString("rtcToken")
-                    if (token.isNotEmpty()) {
-                        Log.d("VoiceCall", "Successfully obtained token")
-                        if (isAdded && activity != null) {
-                            activity?.runOnUiThread {
-                                if (isAdded && context != null) {
-                                    initializeAndJoinChannel(token, agoraUid)
-                                }
-                            }
-                        }
-                    } else {
-                        Log.e("VoiceCall", "No token in response: $body")
-                        if (isAdded && activity != null) {
-                            activity?.runOnUiThread {
-                                if (isAdded && context != null) {
-                                    context?.let { ctx ->
-                                        Toast.makeText(ctx, "Failed to get call token from server.", Toast.LENGTH_LONG).show()
-                                    }
-                                    if (isAdded && activity != null) {
-                                        try {
-                                            activity?.onBackPressedDispatcher?.onBackPressed()
-                                        } catch (e: Exception) {
-                                            Log.e("VoiceCall", "无token时返回失败: ${e.message}")
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("VoiceCall", "Error parsing response: ${e.message}")
-                    Log.e("VoiceCall", "Response body that caused error: ${response.body?.string()}")
-                    if (isAdded && activity != null) {
-                        activity?.runOnUiThread {
-                            if (isAdded && context != null) {
-                                context?.let { ctx ->
-                                    Toast.makeText(ctx, "Error parsing server response", Toast.LENGTH_LONG).show()
-                                }
-                                if (isAdded && activity != null) {
-                                    try {
-                                        activity?.onBackPressedDispatcher?.onBackPressed()
-                                    } catch (e2: Exception) {
-                                        Log.e("VoiceCall", "解析响应时返回失败: ${e2.message}")
                                     }
                                 }
                             }
@@ -456,8 +474,22 @@ class VoiceCallFragment : Fragment() {
     }
     // -------------------------------------------------------------
 
+    private var channelJoinRetryCount = 0
+    private val maxChannelJoinRetries = 3
+    
     private fun initializeAndJoinChannel(token: String, agoraUid: Int) {
+        Log.d("VoiceCallDebug", "initializeAndJoinChannel: callId=$callId, token=${token.take(8)}..., agoraUid=$agoraUid")
+        if (callId.isNullOrEmpty() || token.isEmpty()) {
+            Log.e("VoiceCallDebug", "参数不全，无法加入频道")
+            context?.let { ctx ->
+                Toast.makeText(ctx, "通话参数异常，请重试", Toast.LENGTH_LONG).show()
+            }
+            safePopBackStack()
+            return
+        }
         try {
+            Log.d("VoiceCallDebug", "Starting Agora engine initialization: uid=$agoraUid (attempt ${channelJoinRetryCount + 1}/$maxChannelJoinRetries)")
+            
             val config = RtcEngineConfig()
             config.mContext = context?.applicationContext
             config.mAppId = APP_ID
@@ -465,31 +497,42 @@ class VoiceCallFragment : Fragment() {
             config.mChannelProfile = Constants.CHANNEL_PROFILE_COMMUNICATION
 
             agoraEngine = RtcEngine.create(config)
-            Log.d("AgoraInit", "Agora RtcEngine created successfully for voice call.")
+            Log.d("VoiceCallDebug", "Agora RtcEngine created successfully for voice call")
 
-            try {
-                agoraEngine?.enableAudio()
-                agoraEngine?.disableVideo()
-                agoraEngine?.setEnableSpeakerphone(isSpeakerOn)
-            } catch (e: Exception) {
-                Log.e("VoiceCall", "Error configuring audio: ${e.message}")
-            }
-
-            try {
-                agoraEngine?.joinChannel(token, CHANNEL_NAME, null,agoraUid)
-                Log.d("AgoraJoin", "joinChannel: token=$token, channel=$CHANNEL_NAME, uid=$agoraUid")
-                context?.let { ctx ->
-                    Toast.makeText(ctx, "Joining voice channel: $CHANNEL_NAME", Toast.LENGTH_SHORT).show()
+            // Initialize basic settings immediately on main thread
+            if (isAdded && activity != null) {
+                activity?.runOnUiThread {
+                    if (isAdded && context != null) {
+                        try {
+                            Log.d("VoiceCallDebug", "Configuring Agora engine for voice")
+                            agoraEngine?.enableAudio()
+                            agoraEngine?.disableVideo()
+                            agoraEngine?.setEnableSpeakerphone(isSpeakerOn)
+                            
+                            // Use the same channel name as in token request
+                            val channelName = "channel_$callId"
+                            
+                            Log.d("VoiceCallDebug", "Preparing to join voice channel: $channelName")
+                            agoraEngine?.joinChannel(token, channelName, null, agoraUid)
+                            Log.d("VoiceCallDebug", "joinChannel called: channel=$channelName, uid=$agoraUid")
+                            
+                            context?.let { ctx ->
+                                Toast.makeText(ctx, "Joining voice channel: $channelName", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("VoiceCallDebug", "Error initializing Agora engine: ${e.message}")
+                            context?.let { ctx ->
+                                Toast.makeText(ctx, "Error initializing Agora: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
                 }
-                Log.d("AgoraInit", "Join voice channel initiated for: $CHANNEL_NAME with token.")
-            } catch (e: Exception) {
-                Log.e("VoiceCall", "Error joining channel: ${e.message}")
             }
 
         } catch (e: Exception) {
-            Log.e("AgoraInit", "Error initializing Agora for voice call: ${e.message}", e)
+            Log.e("VoiceCallDebug", "Failed to create Agora engine: ${e.message}")
             context?.let { ctx ->
-                Toast.makeText(ctx, "Error initializing Agora: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(ctx, "Error creating Agora engine: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -651,10 +694,9 @@ class VoiceCallFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d(TAG, "onDestroyView called")
-        super.onDestroyView()
+        Log.d("VoiceCall", "onDestroyView started")
         
-        // 设置销毁标志
+        // Set destruction flag
         isFragmentDestroying = true
         
         try {
@@ -662,20 +704,20 @@ class VoiceCallFragment : Fragment() {
             Log.d("VoiceCall", "Stopping timer")
             stopCallTimer()
             
-            // 2. Close waiting dialog
-            Log.d("VoiceCall", "Closing waiting dialog")
+            // 2. Dismiss waiting dialog
+            Log.d("VoiceCall", "Dismissing waiting dialog")
             try {
                 waitingDialog?.dismiss()
                 waitingDialog = null
             } catch (e: Exception) {
-                Log.e("VoiceCall", "Error closing waiting dialog: ${e.message}")
+                Log.e("VoiceCall", "Error dismissing waiting dialog: ${e.message}")
             }
             
             // 3. Leave channel
             Log.d("VoiceCall", "Preparing to leave channel")
             try {
                 agoraEngine?.leaveChannel()
-                Log.d("VoiceCall", "Left channel")
+                Log.d("VoiceCall", "Left channel successfully")
             } catch (e: Exception) {
                 Log.e("VoiceCall", "Error leaving channel: ${e.message}")
             }
@@ -690,18 +732,14 @@ class VoiceCallFragment : Fragment() {
                 Log.e("VoiceCall", "Error destroying engine: ${e.message}")
             }
             
-            // 5. Clean up binding
-            Log.d("VoiceCall", "Cleaning up binding")
-            _binding = null
-            
-            // 6. 安全移除监听器
+            // 5. Safely remove listeners
             callStatusListener?.let { listener ->
                 callStatusRef?.removeEventListener(listener)
             }
             callStatusListener = null
             callStatusRef = null
             
-            // 7. 移除等待状态监听器
+            // 6. Remove waiting status listener
             waitingStatusListener?.let { listener ->
                 waitingStatusRef?.removeEventListener(listener)
             }
@@ -714,28 +752,29 @@ class VoiceCallFragment : Fragment() {
             Log.e("VoiceCall", "onDestroyView error: ${e.message}")
             e.printStackTrace()
         }
-        Log.d("VoiceCall", "onDestroyView ending")
+        Log.d("VoiceCall", "onDestroyView ended")
+        super.onDestroyView()
     }
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy called")
         super.onDestroy()
         try {
-            // 确保在Fragment完全销毁时清理所有资源
+            // Ensure all resources are cleaned up when Fragment is fully destroyed
             stopCallTimer()
             waitingDialog?.dismiss()
             agoraEngine?.leaveChannel()
             RtcEngine.destroy()
             agoraEngine = null
             
-            // 移除Firebase监听器
+            // Remove Firebase listeners
             callStatusListener?.let { listener ->
                 callStatusRef?.removeEventListener(listener)
             }
             callStatusListener = null
             callStatusRef = null
             
-            // 移除等待状态监听器
+            // Remove waiting status listener
             waitingStatusListener?.let { listener ->
                 waitingStatusRef?.removeEventListener(listener)
             }
@@ -751,41 +790,70 @@ class VoiceCallFragment : Fragment() {
         fetchTokenAndJoinChannel()
     }
 
-    // 新增：主叫方等待对方接听的界面
+    // New: Caller waits for the other user to answer
     private fun showWaitingIfPending(callId: String) {
         Log.d("VoiceCallDebug", "showWaitingIfPending called for callId=$callId")
         waitingStatusRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
         waitingStatusListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                // 检查Fragment是否还附加且未在销毁过程中
+                // Check if Fragment is still attached and not in destruction process
                 if (!isAdded || context == null || isFragmentDestroying) {
-                    Log.d("VoiceCall", "Fragment未附加或正在销毁，跳过showWaitingIfPending回调")
+                    Log.d("VoiceCall", "Fragment not attached or being destroyed, skipping showWaitingIfPending callback")
                     return
                 }
                 
                 val status = snapshot.child("status").getValue(String::class.java)
                 Log.d("VoiceCallDebug", "showWaitingIfPending: status=$status for callId=$callId")
-                if (status == "pending") {
-                    Log.d("VoiceCallDebug", "showWaitingIfPending: showing waitingDialog for callId=$callId")
-                    context?.let { ctx ->
-                        try {
-                            waitingDialog = AlertDialog.Builder(ctx)
-                                .setTitle("Waiting for answer...")
-                                .setMessage("The other user is being called. Please wait.")
-                                .setNegativeButton("Cancel") { d, _ ->
-                                    Log.d("VoiceCallDebug", "showWaitingIfPending: Cancel clicked, ending callId=$callId")
-                                    FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("ended")
-                                    d.dismiss()
-                                    if (isAdded && context != null && !isFragmentDestroying) {
-                                        safePopBackStack()
+                
+                when (status) {
+                    "pending" -> {
+                        Log.d("VoiceCallDebug", "showWaitingIfPending: showing waitingDialog for callId=$callId")
+                        context?.let { ctx ->
+                            try {
+                                waitingDialog = AlertDialog.Builder(ctx)
+                                    .setTitle("Waiting for answer...")
+                                    .setMessage("The other user is being called. Please wait.")
+                                    .setNegativeButton("Cancel") { d, _ ->
+                                        Log.d("VoiceCallDebug", "showWaitingIfPending: Cancel clicked, ending callId=$callId")
+                                        FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("ended")
+                                        d.dismiss()
+                                        if (isAdded && context != null && !isFragmentDestroying) {
+                                            safePopBackStack()
+                                        }
                                     }
-                                }
-                                .setCancelable(false)
-                                .create()
-                            waitingDialog?.show()
-                        } catch (e: Exception) {
-                            Log.e("VoiceCall", "显示等待对话框时出错: ${e.message}")
+                                    .setCancelable(false)
+                                    .create()
+                                waitingDialog?.show()
+                            } catch (e: Exception) {
+                                Log.e("VoiceCall", "Error showing waiting dialog: ${e.message}")
+                            }
                         }
+                    }
+                    "accepted" -> {
+                        Log.d("VoiceCallDebug", "showWaitingIfPending: Call accepted, dismissing dialog and starting call")
+                        try { waitingDialog?.dismiss() } catch (_: Exception) {}
+                        // Start the actual call process
+                        if (!checkPermissions()) {
+                            Log.d("PermissionDebug", "Permissions not granted, requesting...")
+                            requestPermissions()
+                        } else {
+                            Log.d("PermissionDebug", "Permissions already granted, fetching token and initializing channel.")
+                            fetchTokenAndJoinChannel()
+                        }
+                    }
+                    "rejected", "ended" -> {
+                        Log.d("VoiceCallDebug", "showWaitingIfPending: Call ended: status=$status")
+                        try { waitingDialog?.dismiss() } catch (_: Exception) {}
+                        context?.let { ctx ->
+                            val message = if (status == "rejected") "Call rejected" else "Call ended"
+                            Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show()
+                        }
+                        if (isAdded && context != null && !isFragmentDestroying) {
+                            safePopBackStack()
+                        }
+                    }
+                    else -> {
+                        Log.d("VoiceCallDebug", "showWaitingIfPending: Unknown status: $status")
                     }
                 }
             }
@@ -796,62 +864,81 @@ class VoiceCallFragment : Fragment() {
         waitingStatusRef?.addValueEventListener(waitingStatusListener!!)
     }
 
-    // 安全的popBackStack方法，完全避免使用findNavController
+    // Safe popBackStack method, completely avoiding findNavController
     private fun safePopBackStack() {
         if (!isAdded || activity == null || isFragmentDestroying) {
-            Log.d("VoiceCall", "Fragment未附加或正在销毁，跳过popBackStack")
+            Log.d("VoiceCall", "Fragment not attached or being destroyed, skipping popBackStack")
             return
         }
-        
         try {
-            // 优先使用已保存的NavController
             if (navController != null && navController!!.currentDestination != null) {
-                navController!!.popBackStack()
+                Log.d("VoiceCallDebug", "Using saved NavController to pop back")
+                val popped = navController!!.popBackStack()
+                if (!popped) {
+                    // popBackStack失败，强制跳转到聊天界面
+                    Log.d("VoiceCallDebug", "popBackStack failed, navigating to chatScreenFragment")
+                    navController!!.navigate(R.id.chatScreenFragment)
+                }
                 return
             }
         } catch (e: Exception) {
-            Log.e("VoiceCall", "使用已保存的NavController失败: ${e.message}")
+            Log.e("VoiceCall", "Failed to use saved NavController: ${e.message}")
         }
-        
-        // 备用方案：使用Activity的onBackPressed
         try {
             if (isAdded && activity != null) {
+                Log.d("VoiceCallDebug", "Using Activity's onBackPressed as fallback")
                 activity?.onBackPressedDispatcher?.onBackPressed()
             }
         } catch (e2: Exception) {
-            Log.e("VoiceCall", "备用返回方案也失败: ${e2.message}")
+            Log.e("VoiceCall", "Fallback return method also failed: ${e2.message}")
         }
     }
 
-    // 修改listenCallStatus，接听后自动关闭等待界面
+    // Modify listenCallStatus, automatically close waiting interface when accepted
     private fun listenCallStatus(callId: String) {
         Log.d("VoiceCallDebug", "listenCallStatus called for callId=$callId")
         callStatusRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
         callStatusListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!isAdded || activity == null || isFragmentDestroying) {
-                    Log.d("VoiceCall", "Fragment未附加或正在销毁，跳过listenCallStatus回调")
+                    Log.d("VoiceCall", "Fragment not attached or being destroyed, skipping listenCallStatus callback")
                     return
                 }
                 val status = snapshot.child("status").getValue(String::class.java)
                 Log.d("VoiceCallDebug", "listenCallStatus: status=$status for callId=$callId")
                 activity?.runOnUiThread {
                     if (!isAdded || activity == null || isFragmentDestroying) {
-                        Log.d("VoiceCall", "Fragment未附加或正在销毁，跳过UI操作")
+                        Log.d("VoiceCall", "Fragment not attached or being destroyed, skipping UI operation")
                         return@runOnUiThread
                     }
                     when (status) {
+                        "accepted" -> {
+                            Log.d("VoiceCallDebug", "listenCallStatus: Call accepted, dismissing waiting dialog")
+                            try { waitingDialog?.dismiss() } catch (_: Exception) {}
+                            // The actual call process will be handled by showWaitingIfPending
+                        }
                         "ended" -> {
+                            Log.d("VoiceCallDebug", "listenCallStatus: Call ended")
                             try { waitingDialog?.dismiss() } catch (_: Exception) {}
                             try {
                                 Toast.makeText(activity!!.applicationContext, "Call ended", Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
-                                Log.e("VoiceCall", "显示Toast时出错: ${e.message}")
+                                Log.e("VoiceCall", "Error showing toast: ${e.message}")
                             }
                             safePopBackStack()
                         }
-                        "accepted" -> {
+                        "rejected" -> {
+                            Log.d("VoiceCallDebug", "listenCallStatus: Call rejected")
                             try { waitingDialog?.dismiss() } catch (_: Exception) {}
+                            try {
+                                Toast.makeText(activity!!.applicationContext, "Call rejected", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                Log.e("VoiceCall", "Error showing toast: ${e.message}")
+                            }
+                            safePopBackStack()
+                        }
+                        else -> {
+                            Log.d("VoiceCallDebug", "listenCallStatus: Status: $status")
                         }
                     }
                 }
@@ -902,6 +989,29 @@ class VoiceCallFragment : Fragment() {
                 }
             }
             override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    // Test method to verify token server connection
+    private fun testTokenServer() {
+        val testUrl = "https://agora-token-service-oajn.onrender.com/rtc/test_channel/publisher/uid/123/"
+        Log.d("VoiceCallDebug", "Testing token server connection: $testUrl")
+        
+        val client = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .build()
+            
+        val request = Request.Builder().url(testUrl).build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("VoiceCallDebug", "Token server test failed: ${e.message}")
+            }
+            
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                Log.d("VoiceCallDebug", "Token server test response: ${response.code} - $responseBody")
+            }
         })
     }
 }

@@ -714,7 +714,7 @@ class ChatScreenFragment : Fragment() {
             {
               \"to\": \"$token\",
               \"notification\": {
-                \"title\": \"新消息\",
+                \"title\": \"New Message\",
                 \"body\": \"$message\"
               }
             }
@@ -1370,12 +1370,12 @@ class ChatScreenFragment : Fragment() {
                 btnPlayPause.setImageResource(android.R.drawable.ic_media_play)
                 recordTimer?.cancel()
                 recordTimer = null
-                Log.d("VoiceDebug", "录音结束，文件路径: $recordedFilePath")
+                Log.d("VoiceDebug", "Recording ended, file path: $recordedFilePath")
             } else {
                 // 播放/暂停预览
                 val audioFile = File(outputFile)
                 if (!audioFile.exists()) {
-                    Log.e("VoiceDebug", "录音文件不存在: $outputFile")
+                    Log.e("VoiceDebug", "Recording file does not exist: $outputFile")
                     return@setOnClickListener
                 }
 
@@ -1427,9 +1427,9 @@ class ChatScreenFragment : Fragment() {
                             }
                         }, 1000, 1000)
 
-                        Log.d("VoiceDebug", "开始播放录音: $outputFile")
+                        Log.d("VoiceDebug", "Starting to play recording: $outputFile")
                     } catch (e: Exception) {
-                        Log.e("VoiceDebug", "播放预览失败", e)
+                        Log.e("VoiceDebug", "Failed to play preview", e)
                     }
                 }
             }
@@ -1463,7 +1463,7 @@ class ChatScreenFragment : Fragment() {
                 binding.voicePreviewLayout.root.visibility = View.GONE
                 binding.chatScreenBottomLayout.visibility = View.VISIBLE
             } else {
-                Log.e("VoiceDebug", "录音文件不存在: $outputFile")
+                Log.e("VoiceDebug", "Recording file does not exist: $outputFile")
             }
         }
 
@@ -1514,7 +1514,7 @@ class ChatScreenFragment : Fragment() {
                 chatRef.child(messageId).setValue(message)
             }
         }.addOnFailureListener {
-            Toast.makeText(requireContext(), "语音上传失败: ${it.message}", Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), "Voice upload failed: ${it.message}", Toast.LENGTH_SHORT)
                 .show()
         }
     }
@@ -1524,6 +1524,9 @@ class ChatScreenFragment : Fragment() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val otherId = otherUserId ?: return
         val callId = FirebaseDatabase.getInstance().getReference("calls").push().key ?: return
+        
+        Log.d("VoiceCallDebug", "Initiating voice call: callId=$callId, to=$otherId")
+        
         val callRequest = mapOf(
             "from" to currentUserId,
             "to" to otherId,
@@ -1535,11 +1538,14 @@ class ChatScreenFragment : Fragment() {
         showWaitingDialog(callId)
     }
 
-    // 新增：发起视频通话请求（微信式）
+    // New: Initiate video call request (WeChat style)
     private fun initiateVideoCall() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val otherId = otherUserId ?: return
         val callId = FirebaseDatabase.getInstance().getReference("calls").push().key ?: return
+        
+        Log.d("VideoCallDebug", "Initiating video call: callId=$callId, to=$otherId")
+        
         val callRequest = mapOf(
             "from" to currentUserId,
             "to" to otherId,
@@ -1551,17 +1557,20 @@ class ChatScreenFragment : Fragment() {
         showWaitingDialog(callId)
     }
 
-    // 新增：等待对方响应的弹窗和监听
+    // New: Wait for the other user's response dialog and listener
     private fun showWaitingDialog(callId: String) {
         if (!isAdded || context == null) {
             Log.w("CallDebug", "showWaitingDialog: Fragment not attached")
             return
         }
 
+        Log.d("CallDebug", "Showing waiting dialog for callId: $callId")
+
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("Calling...")
             .setMessage("Waiting for the other user to accept")
             .setNegativeButton("Cancel") { d, _ ->
+                Log.d("CallDebug", "User cancelled call: callId=$callId")
                 FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status")
                     .setValue("ended")
                 d.dismiss()
@@ -1570,8 +1579,8 @@ class ChatScreenFragment : Fragment() {
             .create()
         dialog.show()
 
-        // --- 正确管理监听器 ---
-        waitingCallListener?.let { waitingCallRef?.removeEventListener(it) } // 移除旧的监听器
+        // Properly manage listeners
+        waitingCallListener?.let { waitingCallRef?.removeEventListener(it) }
 
         waitingCallRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
         waitingCallListener = object : com.google.firebase.database.ValueEventListener {
@@ -1583,53 +1592,79 @@ class ChatScreenFragment : Fragment() {
 
                 val status = snapshot.child("status").getValue(String::class.java)
                 val callType = snapshot.child("callType").getValue(String::class.java)
+                
+                Log.d("CallDebug", "showWaitingDialog: status=$status, callType=$callType for callId=$callId")
+                
                 when (status) {
                     "accepted" -> {
+                        Log.d("CallDebug", "Call accepted, dismissing dialog and navigating")
                         dialog.dismiss()
                         val bundle = Bundle().apply { putString("callId", callId) }
                         try {
                             when (callType) {
-                                "voice" -> findNavController().navigate(
-                                    R.id.action_chatScreenFragment_to_voiceCallFragment,
-                                    bundle
-                                )
-
-                                "video" -> findNavController().navigate(
-                                    R.id.action_chatScreenFragment_to_videoCallFragment,
-                                    bundle
-                                )
+                                "voice" -> {
+                                    Log.d("CallDebug", "Navigating to voice call")
+                                    findNavController().navigate(
+                                        R.id.action_chatScreenFragment_to_voiceCallFragment,
+                                        bundle
+                                    )
+                                }
+                                "video" -> {
+                                    Log.d("CallDebug", "Navigating to video call")
+                                    findNavController().navigate(
+                                        R.id.action_chatScreenFragment_to_videoCallFragment,
+                                        bundle
+                                    )
+                                }
+                                else -> {
+                                    Log.e("CallDebug", "Unknown call type: $callType")
+                                }
                             }
                         } catch (e: Exception) {
                             Log.e("CallDebug", "Navigation failed: ${e.message}")
+                            context?.let { ctx ->
+                                Toast.makeText(ctx, "Navigation failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
 
                     "rejected", "ended" -> {
+                        Log.d("CallDebug", "Call ended: status=$status")
                         dialog.dismiss()
                         val message = if (status == "rejected") "Call rejected" else "Call ended"
                         context?.let { ctx ->
+                            Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show()
                         }
+                    }
+                    else -> {
+                        Log.d("CallDebug", "Call status: $status")
                     }
                 }
             }
 
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
                 Log.e("CallDebug", "showWaitingDialog onCancelled: ${error.message}")
+                Log.e("CallDebug", "Error code: ${error.code}, details: ${error.details}")
             }
         }
         waitingCallRef?.addValueEventListener(waitingCallListener!!)
+        Log.d("CallDebug", "Waiting dialog listener added successfully")
     }
 
-    // 新增：监听calls节点，弹窗接受/拒绝
+    // New: Listen for incoming calls and show accept/reject dialog
     private fun listenForIncomingCalls() {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         Log.d("CallDebug", "listenForIncomingCalls: currentUserId=$currentUserId")
 
-        // --- 正确管理监听器 ---
-        incomingCallListener?.let { incomingCallsRef?.removeEventListener(it) } // 移除旧的
+        // Properly manage listeners
+        incomingCallListener?.let { incomingCallsRef?.removeEventListener(it) }
 
+        // Create the query for incoming calls
         incomingCallsRef = FirebaseDatabase.getInstance().getReference("calls").orderByChild("to")
             .equalTo(currentUserId)
+        
+        Log.d("CallDebug", "Setting up incoming call listener for user: $currentUserId")
+        
         incomingCallListener = object : com.google.firebase.database.ChildEventListener {
             override fun onChildAdded(
                 snapshot: com.google.firebase.database.DataSnapshot,
@@ -1643,12 +1678,15 @@ class ChatScreenFragment : Fragment() {
                 val status = snapshot.child("status").getValue(String::class.java)
                 val callId = snapshot.key ?: return
                 val fromUser = snapshot.child("from").getValue(String::class.java) ?: "Unknown"
-                Log.d(
-                    "CallDebug",
-                    "onChildAdded: status=$status, callId=$callId, fromUser=$fromUser"
-                )
+                val callType = snapshot.child("callType").getValue(String::class.java) ?: "voice"
+                
+                Log.d("CallDebug", "onChildAdded: status=$status, callId=$callId, fromUser=$fromUser, callType=$callType")
+                
                 if (status == "pending") {
+                    Log.d("CallDebug", "Incoming call detected, showing dialog")
                     showIncomingCallDialog(callId, fromUser)
+                } else {
+                    Log.d("CallDebug", "Call status is not pending: $status")
                 }
             }
 
@@ -1656,9 +1694,16 @@ class ChatScreenFragment : Fragment() {
                 snapshot: com.google.firebase.database.DataSnapshot,
                 previousChildName: String?,
             ) {
+                val status = snapshot.child("status").getValue(String::class.java)
+                val callId = snapshot.key ?: return
+                Log.d("CallDebug", "onChildChanged: callId=$callId, status=$status")
             }
 
-            override fun onChildRemoved(snapshot: com.google.firebase.database.DataSnapshot) {}
+            override fun onChildRemoved(snapshot: com.google.firebase.database.DataSnapshot) {
+                val callId = snapshot.key ?: return
+                Log.d("CallDebug", "onChildRemoved: callId=$callId")
+            }
+
             override fun onChildMoved(
                 snapshot: com.google.firebase.database.DataSnapshot,
                 previousChildName: String?,
@@ -1667,12 +1712,16 @@ class ChatScreenFragment : Fragment() {
 
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
                 Log.e("CallDebug", "listenForIncomingCalls: onCancelled: ${error.message}")
+                Log.e("CallDebug", "Error code: ${error.code}, details: ${error.details}")
             }
         }
+        
+        // Add the listener
         incomingCallsRef?.addChildEventListener(incomingCallListener!!)
+        Log.d("CallDebug", "Incoming call listener added successfully")
     }
 
-    // 新增：弹窗显示接受/拒绝
+    // New: Show accept/reject dialog for incoming calls
     private fun showIncomingCallDialog(callId: String, fromUser: String) {
         if (!isAdded || context == null) {
             Log.w("CallDebug", "showIncomingCallDialog: Fragment not attached")
@@ -1681,7 +1730,7 @@ class ChatScreenFragment : Fragment() {
 
         Log.d("CallDebug", "showIncomingCallDialog: callId=$callId, fromUser=$fromUser")
 
-        // 获取通话类型
+        // Get call type
         val callRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
         callRef.addListenerForSingleValueEvent(object :
             com.google.firebase.database.ValueEventListener {
@@ -1693,51 +1742,61 @@ class ChatScreenFragment : Fragment() {
 
                 val callType = snapshot.child("callType").getValue(String::class.java) ?: "voice"
                 val callTypeText = if (callType == "video") "Video Call" else "Voice Call"
+                
+                Log.d("CallDebug", "Creating dialog for call type: $callType")
 
-                val dialog = AlertDialog.Builder(requireContext())
-                    .setTitle("Incoming $callTypeText")
-                    .setMessage("User $fromUser is calling you.")
-                    .setPositiveButton("Accept") { d, _ ->
-                        Log.d(
-                            "CallDebug",
-                            "showIncomingCallDialog: Accept clicked for callId=$callId"
-                        )
-                        FirebaseDatabase.getInstance().getReference("calls").child(callId)
-                            .child("status").setValue("accepted")
-                        d.dismiss()
-                        val bundle = Bundle().apply { putString("callId", callId) }
-                        try {
-                            when (callType) {
-                                "voice" -> findNavController().navigate(
-                                    R.id.action_chatScreenFragment_to_voiceCallFragment,
-                                    bundle
-                                )
-
-                                "video" -> findNavController().navigate(
-                                    R.id.action_chatScreenFragment_to_videoCallFragment,
-                                    bundle
-                                )
+                try {
+                    val dialog = AlertDialog.Builder(requireContext())
+                        .setTitle("Incoming $callTypeText")
+                        .setMessage("User $fromUser is calling you.")
+                        .setPositiveButton("Accept") { d, _ ->
+                            Log.d("CallDebug", "showIncomingCallDialog: Accept clicked for callId=$callId")
+                            FirebaseDatabase.getInstance().getReference("calls").child(callId)
+                                .child("status").setValue("accepted")
+                            d.dismiss()
+                            val bundle = Bundle().apply { putString("callId", callId) }
+                            try {
+                                when (callType) {
+                                    "voice" -> {
+                                        Log.d("CallDebug", "Navigating to voice call")
+                                        findNavController().navigate(
+                                            R.id.action_chatScreenFragment_to_voiceCallFragment,
+                                            bundle
+                                        )
+                                    }
+                                    "video" -> {
+                                        Log.d("CallDebug", "Navigating to video call")
+                                        findNavController().navigate(
+                                            R.id.action_chatScreenFragment_to_videoCallFragment,
+                                            bundle
+                                        )
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("CallDebug", "Navigation failed: ${e.message}")
+                                Toast.makeText(requireContext(), "Navigation failed: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
-                        } catch (e: Exception) {
-                            Log.e("CallDebug", "Navigation failed: ${e.message}")
                         }
-                    }
-                    .setNegativeButton("Reject") { d, _ ->
-                        Log.d(
-                            "CallDebug",
-                            "showIncomingCallDialog: Reject clicked for callId=$callId"
-                        )
-                        FirebaseDatabase.getInstance().getReference("calls").child(callId)
-                            .child("status").setValue("rejected")
-                        d.dismiss()
-                    }
-                    .setCancelable(false)
-                    .create()
-                dialog.show()
+                        .setNegativeButton("Reject") { d, _ ->
+                            Log.d("CallDebug", "showIncomingCallDialog: Reject clicked for callId=$callId")
+                            FirebaseDatabase.getInstance().getReference("calls").child(callId)
+                                .child("status").setValue("rejected")
+                            d.dismiss()
+                        }
+                        .setCancelable(false)
+                        .create()
+                    
+                    Log.d("CallDebug", "Showing incoming call dialog")
+                    dialog.show()
+                } catch (e: Exception) {
+                    Log.e("CallDebug", "Error creating dialog: ${e.message}")
+                    Toast.makeText(requireContext(), "Error showing call dialog: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
 
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
                 Log.e("CallDebug", "showIncomingCallDialog: onCancelled: ${error.message}")
+                Log.e("CallDebug", "Error code: ${error.code}, details: ${error.details}")
             }
         })
     }

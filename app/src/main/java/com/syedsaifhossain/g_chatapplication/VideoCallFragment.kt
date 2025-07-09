@@ -72,6 +72,7 @@ class VideoCallFragment : Fragment() {
 
     // NavController安全引用
     private var safeNavController: NavController? = null
+    private var navController: NavController? = null
 
     // 添加一个标志来跟踪Fragment是否正在销毁
     private var isFragmentDestroying = false
@@ -106,15 +107,19 @@ class VideoCallFragment : Fragment() {
         }
 
         override fun onJoinChannelSuccess(channel: String, uid: Int, elapsed: Int) {
-            Log.d("AgoraDebug", "onJoinChannelSuccess: channel=$channel, uid=$uid, elapsed=$elapsed")
+            Log.d("AgoraJoin", "onJoinChannelSuccess: channel=$channel, uid=$uid")
+            // Reset retry count on successful join
+            channelJoinRetryCount = 0
             if (isAdded && activity != null) {
                 activity?.runOnUiThread {
                     if (isAdded && context != null) {
-                        Log.d("Agora", "Joined channel successfully: $channel, uid: $uid")
+                        Log.d("AgoraVideo", "Joined channel successfully: $channel, uid: $uid")
                         context?.let { ctx ->
                             Toast.makeText(ctx, "Joined channel: $channel", Toast.LENGTH_SHORT).show()
                         }
-                        startCallTimerIfNeeded()
+                        startCallTimer()
+                        // Setup local video after successful join
+                        setupLocalVideo()
                     }
                 }
             }
@@ -146,21 +151,43 @@ class VideoCallFragment : Fragment() {
         }
 
         override fun onError(err: Int) {
-            Log.e("AgoraDebug", "onError: $err")
             if (isAdded && activity != null) {
                 activity?.runOnUiThread {
                     if (isAdded && context != null) {
-                        Log.e("Agora", "Agora Error: $err")
+                        Log.e("AgoraVideo", "Agora Error: $err")
                         val errorMessage = when(err) {
                             Constants.ERR_INVALID_APP_ID -> "Invalid App ID. Please check your Agora App ID."
                             Constants.ERR_INVALID_TOKEN -> "Invalid or expired token. Generate a new token if required."
                             Constants.ERR_JOIN_CHANNEL_REJECTED -> "Join channel rejected. Check channel name or user limits."
                             Constants.ERR_DECRYPTION_FAILED -> "Decryption failed (check encryption settings if used)."
-                            Constants.ERR_NO_PERMISSION -> "No video or audio recording permission."
+                            Constants.ERR_NO_PERMISSION -> "No audio/video recording permission."
                             else -> "Unknown Agora Error: $err"
                         }
-                        context?.let { ctx ->
-                            Toast.makeText(ctx, "Agora Error: $errorMessage", Toast.LENGTH_LONG).show()
+                        
+                        // Retry channel join for certain errors
+                        if (err == Constants.ERR_JOIN_CHANNEL_REJECTED || err == Constants.ERR_INVALID_TOKEN) {
+                            if (channelJoinRetryCount < maxChannelJoinRetries - 1) {
+                                channelJoinRetryCount++
+                                Log.d("VideoCallDebug", "Retrying channel join (${channelJoinRetryCount + 1}/$maxChannelJoinRetries)")
+                                context?.let { ctx ->
+                                    Toast.makeText(ctx, "Retrying channel join...", Toast.LENGTH_SHORT).show()
+                                }
+                                // Retry after a short delay
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    if (isAdded && !isFragmentDestroying) {
+                                        fetchTokenAndJoinChannel()
+                                    }
+                                }, 2000)
+                            } else {
+                                Log.e("VideoCallDebug", "Max channel join retries reached")
+                                context?.let { ctx ->
+                                    Toast.makeText(ctx, "Failed to join channel after $maxChannelJoinRetries attempts", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        } else {
+                            context?.let { ctx ->
+                                Toast.makeText(ctx, "Agora Error: $errorMessage", Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
                 }
@@ -208,10 +235,10 @@ class VideoCallFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        // 重置销毁标志
+        // Reset destruction flag
         isFragmentDestroying = false
         
-        // 安全获取NavController
+        // Safely get NavController
         safeNavController = try { 
             if (isAdded && parentFragmentManager.isStateSaved.not()) {
                 findNavController() 
@@ -219,23 +246,43 @@ class VideoCallFragment : Fragment() {
                 null
             }
         } catch (e: Exception) { 
-            Log.e("VideoCall", "获取NavController失败: ${e.message}")
+            Log.e("VideoCall", "Failed to get NavController: ${e.message}")
             null 
+        }
+        
+        navController = try {
+            if (isAdded && parentFragmentManager.isStateSaved.not()) {
+                findNavController()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("VideoCall", "Failed to get NavController: "+e.message)
+            null
         }
         
         callId = arguments?.getString("callId")
         Log.d("VideoCallDebug", "onViewCreated: callId=$callId")
+        
+        // Start initialization process immediately
         if (callId != null) {
             listenCallStatus(callId!!)
             showWaitingIfPending(callId!!)
-        }
-        
-        if (!checkPermissions()) {
-            Log.d("PermissionDebug", "Permissions not granted, requesting...")
-            requestPermissions()
+            
+            // Test token server connection first
+            testTokenServer()
+            
+            // Start permission check and initialization immediately
+            Log.d("VideoCallDebug", "Starting permission check and initialization process")
+            if (!checkPermissions()) {
+                Log.d("PermissionDebug", "Permissions not granted, requesting...")
+                requestPermissions()
+            } else {
+                Log.d("PermissionDebug", "Permissions already granted, fetching token and initializing channel.")
+                fetchTokenAndJoinChannel()
+            }
         } else {
-            Log.d("PermissionDebug", "Permissions already granted, fetching token and initializing channel.")
-            fetchTokenAndJoinChannel()
+            Log.e("VideoCallDebug", "callId is null, cannot proceed")
         }
     }
 
@@ -255,6 +302,7 @@ class VideoCallFragment : Fragment() {
     }
 
     private fun requestPermissions() {
+        Log.d("VideoCallDebug", "Requesting permissions")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             ActivityCompat.requestPermissions(
                 requireActivity(),
@@ -265,16 +313,17 @@ class VideoCallFragment : Fragment() {
     }
 
     private fun checkPermissions(): Boolean {
-        Log.d("PermissionDebug", "Checking permissions...")
+        Log.d("VideoCallDebug", "Checking permissions...")
         for (permission in getRequiredPermissions()) {
             context?.let { ctx ->
                 val status = ContextCompat.checkSelfPermission(ctx, permission)
-                Log.d("PermissionDebug", "Permission $permission status: ${if (status == PackageManager.PERMISSION_GRANTED) "GRANTED" else "DENIED"}")
+                Log.d("VideoCallDebug", "Permission $permission status: ${if (status == PackageManager.PERMISSION_GRANTED) "GRANTED" else "DENIED"}")
                 if (status != PackageManager.PERMISSION_GRANTED) {
                     return false
                 }
             } ?: return false
         }
+        Log.d("VideoCallDebug", "All permissions granted")
         return true
     }
 
@@ -284,17 +333,17 @@ class VideoCallFragment : Fragment() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        Log.d("PermissionDebug", "onRequestPermissionsResult called. RequestCode: $requestCode")
+        Log.d("VideoCallDebug", "Permission request result: requestCode=$requestCode")
         if (requestCode == PERMISSION_REQ_ID) {
             val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
             for (i in permissions.indices) {
-                Log.d("PermissionDebug", "Permission: ${permissions[i]}, Granted: ${grantResults[i] == PackageManager.PERMISSION_GRANTED}")
+                Log.d("VideoCallDebug", "Permission: ${permissions[i]}, Granted: ${grantResults[i] == PackageManager.PERMISSION_GRANTED}")
             }
             if (allGranted) {
-                Log.d("PermissionDebug", "All requested permissions granted. Fetching token and initializing channel.")
+                Log.d("VideoCallDebug", "All permissions granted, starting token fetch and channel initialization")
                 fetchTokenAndJoinChannel()
             } else {
-                Log.e("PermissionDebug", "Not all permissions granted. Cannot start video call.")
+                Log.e("VideoCallDebug", "Not all permissions granted, cannot start video call")
                 context?.let { ctx ->
                     Toast.makeText(ctx, "Permissions not granted. Cannot start video call.", Toast.LENGTH_LONG).show()
                 }
@@ -302,56 +351,96 @@ class VideoCallFragment : Fragment() {
                     try {
                         activity?.onBackPressedDispatcher?.onBackPressed()
                     } catch (e: Exception) {
-                        Log.e("VideoCall", "权限被拒绝时返回失败: ${e.message}")
+                        Log.e("VideoCall", "Failed to go back when permissions denied: ${e.message}")
                     }
                 }
             }
         } else {
-            Log.d("PermissionDebug", "Unknown request code: $requestCode")
+            Log.d("VideoCallDebug", "Unknown request code: $requestCode")
         }
     }
 
-    // Use OkHttp to get token and join channel
+    // ----------- Token 获取逻辑（Node.js Token Server） -----------
+    private var tokenRetryCount = 0
+    private val maxTokenRetries = 3
+    
     private fun fetchTokenAndJoinChannel() {
-        if (auth.currentUser == null) {
-            context?.let { ctx ->
-                Toast.makeText(ctx, "User not authenticated. Please log in.", Toast.LENGTH_LONG).show()
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Log.e("VideoCallDebug", "User not authenticated")
+            if (isAdded) {
+                context?.let { ctx ->
+                    Toast.makeText(ctx, "User not authenticated. Please log in.", Toast.LENGTH_LONG).show()
+                }
+                if (isAdded && activity != null) {
+                    try {
+                        activity?.onBackPressedDispatcher?.onBackPressed()
+                    } catch (e: Exception) {
+                        Log.e("VideoCall", "Failed to go back when user not authenticated: ${e.message}")
+                    }
+                }
             }
             return
         }
 
-        val agoraUid = Math.abs(auth.currentUser!!.uid.hashCode())
-        val channelName = callId ?: CHANNEL_NAME
+        val agoraUid = Math.abs(currentUser.uid.hashCode())
+        // Use a fixed channel name for testing, or use callId if available
+        val channelName = if (!callId.isNullOrEmpty()) {
+            "channel_$callId"
+        } else {
+            CHANNEL_NAME
+        }
         val url = "https://agora-token-service-oajn.onrender.com/rtc/$channelName/publisher/uid/$agoraUid/"
-
-        Log.d("TokenDebug", "请求参数: channelName=$channelName, uid=$agoraUid")
-        Log.d("TokenDebug", "请求URL: $url")
+        
+        Log.d("VideoCallDebug", "Starting token request (attempt ${tokenRetryCount + 1}/$maxTokenRetries): channelName=$channelName, uid=$agoraUid, callId=$callId")
+        Log.d("VideoCallDebug", "Request URL: $url")
 
         val client = OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
             .build()
-
+            
         val request = Request.Builder().url(url).build()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e("AgoraDebug", "Failed to get token: ${e.message}")
+                Log.e("VideoCallDebug", "Failed to get token (attempt ${tokenRetryCount + 1}): ${e.message}")
                 if (isAdded && activity != null) {
                     activity?.runOnUiThread {
                         if (isAdded && context != null) {
-                            context?.let { ctx ->
-                                Toast.makeText(ctx, "Failed to get token: ${e.message}", Toast.LENGTH_LONG).show()
+                            if (tokenRetryCount < maxTokenRetries - 1) {
+                                tokenRetryCount++
+                                Log.d("VideoCallDebug", "Retrying token request (${tokenRetryCount + 1}/$maxTokenRetries)")
+                                context?.let { ctx ->
+                                    Toast.makeText(ctx, "Retrying token request...", Toast.LENGTH_SHORT).show()
+                                }
+                                // Retry after a short delay
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    if (isAdded && !isFragmentDestroying) {
+                                        fetchTokenAndJoinChannel()
+                                    }
+                                }, 2000)
+                            } else {
+                                Log.e("VideoCallDebug", "Max token retries reached")
+                                context?.let { ctx ->
+                                    Toast.makeText(ctx, "Failed to get token after $maxTokenRetries attempts", Toast.LENGTH_LONG).show()
+                                }
+                                if (isAdded && activity != null) {
+                                    try {
+                                        activity?.onBackPressedDispatcher?.onBackPressed()
+                                    } catch (e2: Exception) {
+                                        Log.e("VideoCall", "Failed to go back when token request failed: ${e2.message}")
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string()
-                Log.d("AgoraDebug", "Token response: $responseBody")
+                Log.d("VideoCallDebug", "Token response code: ${response.code}")
+                Log.d("VideoCallDebug", "Token response body: $responseBody")
 
                 if (isAdded && activity != null) {
                     activity?.runOnUiThread {
@@ -362,26 +451,36 @@ class VideoCallFragment : Fragment() {
                                         try {
                                             val jsonResponse = JSONObject(responseBody)
                                             val token = jsonResponse.getString("rtcToken")
-                                            Log.d("AgoraDebug", "Token received: $token")
-                                            initializeAgoraEngine(token, agoraUid, channelName)
+                                            Log.d("VideoCallDebug", "Token received successfully: $token")
+                                            Log.d("VideoCallDebug", "Token length: ${token.length}")
+                                            Log.d("VideoCallDebug", "Starting Agora engine initialization")
+                                            // Reset retry count on success
+                                            tokenRetryCount = 0
+                                            initializeAndJoinChannel(token, agoraUid)
                                         } catch (e: Exception) {
-                                            Log.e("AgoraDebug", "Error parsing server response", e)
+                                            Log.e("VideoCallDebug", "Error parsing server response", e)
                                             context?.let { ctx ->
                                                 Toast.makeText(ctx, "Error parsing server response", Toast.LENGTH_LONG).show()
                                             }
                                         }
                                     } else {
-                                        Log.e("AgoraDebug", "Empty response from server")
+                                        Log.e("VideoCallDebug", "Empty response from server")
                                         context?.let { ctx ->
                                             Toast.makeText(ctx, "Empty response from server", Toast.LENGTH_LONG).show()
                                         }
                                     }
                                 }
-                                404 -> context?.let { ctx ->
-                                    Toast.makeText(ctx, "Server temporarily unavailable, please try again later", Toast.LENGTH_LONG).show()
+                                404 -> {
+                                    Log.e("VideoCallDebug", "Server temporarily unavailable")
+                                    context?.let { ctx ->
+                                        Toast.makeText(ctx, "Server temporarily unavailable, please try again later", Toast.LENGTH_LONG).show()
+                                    }
                                 }
-                                else -> context?.let { ctx ->
-                                    Toast.makeText(ctx, "Server error: ${response.code}", Toast.LENGTH_LONG).show()
+                                else -> {
+                                    Log.e("VideoCallDebug", "Server error: ${response.code}")
+                                    context?.let { ctx ->
+                                        Toast.makeText(ctx, "Server error: ${response.code}", Toast.LENGTH_LONG).show()
+                                    }
                                 }
                             }
                         }
@@ -392,8 +491,13 @@ class VideoCallFragment : Fragment() {
     }
 
     // Initialize and join channel, pass agoraUid
-    private fun initializeAgoraEngine(token: String, agoraUid: Int, channelName: String) {
+    private var channelJoinRetryCount = 0
+    private val maxChannelJoinRetries = 3
+    
+    private fun initializeAndJoinChannel(token: String, agoraUid: Int) {
         try {
+            Log.d("VideoCallDebug", "Starting Agora engine initialization: uid=$agoraUid (attempt ${channelJoinRetryCount + 1}/$maxChannelJoinRetries)")
+            
             val config = RtcEngineConfig()
             config.mContext = context?.applicationContext
             config.mAppId = APP_ID
@@ -401,46 +505,46 @@ class VideoCallFragment : Fragment() {
             config.mChannelProfile = Constants.CHANNEL_PROFILE_COMMUNICATION
 
             agoraEngine = RtcEngine.create(config)
-            Log.d("AgoraInit", "Agora RtcEngine created successfully.")
+            Log.d("VideoCallDebug", "Agora RtcEngine created successfully for video call")
 
-            // 在后台线程中初始化视频
-            Thread {
-                try {
-                    agoraEngine?.enableVideo()
-                    agoraEngine?.setEnableSpeakerphone(isSpeakerOn)
-                    agoraEngine?.setClientRole(Constants.CLIENT_ROLE_BROADCASTER)
-
-                    if (isAdded && activity != null) {
-                        activity?.runOnUiThread {
-                            if (isAdded && context != null) {
-                                setupLocalVideo()
-                                agoraEngine?.joinChannel(token, channelName, null, agoraUid)
-                                Log.d("AgoraDebug", "joinChannel 已调用, channelName=$channelName, uid=$agoraUid")
-                                context?.let { ctx ->
-                                    Toast.makeText(ctx, "Joining channel: $channelName", Toast.LENGTH_SHORT).show()
-                                }
-                                Log.d("AgoraInit", "Join channel initiated for: $channelName with token.")
+            // Initialize basic settings immediately on main thread
+            if (isAdded && activity != null) {
+                activity?.runOnUiThread {
+                    if (isAdded && context != null) {
+                        try {
+                            Log.d("VideoCallDebug", "Configuring Agora engine for video")
+                            agoraEngine?.enableVideo()
+                            agoraEngine?.enableAudio()
+                            agoraEngine?.setEnableSpeakerphone(isSpeakerOn)
+                            
+                            // Use the same channel name as in token request
+                            val channelName = if (!callId.isNullOrEmpty()) {
+                                "channel_$callId"
+                            } else {
+                                CHANNEL_NAME
                             }
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("AgoraInit", "Error in video initialization: ", e)
-                    if (isAdded && activity != null) {
-                        activity?.runOnUiThread {
-                            if (isAdded && context != null) {
-                                context?.let { ctx ->
-                                    Toast.makeText(ctx, "Error initializing video: ${e.message}", Toast.LENGTH_LONG).show()
-                                }
+                            
+                            Log.d("VideoCallDebug", "Preparing to join video channel: $channelName")
+                            agoraEngine?.joinChannel(token, channelName, null, agoraUid)
+                            Log.d("VideoCallDebug", "joinChannel called: channel=$channelName, uid=$agoraUid")
+                            
+                            context?.let { ctx ->
+                                Toast.makeText(ctx, "Joining video channel: $channelName", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("VideoCallDebug", "Error initializing Agora engine: ${e.message}")
+                            context?.let { ctx ->
+                                Toast.makeText(ctx, "Error initializing Agora: ${e.message}", Toast.LENGTH_LONG).show()
                             }
                         }
                     }
                 }
-            }.start()
+            }
 
         } catch (e: Exception) {
-            Log.e("AgoraInit", "Error initializing Agora: ", e)
+            Log.e("VideoCallDebug", "Failed to create Agora engine: ${e.message}")
             context?.let { ctx ->
-                Toast.makeText(ctx, "Error initializing Agora: ${e.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(ctx, "Error creating Agora engine: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -521,80 +625,80 @@ class VideoCallFragment : Fragment() {
             if (callId != null) {
                 FirebaseDatabase.getInstance().getReference("calls").child(callId!!).child("status").setValue("ended")
             }
-            Log.d("VideoCall", "开始结束通话...")
+            Log.d("VideoCall", "Starting to end call...")
             
-            // 1. 停止计时器
-            Log.d("VideoCall", "停止计时器")
+            // 1. Stop timer
+            Log.d("VideoCall", "Stopping timer")
             stopCallTimer()
             
-            // 2. 关闭等待对话框
-            Log.d("VideoCall", "关闭等待对话框")
+            // 2. Dismiss waiting dialog
+            Log.d("VideoCall", "Dismissing waiting dialog")
             try {
                 waitingDialog?.dismiss()
                 waitingDialog = null
             } catch (e: Exception) {
-                Log.e("VideoCall", "关闭等待对话框时出错: ${e.message}")
+                Log.e("VideoCall", "Error dismissing waiting dialog: ${e.message}")
             }
             
-            // 3. 离开频道
-            Log.d("VideoCall", "准备离开频道")
+            // 3. Leave channel
+            Log.d("VideoCall", "Preparing to leave channel")
             try {
                 agoraEngine?.leaveChannel()
-                Log.d("VideoCall", "已离开频道")
+                Log.d("VideoCall", "Left channel successfully")
             } catch (e: Exception) {
-                Log.e("VideoCall", "离开频道时出错: ${e.message}")
+                Log.e("VideoCall", "Error leaving channel: ${e.message}")
             }
             
-            // 4. 清理视频视图
-            Log.d("VideoCall", "清理视频视图")
+            // 4. Clean up video views
+            Log.d("VideoCall", "Cleaning up video views")
             try {
                 _binding?.localVideoViewContainer?.removeAllViews()
                 _binding?.remoteVideoViewContainer?.removeAllViews()
-                Log.d("VideoCall", "视频视图已清理")
+                Log.d("VideoCall", "Video views cleaned up")
             } catch (e: Exception) {
-                Log.e("VideoCall", "清理视频视图时出错: ${e.message}")
+                Log.e("VideoCall", "Error cleaning up video views: ${e.message}")
             }
             
-            // 5. 销毁引擎
-            Log.d("VideoCall", "准备销毁引擎")
+            // 5. Destroy engine
+            Log.d("VideoCall", "Preparing to destroy engine")
             try {
                 RtcEngine.destroy()
                 agoraEngine = null
-                Log.d("VideoCall", "引擎已销毁")
+                Log.d("VideoCall", "Engine destroyed")
             } catch (e: Exception) {
-                Log.e("VideoCall", "销毁引擎时出错: ${e.message}")
+                Log.e("VideoCall", "Error destroying engine: ${e.message}")
             }
             
-            // 6. 显示提示
+            // 6. Show toast
             if (isAdded) {
                 try {
                     context?.let { ctx ->
                         Toast.makeText(ctx, "Video call ended", Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
-                    Log.e("VideoCall", "显示Toast时出错: ${e.message}")
+                    Log.e("VideoCall", "Error showing toast: ${e.message}")
                 }
             }
             
-            // 7. 返回
-            Log.d("VideoCall", "准备返回")
+            // 7. Return
+            Log.d("VideoCall", "Preparing to return")
             if (isAdded) {
                 try {
                     safePopBackStack()
-                    Log.d("VideoCall", "已触发返回")
+                    Log.d("VideoCall", "Return triggered")
                 } catch (e: Exception) {
-                    Log.e("VideoCall", "返回时出错: ${e.message}")
+                    Log.e("VideoCall", "Error returning: ${e.message}")
                 }
             }
             
         } catch (e: Exception) {
-            Log.e("VideoCall", "结束通话时发生错误: ${e.message}")
+            Log.e("VideoCall", "Error ending call: ${e.message}")
             e.printStackTrace()
             if (isAdded) {
                 try {
                     safePopBackStack()
                 } catch (e2: Exception) {
-                    Log.e("VideoCall", "错误处理时返回失败: ${e2.message}")
+                    Log.e("VideoCall", "Error handling return on failure: ${e2.message}")
                 }
             }
         }
@@ -653,62 +757,62 @@ class VideoCallFragment : Fragment() {
     // ----------------------------------------
 
     override fun onDestroyView() {
-        Log.d("VideoCall", "onDestroyView 开始")
+        Log.d("VideoCall", "onDestroyView started")
         
-        // 设置销毁标志
+        // Set destruction flag
         isFragmentDestroying = true
         
         try {
-            // 1. 停止计时器
-            Log.d("VideoCall", "停止计时器")
+            // 1. Stop timer
+            Log.d("VideoCall", "Stopping timer")
             stopCallTimer()
             
-            // 2. 关闭等待对话框
-            Log.d("VideoCall", "关闭等待对话框")
+            // 2. Dismiss waiting dialog
+            Log.d("VideoCall", "Dismissing waiting dialog")
             try {
                 waitingDialog?.dismiss()
                 waitingDialog = null
             } catch (e: Exception) {
-                Log.e("VideoCall", "关闭等待对话框时出错: ${e.message}")
+                Log.e("VideoCall", "Error dismissing waiting dialog: ${e.message}")
             }
             
-            // 3. 离开频道
-            Log.d("VideoCall", "准备离开频道")
+            // 3. Leave channel
+            Log.d("VideoCall", "Preparing to leave channel")
             try {
                 agoraEngine?.leaveChannel()
-                Log.d("VideoCall", "已离开频道")
+                Log.d("VideoCall", "Left channel successfully")
             } catch (e: Exception) {
-                Log.e("VideoCall", "离开频道时出错: ${e.message}")
+                Log.e("VideoCall", "Error leaving channel: ${e.message}")
             }
             
-            // 4. 清理视频视图
-            Log.d("VideoCall", "清理视频视图")
+            // 4. Clean up video views
+            Log.d("VideoCall", "Cleaning up video views")
             try {
                 _binding?.localVideoViewContainer?.removeAllViews()
                 _binding?.remoteVideoViewContainer?.removeAllViews()
-                Log.d("VideoCall", "视频视图已清理")
+                Log.d("VideoCall", "Video views cleaned up")
             } catch (e: Exception) {
-                Log.e("VideoCall", "清理视频视图时出错: ${e.message}")
+                Log.e("VideoCall", "Error cleaning up video views: ${e.message}")
             }
             
-            // 5. 销毁引擎
-            Log.d("VideoCall", "准备销毁引擎")
+            // 5. Destroy engine
+            Log.d("VideoCall", "Preparing to destroy engine")
             try {
                 RtcEngine.destroy()
                 agoraEngine = null
-                Log.d("VideoCall", "引擎已销毁")
+                Log.d("VideoCall", "Engine destroyed")
             } catch (e: Exception) {
-                Log.e("VideoCall", "销毁引擎时出错: ${e.message}")
+                Log.e("VideoCall", "Error destroying engine: ${e.message}")
             }
             
-            // 6. 安全移除监听器
+            // 6. Safely remove listeners
             callStatusListener?.let { listener ->
                 callStatusRef?.removeEventListener(listener)
             }
             callStatusListener = null
             callStatusRef = null
             
-            // 7. 移除等待状态监听器
+            // 7. Remove waiting status listener
             waitingStatusListener?.let { listener ->
                 waitingStatusRef?.removeEventListener(listener)
             }
@@ -718,78 +822,107 @@ class VideoCallFragment : Fragment() {
             safeNavController = null
             
         } catch (e: Exception) {
-            Log.e("VideoCall", "onDestroyView 发生错误: ${e.message}")
+            Log.e("VideoCall", "onDestroyView error: ${e.message}")
             e.printStackTrace()
         }
-        Log.d("VideoCall", "onDestroyView 结束")
+        Log.d("VideoCall", "onDestroyView ended")
         super.onDestroyView()
     }
 
     override fun onDestroy() {
         Log.d("VideoCall", "onDestroy called")
         try {
-            // 确保在Fragment完全销毁时清理所有资源
+            // Ensure all resources are cleaned up when Fragment is fully destroyed
             stopCallTimer()
             waitingDialog?.dismiss()
             agoraEngine?.leaveChannel()
             RtcEngine.destroy()
             agoraEngine = null
             
-            // 移除Firebase监听器
+            // Remove Firebase listeners
             callStatusListener?.let { listener ->
                 callStatusRef?.removeEventListener(listener)
             }
             callStatusListener = null
             callStatusRef = null
             
-            // 移除等待状态监听器
+            // Remove waiting status listener
             waitingStatusListener?.let { listener ->
                 waitingStatusRef?.removeEventListener(listener)
             }
             waitingStatusListener = null
             waitingStatusRef = null
         } catch (e: Exception) {
-            Log.e("VideoCall", "onDestroy 发生错误: ${e.message}")
+            Log.e("VideoCall", "onDestroy error: ${e.message}")
             e.printStackTrace()
         }
         super.onDestroy()
     }
 
-    // 新增：主叫方等待对方接听的界面
+    // New: Caller waits for the other user to answer
     private fun showWaitingIfPending(callId: String) {
         Log.d("VideoCallDebug", "showWaitingIfPending called for callId=$callId")
         waitingStatusRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
         waitingStatusListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                // 检查Fragment是否还附加且未在销毁过程中
+                // Check if Fragment is still attached and not in destruction process
                 if (!isAdded || context == null || isFragmentDestroying) {
-                    Log.d("VideoCall", "Fragment未附加或正在销毁，跳过showWaitingIfPending回调")
+                    Log.d("VideoCall", "Fragment not attached or being destroyed, skipping showWaitingIfPending callback")
                     return
                 }
                 
                 val status = snapshot.child("status").getValue(String::class.java)
                 Log.d("VideoCallDebug", "showWaitingIfPending: status=$status for callId=$callId")
-                if (status == "pending") {
-                    Log.d("VideoCallDebug", "showWaitingIfPending: showing waitingDialog for callId=$callId")
-                    context?.let { ctx ->
-                        try {
-                            waitingDialog = AlertDialog.Builder(ctx)
-                                .setTitle("Waiting for answer...")
-                                .setMessage("The other user is being called. Please wait.")
-                                .setNegativeButton("Cancel") { d, _ ->
-                                    Log.d("VideoCallDebug", "showWaitingIfPending: Cancel clicked, ending callId=$callId")
-                                    FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("ended")
-                                    d.dismiss()
-                                    if (isAdded && context != null && !isFragmentDestroying) {
-                                        safePopBackStack()
+                
+                when (status) {
+                    "pending" -> {
+                        Log.d("VideoCallDebug", "showWaitingIfPending: showing waitingDialog for callId=$callId")
+                        context?.let { ctx ->
+                            try {
+                                waitingDialog = AlertDialog.Builder(ctx)
+                                    .setTitle("Waiting for answer...")
+                                    .setMessage("The other user is being called. Please wait.")
+                                    .setNegativeButton("Cancel") { d, _ ->
+                                        Log.d("VideoCallDebug", "showWaitingIfPending: Cancel clicked, ending callId=$callId")
+                                        FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status").setValue("ended")
+                                        d.dismiss()
+                                        if (isAdded && context != null && !isFragmentDestroying) {
+                                            safePopBackStack()
+                                        }
                                     }
-                                }
-                                .setCancelable(false)
-                                .create()
-                            waitingDialog?.show()
-                        } catch (e: Exception) {
-                            Log.e("VideoCall", "显示等待对话框时出错: ${e.message}")
+                                    .setCancelable(false)
+                                    .create()
+                                waitingDialog?.show()
+                            } catch (e: Exception) {
+                                Log.e("VideoCall", "Error showing waiting dialog: ${e.message}")
+                            }
                         }
+                    }
+                    "accepted" -> {
+                        Log.d("VideoCallDebug", "showWaitingIfPending: Call accepted, dismissing dialog and starting call")
+                        try { waitingDialog?.dismiss() } catch (_: Exception) {}
+                        // Start the actual call process
+                        if (!checkPermissions()) {
+                            Log.d("PermissionDebug", "Permissions not granted, requesting...")
+                            requestPermissions()
+                        } else {
+                            Log.d("PermissionDebug", "Permissions already granted, fetching token and initializing channel.")
+                            fetchTokenAndJoinChannel()
+                        }
+                    }
+                    "rejected", "ended" -> {
+                        Log.d("VideoCallDebug", "showWaitingIfPending: Call ended: status=$status")
+                        try { waitingDialog?.dismiss() } catch (_: Exception) {}
+                        context?.let { ctx ->
+                            val message = if (status == "rejected") "Call rejected" else "Call ended"
+                            Toast.makeText(ctx, message, Toast.LENGTH_SHORT).show()
+                        }
+                        if (isAdded && context != null && !isFragmentDestroying) {
+                            safePopBackStack()
+                        }
+                    }
+                    else -> {
+                        Log.d("VideoCallDebug", "showWaitingIfPending: Unknown status: $status")
                     }
                 }
             }
@@ -800,85 +933,81 @@ class VideoCallFragment : Fragment() {
         waitingStatusRef?.addValueEventListener(waitingStatusListener!!)
     }
 
-    // 终极安全popBackStack方法，完全避免使用findNavController
+    // Safe popBackStack method, completely avoiding findNavController
     private fun safePopBackStack() {
-        // 首先检查Fragment是否还附加到Activity
-        if (!isAdded || context == null) {
-            Log.d("VideoCall", "Fragment未附加，跳过popBackStack")
+        if (!isAdded || activity == null || isFragmentDestroying) {
+            Log.d("VideoCall", "Fragment not attached or being destroyed, skipping popBackStack")
             return
         }
-        
         try {
-            // 优先使用已保存的safeNavController
-            safeNavController?.let { nav ->
-                try {
-                    nav.popBackStack()
-                    return
-                } catch (e: Exception) {
-                    Log.e("VideoCall", "SafeNavController popBackStack error: ${e.message}")
+            if (navController != null && navController!!.currentDestination != null) {
+                Log.d("VideoCallDebug", "Using saved NavController to pop back")
+                val popped = navController!!.popBackStack()
+                if (!popped) {
+                    // popBackStack失败，强制跳转到聊天界面
+                    Log.d("VideoCallDebug", "popBackStack failed, navigating to chatScreenFragment")
+                    navController!!.navigate(R.id.chatScreenFragment)
                 }
+                return
             }
         } catch (e: Exception) {
-            Log.e("VideoCall", "SafeNavController access error: ${e.message}")
+            Log.e("VideoCall", "Failed to use saved NavController: ${e.message}")
         }
-        
-        // 备用方案：使用Activity的onBackPressed
         try {
             if (isAdded && activity != null) {
+                Log.d("VideoCallDebug", "Using Activity's onBackPressed as fallback")
                 activity?.onBackPressedDispatcher?.onBackPressed()
             }
-        } catch (e: Exception) {
-            Log.e("VideoCall", "Activity onBackPressed fallback error: ${e.message}")
+        } catch (e2: Exception) {
+            Log.e("VideoCall", "Fallback return method also failed: ${e2.message}")
         }
     }
 
-    // 修改listenCallStatus，彻底防护
+    // Modify listenCallStatus, automatically close waiting interface when accepted
     private fun listenCallStatus(callId: String) {
-        Log.d("VideoCallFragment", "listenCallStatus started")
+        Log.d("VideoCallDebug", "listenCallStatus called for callId=$callId")
         callStatusRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
         callStatusListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                // 检查Fragment是否还附加且未在销毁过程中
-                if (!isAdded || context == null || isFragmentDestroying) {
-                    Log.d("VideoCall", "Fragment未附加或正在销毁，跳过listenCallStatus回调")
+                if (!isAdded || activity == null || isFragmentDestroying) {
+                    Log.d("VideoCall", "Fragment not attached or being destroyed, skipping listenCallStatus callback")
                     return
                 }
-                
                 val status = snapshot.child("status").getValue(String::class.java)
-                
-                // 确保在主线程中执行UI操作
-                if (isAdded && activity != null) {
-                    activity?.runOnUiThread {
-                        if (!isAdded || context == null || isFragmentDestroying) {
-                            Log.d("VideoCall", "Fragment未附加或正在销毁，跳过UI操作")
-                            return@runOnUiThread
+                Log.d("VideoCallDebug", "listenCallStatus: status=$status for callId=$callId")
+                activity?.runOnUiThread {
+                    if (!isAdded || activity == null || isFragmentDestroying) {
+                        Log.d("VideoCall", "Fragment not attached or being destroyed, skipping UI operation")
+                        return@runOnUiThread
+                    }
+                    when (status) {
+                        "accepted" -> {
+                            Log.d("VideoCallDebug", "listenCallStatus: Call accepted, dismissing waiting dialog")
+                            try { waitingDialog?.dismiss() } catch (_: Exception) {}
+                            // The actual call process will be handled by showWaitingIfPending
                         }
-                        
-                        when (status) {
-                            "ended" -> {
-                                try {
-                                    waitingDialog?.dismiss()
-                                } catch (e: Exception) {
-                                    Log.e("VideoCall", "关闭等待对话框时出错: ${e.message}")
-                                }
-                                
-                                context?.let { ctx ->
-                                    try {
-                                        Toast.makeText(ctx, "Call ended", Toast.LENGTH_SHORT).show()
-                                    } catch (e: Exception) {
-                                        Log.e("VideoCall", "显示Toast时出错: ${e.message}")
-                                    }
-                                }
-                                
-                                safePopBackStack()
+                        "ended" -> {
+                            Log.d("VideoCallDebug", "listenCallStatus: Call ended")
+                            try { waitingDialog?.dismiss() } catch (_: Exception) {}
+                            try {
+                                Toast.makeText(activity!!.applicationContext, "Call ended", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                Log.e("VideoCall", "Error showing toast: ${e.message}")
                             }
-                            "accepted" -> {
-                                try {
-                                    waitingDialog?.dismiss()
-                                } catch (e: Exception) {
-                                    Log.e("VideoCall", "关闭等待对话框时出错: ${e.message}")
-                                }
+                            safePopBackStack()
+                        }
+                        "rejected" -> {
+                            Log.d("VideoCallDebug", "listenCallStatus: Call rejected")
+                            try { waitingDialog?.dismiss() } catch (_: Exception) {}
+                            try {
+                                Toast.makeText(activity!!.applicationContext, "Call rejected", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                Log.e("VideoCall", "Error showing toast: ${e.message}")
                             }
+                            safePopBackStack()
+                        }
+                        else -> {
+                            Log.d("VideoCallDebug", "listenCallStatus: Status: $status")
                         }
                     }
                 }
@@ -888,5 +1017,28 @@ class VideoCallFragment : Fragment() {
             }
         }
         callStatusRef?.addValueEventListener(callStatusListener!!)
+    }
+
+    // Test method to verify token server connection
+    private fun testTokenServer() {
+        val testUrl = "https://agora-token-service-oajn.onrender.com/rtc/test_channel/publisher/uid/123/"
+        Log.d("VideoCallDebug", "Testing token server connection: $testUrl")
+        
+        val client = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .build()
+            
+        val request = Request.Builder().url(testUrl).build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("VideoCallDebug", "Token server test failed: ${e.message}")
+            }
+            
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                Log.d("VideoCallDebug", "Token server test response: ${response.code} - $responseBody")
+            }
+        })
     }
 }
