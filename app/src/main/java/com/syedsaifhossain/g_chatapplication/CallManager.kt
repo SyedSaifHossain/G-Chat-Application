@@ -24,6 +24,20 @@ object CallManager {
         showWaitingDialog(fragment, callId)
     }
 
+    fun initiateVideoCall(fragment: Fragment, otherUserId: String) {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val callId = FirebaseDatabase.getInstance().getReference("calls").push().key ?: return
+        val callRequest = mapOf(
+            "from" to currentUserId,
+            "to" to otherUserId,
+            "callType" to "video",
+            "status" to "pending",
+            "timestamp" to System.currentTimeMillis()
+        )
+        FirebaseDatabase.getInstance().getReference("calls").child(callId).setValue(callRequest)
+        showWaitingDialog(fragment, callId)
+    }
+
     private fun showWaitingDialog(fragment: Fragment, callId: String) {
         val context = fragment.context ?: return
         val dialog = AlertDialog.Builder(context)
@@ -50,6 +64,11 @@ object CallManager {
                         if (callType == "voice") {
                             fragment.findNavController().navigate(
                                 R.id.action_chatScreenPageMoreOptionFragment_to_voiceCallFragment,
+                                bundle
+                            )
+                        } else if (callType == "video") {
+                            fragment.findNavController().navigate(
+                                R.id.action_chatScreenPageMoreOptionFragment_to_videoCallFragment,
                                 bundle
                             )
                         }

@@ -61,6 +61,14 @@ class ChatScreenPageMoreOptionFragment : Fragment() {
             }
             CallManager.initiateVoiceCall(this, otherUserId!!)
         }
+
+        // 视频通话按钮
+        binding.videoLayout.setOnClickListener {
+            if (otherUserId.isNullOrEmpty()) {
+                return@setOnClickListener
+            }
+            CallManager.initiateVideoCall(this, otherUserId!!)
+        }
     }
     override fun onDestroyView() {
         super.onDestroyView()

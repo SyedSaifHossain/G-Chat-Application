@@ -306,6 +306,9 @@
         <action
             android:id="@+id/action_chatScreenPageMoreOptionFragment_to_voiceCallFragment"
             app:destination="@id/voiceCallFragment" />
+        <action
+            android:id="@+id/action_chatScreenPageMoreOptionFragment_to_videoCallFragment"
+            app:destination="@id/videoCallFragment5" />
     </fragment>
     <fragment
         android:id="@+id/profileSettingFragment"
