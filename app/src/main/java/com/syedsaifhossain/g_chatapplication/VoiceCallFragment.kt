@@ -345,18 +345,11 @@ class VoiceCallFragment : Fragment() {
         val currentUser = auth.currentUser
         Log.d("VoiceCallDebug", "fetchTokenAndJoinChannel: callId=$callId, currentUser=${currentUser?.uid}")
         if (currentUser == null) {
-            Log.e("VoiceCallDebug", "User not authenticated")
-            if (isAdded) {
-                context?.let { ctx ->
-                    Toast.makeText(ctx, "User not authenticated. Please log in.", Toast.LENGTH_LONG).show()
-                }
-                if (isAdded && activity != null) {
-                    try {
-                        activity?.onBackPressedDispatcher?.onBackPressed()
-                    } catch (e: Exception) {
-                        Log.e("VoiceCall", "Failed to go back when user not authenticated: ${e.message}")
-                    }
-                }
+            Log.e("VoiceCallDebug", "User not authenticated, navigating to login page")
+            try {
+                navController?.navigate(R.id.loginPage)
+            } catch (e: Exception) {
+                Log.e("VoiceCallDebug", "Failed to navigate to login page: ${e.message}")
             }
             return
         }
