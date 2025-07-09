@@ -44,28 +44,50 @@
 
         </FrameLayout>
 
-        <RelativeLayout
+        <LinearLayout
+            android:id="@+id/sentMessageFile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chat_sent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/document" />
+
+            <TextView
+                android:id="@+id/sentFileName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="200dp"
+                android:text="File"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/qroupChatSendTextBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:background="@drawable/bg_chat_sent"
-            android:gravity="end|bottom"
             android:padding="8dp"
-            android:minWidth="115dp">
+            android:layout_marginTop="10dp">
 
             <LinearLayout
                 android:id="@+id/sentMessageVoice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 android:layout_marginEnd="3dp"
-                android:layout_toStartOf="@+id/sentMessageTime"
-                android:gravity="start|top"
                 android:orientation="horizontal"
-                android:paddingStart="8dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="10dp"
+                android:layout_gravity="center_vertical"
                 android:visibility="gone">
 
                 <ImageView
@@ -88,12 +110,10 @@
             </LinearLayout>
 
             <!-- Sent message text -->
-            <com.vanniktech.emoji.EmojiTextView
+            <TextView
                 android:id="@+id/sentMessageText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerVertical="true"
                 android:layout_marginStart="5dp"
                 android:ellipsize="end"
                 android:gravity="start|top"
@@ -107,21 +127,24 @@
                 android:scrollbars="vertical"
                 android:visibility="visible"
                 android:text="This is text message"
-                android:textColor="#000" />
+                android:textColor="@android:color/black"
+                android:textSize="16sp"/>
+
             <!-- Sent message time (next to text) -->
             <TextView
                 android:id="@+id/sentMessageTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="15dp"
-                android:layout_toEndOf="@+id/sentMessageText"
-                android:gravity="bottom|end"
+                android:layout_marginTop="10dp"
                 android:text="10:00 am"
+                android:layout_gravity="end|bottom"
+                android:layout_marginEnd="8dp"
+                android:paddingTop="20dp"
                 android:textColor="#2C2C2C"
                 android:textSize="10sp" />
-        </RelativeLayout>
+
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/sentMessageImage"
@@ -146,36 +169,7 @@
             android:layout_marginStart="3dp"
             app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
-
-
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/sentMessageFile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_chat_sent"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="10dp"
-        android:layout_alignParentTop="true"
-        android:visibility="gone">
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/document" />
-
-        <TextView
-            android:id="@+id/sentFileName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxWidth="200dp"
-            android:text="File"
-            android:textColor="#000000"
-            android:textSize="14sp" />
-
-    </LinearLayout>
 
 </RelativeLayout>
