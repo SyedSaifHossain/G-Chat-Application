@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatScreenPageMoreOptionBinding
+import android.util.Log
 
 class ChatScreenPageMoreOptionFragment : Fragment() {
     private var _binding: FragmentChatScreenPageMoreOptionBinding? = null
@@ -54,12 +55,26 @@ class ChatScreenPageMoreOptionFragment : Fragment() {
 
         }
 
-        // 音频通话按钮
+        // Audio call button
         binding.audioLayout.setOnClickListener {
+            Log.d("VoiceCallDebug", "Audio call button clicked")
             if (otherUserId.isNullOrEmpty()) {
+                Log.e("VoiceCallDebug", "otherUserId is null, cannot initiate voice call")
                 return@setOnClickListener
             }
+            Log.d("VoiceCallDebug", "Starting voice call, otherUserId=$otherUserId")
             CallManager.initiateVoiceCall(this, otherUserId!!)
+        }
+
+        // 视频通话按钮
+        binding.videoLayout.setOnClickListener {
+            Log.d("VideoCallDebug", "Video call button clicked")
+            if (otherUserId.isNullOrEmpty()) {
+                Log.e("VideoCallDebug", "otherUserId is null, cannot initiate video call")
+                return@setOnClickListener
+            }
+            Log.d("VideoCallDebug", "Starting video call, otherUserId=$otherUserId")
+            CallManager.initiateVideoCall(this, otherUserId!!)
         }
     }
     override fun onDestroyView() {

@@ -3,6 +3,7 @@ package com.syedsaifhossain.g_chatapplication
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -13,6 +14,9 @@ object CallManager {
     fun initiateVoiceCall(fragment: Fragment, otherUserId: String) {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val callId = FirebaseDatabase.getInstance().getReference("calls").push().key ?: return
+        
+        Log.d("CallManager", "Initiating voice call: callId=$callId, from=$currentUserId, to=$otherUserId")
+        
         val callRequest = mapOf(
             "from" to currentUserId,
             "to" to otherUserId,
@@ -24,12 +28,32 @@ object CallManager {
         showWaitingDialog(fragment, callId)
     }
 
+    fun initiateVideoCall(fragment: Fragment, otherUserId: String) {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val callId = FirebaseDatabase.getInstance().getReference("calls").push().key ?: return
+        
+        Log.d("CallManager", "Initiating video call: callId=$callId, from=$currentUserId, to=$otherUserId")
+        
+        val callRequest = mapOf(
+            "from" to currentUserId,
+            "to" to otherUserId,
+            "callType" to "video",
+            "status" to "pending",
+            "timestamp" to System.currentTimeMillis()
+        )
+        FirebaseDatabase.getInstance().getReference("calls").child(callId).setValue(callRequest)
+        showWaitingDialog(fragment, callId)
+    }
+
     private fun showWaitingDialog(fragment: Fragment, callId: String) {
         val context = fragment.context ?: return
+        Log.d("CallManager", "Showing waiting dialog: callId=$callId")
+        
         val dialog = AlertDialog.Builder(context)
             .setTitle("Calling...")
             .setMessage("Waiting for the other user to accept")
             .setNegativeButton("Cancel") { d, _ ->
+                Log.d("CallManager", "User cancelled call: callId=$callId")
                 FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status")
                     .setValue("ended")
                 d.dismiss()
@@ -43,26 +67,45 @@ object CallManager {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                 val status = snapshot.child("status").getValue(String::class.java)
                 val callType = snapshot.child("callType").getValue(String::class.java)
+                
+                Log.d("CallManager", "Call status updated: callId=$callId, status=$status, callType=$callType")
+                
                 if (status == "accepted") {
+                    Log.d("CallManager", "Call accepted, preparing to navigate to call screen: callId=$callId")
                     dialog.dismiss()
                     val bundle = Bundle().apply { putString("callId", callId) }
                     try {
                         if (callType == "voice") {
+                            Log.d("CallManager", "Navigating to voice call screen")
                             fragment.findNavController().navigate(
                                 R.id.action_chatScreenPageMoreOptionFragment_to_voiceCallFragment,
                                 bundle
                             )
+                        } else if (callType == "video") {
+                            Log.d("CallManager", "Navigating to video call screen")
+                            fragment.findNavController().navigate(
+                                R.id.action_chatScreenPageMoreOptionFragment_to_videoCallFragment,
+                                bundle
+                            )
+                        } else {
+                            Log.e("CallManager", "Unknown call type: $callType")
                         }
                     } catch (e: Exception) {
+                        Log.e("CallManager", "Navigation failed: ${e.message}")
                         Toast.makeText(context, "Navigation failed: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
                 } else if (status == "rejected" || status == "ended") {
+                    Log.d("CallManager", "Call ended: callId=$callId, status=$status")
                     dialog.dismiss()
                     val message = if (status == "rejected") "Call rejected" else "Call ended"
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.d("CallManager", "Call status: $status")
                 }
             }
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                Log.e("CallManager", "Call listener cancelled: ${error.message}")
+                Log.e("CallManager", "Error code: ${error.code}, details: ${error.details}")
                 Toast.makeText(context, "Call cancelled: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
