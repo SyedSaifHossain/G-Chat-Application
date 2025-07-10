@@ -50,13 +50,27 @@ class ProfileSettingFragment : Fragment() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val uri = result.data?.data
-            uri?.let {
-                selectedImageUri = it
-                binding.profileImage.setImageURI(it)
+            val sourceUri = result.data?.data ?: return@registerForActivityResult
+
+            // Start cropping
+            val destinationUri = Uri.fromFile(
+                File(requireContext().cacheDir, "cropped_${System.currentTimeMillis()}.jpg")
+            )
+
+            val options = com.yalantis.ucrop.UCrop.Options().apply {
+                setCompressionQuality(85)
+                setFreeStyleCropEnabled(true)
+                setToolbarTitle("Crop Image")
             }
+
+            com.yalantis.ucrop.UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(1f, 1f) // Square crop
+                .withMaxResultSize(512, 512)
+                .withOptions(options)
+                .start(requireContext(), this)
         }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -194,6 +208,23 @@ class ProfileSettingFragment : Fragment() {
                 Toast.makeText(requireContext(), "Error saving profile: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK && requestCode == com.yalantis.ucrop.UCrop.REQUEST_CROP) {
+            val resultUri = com.yalantis.ucrop.UCrop.getOutput(data!!)
+            resultUri?.let {
+                selectedImageUri = it
+                binding.profileImage.setImageURI(it)
+            }
+        } else if (resultCode == com.yalantis.ucrop.UCrop.RESULT_ERROR) {
+            val cropError = com.yalantis.ucrop.UCrop.getError(data!!)
+            Toast.makeText(requireContext(), "Crop failed: ${cropError?.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -112,4 +112,6 @@ dependencies {
 
     // ConstraintLayout
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("com.github.yalantis:ucrop:2.2.6")
+
 }
