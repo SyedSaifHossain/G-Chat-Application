@@ -167,7 +167,7 @@ class GroupMessageAdapter(
             // 显示时间戳
             message.timestamp?.let { timestamp ->
                 val date = Date(timestamp)
-                val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val sdf = SimpleDateFormat("HH:mm a", Locale.getDefault())
                 binding.sentMessageTime.text = sdf.format(date)
             }
             
@@ -298,7 +298,7 @@ class GroupMessageAdapter(
             // 显示时间戳
             message.timestamp?.let { timestamp ->
                 val date = Date(timestamp)
-                val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val sdf = SimpleDateFormat("HH:mm a", Locale.getDefault())
                 binding.receivedMessageTime.text = sdf.format(date)
             }
             

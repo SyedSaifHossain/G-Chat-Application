@@ -3,7 +3,6 @@ package com.syedsaifhossain.g_chatapplication
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.NavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.view.View
 
