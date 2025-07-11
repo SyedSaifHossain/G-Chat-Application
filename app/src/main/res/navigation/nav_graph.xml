@@ -180,10 +180,14 @@
         tools:layout="@layout/fragment_group_chat" >
         <action
             android:id="@+id/action_groupChatFragment_to_voiceCallFragment"
-            app:destination="@id/voiceCallFragment" />
+            app:destination="@id/voiceCallFragment"
+            app:popUpTo="@id/groupChatFragment"
+            app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_groupChatFragment_to_videoCallFragment"
-            app:destination="@id/videoCallFragment5" />
+            app:destination="@id/videoCallFragment5"
+            app:popUpTo="@id/groupChatFragment"
+            app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_groupChatFragment_to_fullScreenImageFragment"
             app:destination="@id/fullScreenImageFragment" />
@@ -212,11 +216,15 @@
         android:label="fragment_chat_screen"
         tools:layout="@layout/fragment_chat_screen" >
         <action
-            android:id="@+id/action_chatScreenFragment_to_videoCallFragment"
-            app:destination="@id/videoCallFragment5" />
-        <action
             android:id="@+id/action_chatScreenFragment_to_voiceCallFragment"
-            app:destination="@id/voiceCallFragment" />
+            app:destination="@id/voiceCallFragment"
+            app:popUpTo="@id/chatScreenFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_chatScreenFragment_to_videoCallFragment"
+            app:destination="@id/videoCallFragment5"
+            app:popUpTo="@id/chatScreenFragment"
+            app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_chatScreenFragment_to_chatScreenPageMoreOptionFragment"
             app:destination="@id/chatScreenPageMoreOptionFragment" />
@@ -228,7 +236,12 @@
         android:id="@+id/videoCallFragment5"
         android:name="com.syedsaifhossain.g_chatapplication.VideoCallFragment"
         android:label="fragment_video_call"
-        tools:layout="@layout/fragment_video_call" />
+        tools:layout="@layout/fragment_video_call">
+        <argument
+            android:name="callId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
     <fragment
         android:id="@+id/signupPageVerificationFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SignupPageVerificationFragment"
@@ -283,7 +296,12 @@
         android:id="@+id/voiceCallFragment"
         android:name="com.syedsaifhossain.g_chatapplication.VoiceCallFragment"
         android:label="fragment_voice_call"
-        tools:layout="@layout/fragment_voice_call" />
+        tools:layout="@layout/fragment_voice_call">
+        <argument
+            android:name="callId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
     <fragment
         android:id="@+id/friendRequestsFragment"
         android:name="com.syedsaifhossain.g_chatapplication.FriendRequestsFragment"
@@ -296,7 +314,14 @@
         tools:layout="@layout/fragment_chat_screen_page_more_option" >
         <action
             android:id="@+id/action_chatScreenPageMoreOptionFragment_to_voiceCallFragment"
-            app:destination="@id/voiceCallFragment" />
+            app:destination="@id/voiceCallFragment"
+            app:popUpTo="@id/chatScreenFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_chatScreenPageMoreOptionFragment_to_videoCallFragment"
+            app:destination="@id/videoCallFragment5"
+            app:popUpTo="@id/chatScreenFragment"
+            app:popUpToInclusive="false" />
     </fragment>
     <fragment
         android:id="@+id/profileSettingFragment"
@@ -344,7 +369,9 @@
         tools:layout="@layout/fragment_chat_screen_more_option" >
         <action
             android:id="@+id/action_chatScreenMoreOptionFragment_to_voiceCallFragment"
-            app:destination="@id/voiceCallFragment" />
+            app:destination="@id/voiceCallFragment"
+            app:popUpTo="@id/chatScreenFragment"
+            app:popUpToInclusive="false" />
     </fragment>
     <fragment
         android:id="@+id/discoverPageFragment"
