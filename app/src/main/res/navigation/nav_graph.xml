@@ -398,5 +398,13 @@
         <action
             android:id="@+id/action_settingsPageFragment_to_mePageFragment"
             app:destination="@id/mePageFragment" />
+        <action
+            android:id="@+id/action_settingsPageFragment_to_helpPageFragment"
+            app:destination="@id/helpPageFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/helpPageFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.HelpPageFragment"
+        android:label="fragment_help_page"
+        tools:layout="@layout/fragment_help_page" />
 </navigation>

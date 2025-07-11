@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context=".SettingsPageFragment">
+    tools:context=".HelpPageFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,49 +20,64 @@
         tools:context=".ChatScreenMoreOptionFragment">
 
         <RelativeLayout
-            android:id="@+id/settingsTopBar"
+            android:id="@+id/helpTopBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="35dp"
             android:paddingVertical="8dp">
 
             <ImageView
-                android:id="@+id/settingsBackIcon"
+                android:id="@+id/helpBackIcon"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="15dp"
                 android:src="@drawable/leftarrow" />
 
             <TextView
                 android:id="@+id/settingsTitleTxt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
+                android:layout_marginStart="20dp"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/helpBackIcon"
                 android:fontFamily="@font/roboto_regular"
                 android:text="Settings"
                 android:textColor="#81d8d0"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
+            <ImageView
+                android:id="@+id/helpAddButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_below="@+id/settingsTitleTxt"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="-18dp"
+                android:layout_marginEnd="3dp"
+                android:src="@drawable/addbutton"
+                app:tint="#81d8d0" />
+
+            <View
+                android:id="@+id/settingsPageLine"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/helpAddButton"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="8dp"
+                android:alpha="0.3"
+                android:background="#81d8d0" />
+
         </RelativeLayout>
 
-        <View
-            android:id="@+id/settingsPageLine"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="25dp"
-            android:alpha="0.3"
-            android:background="#81d8d0" />
 
         <LinearLayout
             android:id="@+id/settingsPrivacyLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="25dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -69,14 +85,13 @@
                 android:id="@+id/settingsPrivacyImg"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="15dp"
                 android:contentDescription="Key icon"
-                android:src="@drawable/privacyicon" />
+                android:src="@drawable/help" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -114,14 +129,13 @@
                 android:id="@+id/settingsNotificationImg"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="15dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/notificationicon" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -160,14 +174,13 @@
                 android:id="@+id/settingsAppLanguageImg"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="15dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/languageicon" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -205,14 +218,13 @@
                 android:id="@+id/settingsHelpImg"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="15dp"
                 android:contentDescription="Key icon"
                 android:src="@drawable/help" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
