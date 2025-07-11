@@ -10,7 +10,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentSettingsPageBinding
 
-
 class SettingsPageFragment : Fragment() {
 
     private var _binding: FragmentSettingsPageBinding? = null
@@ -31,6 +30,11 @@ class SettingsPageFragment : Fragment() {
 
         binding.settingsBackIcon.setOnClickListener {
             findNavController().navigate(R.id.action_settingsPageFragment_to_mePageFragment)
+        }
+
+
+        binding.settingsHelpLayout.setOnClickListener {
+            findNavController().navigate(R.id.action_settingsPageFragment_to_helpPageFragment)
         }
 
     }
