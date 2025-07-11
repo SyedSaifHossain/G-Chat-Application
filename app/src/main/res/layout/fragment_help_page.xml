@@ -43,7 +43,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_toEndOf="@+id/helpBackIcon"
                 android:fontFamily="@font/roboto_regular"
-                android:text="Settings"
+                android:text="Help"
                 android:textColor="#81d8d0"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -100,7 +100,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_regular"
-                    android:text="Privacy"
+                    android:text="Notification tone"
                     android:textColor="#81d8d0"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -110,7 +110,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_regular"
-                    android:text="Block contact, disappearing messages"
+                    android:text="Get help, contact us"
                     android:textColor="#81d8d0"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -140,24 +140,13 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/settingsNotificationTxt"
+                    android:id="@+id/settingsTermsTxt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_regular"
-                    android:text="Notificaitions"
+                    android:text="Terms and Privacy Policy"
                     android:textColor="#81d8d0"
                     android:textSize="18sp"
-
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settingsNotificationContentTxt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Message, wallpappers, chats history"
-                    android:textColor="#81d8d0"
-                    android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
@@ -185,24 +174,15 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/settingsAppLanguageTxt"
+                    android:id="@+id/settingsChannelReportTxt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_regular"
-                    android:text="App language"
+                    android:text="Channel reports"
                     android:textColor="#81d8d0"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/settingsAppLanguageContentTxt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="English (device's language)"
-                    android:textColor="#81d8d0"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
 
@@ -229,24 +209,15 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/settingsHelpTxt"
+                    android:id="@+id/settingsAppInfoTxt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_regular"
-                    android:text="Help"
+                    android:text="App Info"
                     android:textColor="#81d8d0"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/settingsHelpContentTxt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="Help centre, contact us, privacy policy"
-                    android:textColor="#81d8d0"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
             </LinearLayout>
 
         </LinearLayout>
