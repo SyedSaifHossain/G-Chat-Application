@@ -361,6 +361,9 @@
         <action
             android:id="@+id/action_mePageFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_mePageFragment_to_settingsPageFragment"
+            app:destination="@id/settingsPageFragment" />
     </fragment>
     <fragment
         android:id="@+id/chatScreenMoreOptionFragment"
@@ -387,4 +390,13 @@
         android:name="com.syedsaifhossain.g_chatapplication.FullScreenImageFragment"
         android:label="fragment_full_screen_image"
         tools:layout="@layout/fragment_full_screen_image" />
+    <fragment
+        android:id="@+id/settingsPageFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.SettingsPageFragment"
+        android:label="fragment_settings_page"
+        tools:layout="@layout/fragment_settings_page" >
+        <action
+            android:id="@+id/action_settingsPageFragment_to_mePageFragment"
+            app:destination="@id/mePageFragment" />
+    </fragment>
 </navigation>

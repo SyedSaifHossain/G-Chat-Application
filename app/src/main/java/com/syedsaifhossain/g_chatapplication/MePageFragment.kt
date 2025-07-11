@@ -35,6 +35,10 @@ class MePageFragment : Fragment() {
             findNavController().navigate(R.id.profileFragment)
         }
 
+        binding.settingsLayout.setOnClickListener {
+            findNavController().navigate(R.id.settingsPageFragment)
+        }
+
     }
 
     private fun loadUserData() {
