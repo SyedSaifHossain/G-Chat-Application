@@ -12,15 +12,14 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentProfileSettingBinding
+import com.yalantis.ucrop.UCrop
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
@@ -31,53 +30,12 @@ class ProfileSettingFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var database: DatabaseReference
-    private lateinit var storage: FirebaseStorage
+    private val database = FirebaseDatabase.getInstance().reference
+    private val storage = FirebaseStorage.getInstance()
 
     private var selectedImageUri: Uri? = null
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            pickImageFromGallery()
-        } else {
-            Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private val pickImageLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val sourceUri = result.data?.data ?: return@registerForActivityResult
-
-            // Start cropping
-            val destinationUri = Uri.fromFile(
-                File(requireContext().cacheDir, "cropped_${System.currentTimeMillis()}.jpg")
-            )
-
-            val options = com.yalantis.ucrop.UCrop.Options().apply {
-                setCompressionQuality(85)
-                setFreeStyleCropEnabled(true)
-                setToolbarTitle("Crop Image")
-            }
-
-            com.yalantis.ucrop.UCrop.of(sourceUri, destinationUri)
-                .withAspectRatio(1f, 1f) // Square crop
-                .withMaxResultSize(512, 512)
-                .withOptions(options)
-                .start(requireContext(), this)
-        }
-    }
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        auth = FirebaseAuth.getInstance()
-        database = FirebaseDatabase.getInstance().reference
-        storage = FirebaseStorage.getInstance()
-    }
+    private val PICK_IMAGE_REQUEST = 1001
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -90,12 +48,14 @@ class ProfileSettingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        auth = FirebaseAuth.getInstance()
+
         binding.profileSettingBackArrow.setOnClickListener {
             findNavController().popBackStack()
         }
 
         binding.addImageButton.setOnClickListener {
-            checkPermissionsAndPickImage()
+            requestImagePermission()
         }
 
         binding.profileSettingNextButton.setOnClickListener {
@@ -103,30 +63,69 @@ class ProfileSettingFragment : Fragment() {
         }
     }
 
-    private fun checkPermissionsAndPickImage() {
+    private fun requestImagePermission() {
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Manifest.permission.READ_MEDIA_IMAGES
         } else {
             Manifest.permission.READ_EXTERNAL_STORAGE
         }
 
-        when {
-            ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED -> {
-                pickImageFromGallery()
-            }
-            shouldShowRequestPermissionRationale(permission) -> {
-                Toast.makeText(requireContext(), "Gallery permission is required", Toast.LENGTH_SHORT).show()
-                requestPermissionLauncher.launch(permission)
-            }
-            else -> {
-                requestPermissionLauncher.launch(permission)
-            }
+        if (ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED) {
+            openGallery()
+        } else {
+            requestPermissions(arrayOf(permission), 1234)
         }
     }
 
-    private fun pickImageFromGallery() {
+    private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        pickImageLauncher.launch(intent)
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1234 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            openGallery()
+        } else {
+            Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == PICK_IMAGE_REQUEST && data?.data != null) {
+                val sourceUri = data.data!!
+                val destUri = Uri.fromFile(File(requireContext().cacheDir, "cropped_${System.currentTimeMillis()}.jpg"))
+
+                val options = UCrop.Options().apply {
+                    setToolbarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+                    setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+                    setActiveControlsWidgetColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                    setToolbarWidgetColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                    setToolbarTitle("")
+                    setFreeStyleCropEnabled(true) // ✅ drag to crop
+                    setHideBottomControls(true)
+                    setCircleDimmedLayer(false)
+                }
+
+                UCrop.of(sourceUri, destUri)
+                    // no fixed aspect ratio = free crop
+                    .withMaxResultSize(1080, 1080)
+                    .withOptions(options)
+                    .start(requireContext(), this)
+            } else if (requestCode == UCrop.REQUEST_CROP) {
+                val resultUri = UCrop.getOutput(data!!)
+                resultUri?.let {
+                    selectedImageUri = it
+                    binding.profileImage.setImageURI(it)
+                }
+            }
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            val cropError = UCrop.getError(data!!)
+            Toast.makeText(requireContext(), "Crop error: ${cropError?.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun validateAndSaveProfile() {
@@ -149,82 +148,58 @@ class ProfileSettingFragment : Fragment() {
         }
 
         if (selectedImageUri != null) {
-            uploadImageToFirebase(userId, firstName, lastName, selectedImageUri!!)
+            uploadImage(userId, firstName, lastName, selectedImageUri!!)
         } else {
-            saveUserToDatabase(userId, firstName, lastName, null)
+            saveProfile(userId, firstName, lastName, null)
         }
     }
 
-    private fun uploadImageToFirebase(userId: String, firstName: String, lastName: String, imageUri: Uri) {
-        val context = requireContext()
-        val inputStream = context.contentResolver.openInputStream(imageUri)
-        val originalBitmap = BitmapFactory.decodeStream(inputStream)
+    private fun uploadImage(userId: String, firstName: String, lastName: String, uri: Uri) {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
         inputStream?.close()
-        if (originalBitmap == null) {
-            Toast.makeText(context, "Failed to read image", Toast.LENGTH_SHORT).show()
-            return
+
+        val size = minOf(bitmap.width, bitmap.height, 512)
+        val cropped = Bitmap.createBitmap(bitmap, 0, 0, size, size)
+        bitmap.recycle()
+
+        val file = File.createTempFile("upload_", ".jpg", requireContext().cacheDir)
+        FileOutputStream(file).use { fos ->
+            cropped.compress(Bitmap.CompressFormat.JPEG, 85, fos)
         }
-        val size = minOf(originalBitmap.width, originalBitmap.height, 512)
-        val x = (originalBitmap.width - size) / 2
-        val y = (originalBitmap.height - size) / 2
-        val croppedBitmap = Bitmap.createBitmap(originalBitmap, x, y, size, size)
-        originalBitmap.recycle()
-        val tempFile = File.createTempFile("avatar_compress_", ".jpg", context.cacheDir)
-        val fos = FileOutputStream(tempFile)
-        croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos)
-        fos.flush(); fos.close()
-        croppedBitmap.recycle()
-        val compressedUri = Uri.fromFile(tempFile)
-        val fileName = UUID.randomUUID().toString() + ".jpg"
-        val imageRef = storage.reference.child("profile_images/$userId/$fileName")
-        imageRef.putFile(compressedUri)
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    saveUserToDatabase(userId, firstName, lastName, downloadUri.toString())
-                }
+        cropped.recycle()
+
+        val fileUri = Uri.fromFile(file)
+        val path = "profile_images/$userId/${UUID.randomUUID()}.jpg"
+        val ref = storage.reference.child(path)
+
+        ref.putFile(fileUri).addOnSuccessListener {
+            ref.downloadUrl.addOnSuccessListener { url ->
+                saveProfile(userId, firstName, lastName, url.toString())
             }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
-            }
+        }.addOnFailureListener {
+            Toast.makeText(requireContext(), "Upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
-    private fun saveUserToDatabase(userId: String, firstName: String, lastName: String, imageUrl: String?) {
-        val name = "$firstName $lastName"
-        val userProfile = mapOf(
+    private fun saveProfile(userId: String, firstName: String, lastName: String, imageUrl: String?) {
+        val userMap = mapOf(
             "uid" to userId,
             "firstName" to firstName,
             "lastName" to lastName,
-            "name" to name,
+            "name" to "$firstName $lastName",
             "profileImageUrl" to imageUrl,
             "timestamp" to System.currentTimeMillis()
         )
 
-        database.child("users").child(userId).updateChildren(userProfile)
+        database.child("users").child(userId).updateChildren(userMap)
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Profile saved!", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(R.id.homeFragment)
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Error saving profile: ${it.message}", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener {
+                Toast.makeText(requireContext(), "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
-
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode == Activity.RESULT_OK && requestCode == com.yalantis.ucrop.UCrop.REQUEST_CROP) {
-            val resultUri = com.yalantis.ucrop.UCrop.getOutput(data!!)
-            resultUri?.let {
-                selectedImageUri = it
-                binding.profileImage.setImageURI(it)
-            }
-        } else if (resultCode == com.yalantis.ucrop.UCrop.RESULT_ERROR) {
-            val cropError = com.yalantis.ucrop.UCrop.getError(data!!)
-            Toast.makeText(requireContext(), "Crop failed: ${cropError?.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

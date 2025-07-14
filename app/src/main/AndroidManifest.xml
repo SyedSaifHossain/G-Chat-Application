@@ -59,6 +59,11 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/UCropTheme" />
+
+        <activity
             android:name=".VouchersActivity"
             android:exported="false" />
         <activity
