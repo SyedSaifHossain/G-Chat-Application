@@ -56,6 +56,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.LinearLayout
+import android.widget.PopupWindow
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import java.util.concurrent.Executors
@@ -178,6 +179,7 @@ class GroupChatFragment : Fragment() {
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "onViewCreated: Started.")
@@ -196,27 +198,15 @@ class GroupChatFragment : Fragment() {
             return
         }
 
-        Log.d(TAG, "onViewCreated: Calling setupGroupInfo.")
         setupGroupInfo()
-        Log.d(TAG, "onViewCreated: Calling setupEmoji.")
         setupEmoji()
-        Log.d(TAG, "onViewCreated: Calling setupMessageInput.")
         setupMessageInput()
-        Log.d(TAG, "onViewCreated: Calling setupButtons.")
         setupButtons()
-        Log.d(TAG, "onViewCreated: Calling setupRecyclerView.")
         setupRecyclerView()
-        Log.d(TAG, "onViewCreated: Calling listenForMessages.")
         listenForMessages()
-        Log.d(TAG, "onViewCreated: Calling requestPermissionsIfNeeded.")
-        requestPermissionsIfNeeded()
-        Log.d(TAG, "onViewCreated: Calling fetchMyUserInfo.")
         fetchMyUserInfo()
-        Log.d(TAG, "onViewCreated: Calling setSoftInputMode.")
         requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-        Log.d(TAG, "onViewCreated: Calling listenForGroupCalls.")
         listenForGroupCalls()
-        Log.d(TAG, "onViewCreated: Finished.")
 
         // Inside onViewCreated method
         binding.messageInput.addTextChangedListener(object : TextWatcher {
@@ -1021,61 +1011,40 @@ class GroupChatFragment : Fragment() {
         chatRef.child(messageId).setValue(message)
     }
 
-
     private fun showAddOptionsMenu(view: View) {
-        val popupMenu = PopupMenu(requireContext(), view, Gravity.NO_GRAVITY, 0, R.style.PopupMenuStyle)
-        popupMenu.inflate(R.menu.add_options_menu)
 
-        // 强制显示图标
-        try {
-            val fields = popupMenu.javaClass.declaredFields
-            for (field in fields) {
-                if (field.name == "mPopup") {
-                    field.isAccessible = true
-                    val menuPopupHelper = field.get(popupMenu)
-                    val classPopupHelper = Class.forName(menuPopupHelper.javaClass.name)
-                    val setForceIcons = classPopupHelper.getMethod("setForceShowIcon", Boolean::class.javaPrimitiveType)
-                    setForceIcons.invoke(menuPopupHelper, true)
-                    break
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        val popupView = LayoutInflater.from(view.context)
+            .inflate(R.layout.layout_custom_popup_bottom, null)
+        popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+        val popupHeight = popupView.measuredHeight
+        val popupWidth = popupView.measuredWidth
+        val popupWindow = PopupWindow(
+            popupView,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+        popupWindow.isOutsideTouchable = true
+        popupWindow.elevation = 10f
 
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.galleryId -> {
-                    Log.d(TAG, "MENU: Gallery option clicked")
-                    Log.d(TAG, "MENU: Current permissions status:")
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                        val hasImages = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
-                        val hasVideos = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED
-                        Log.d(TAG, "MENU: Android 13+ - READ_MEDIA_IMAGES: $hasImages, READ_MEDIA_VIDEO: $hasVideos")
-                    } else {
-                        val hasStorage = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                        Log.d(TAG, "MENU: Android 12- - READ_EXTERNAL_STORAGE: $hasStorage")
-                    }
-                    
-                    Log.d(TAG, "MENU: Calling checkAndRequestGalleryPermission")
-                    checkAndRequestGalleryPermission()
-                    true
-                }
-                R.id.documentId -> {
-                    val intent = Intent(Intent.ACTION_GET_CONTENT)
-                    intent.type = "*/*"
-                    intent.addCategory(Intent.CATEGORY_OPENABLE)
-                    filePickerLauncher.launch(Intent.createChooser(intent, "Select File"))
-                    true
-                }
-                R.id.contactId -> {
-                    Toast.makeText(requireContext(), "Contact feature under development", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                else -> false
-            }
+        val location = IntArray(2)
+        view.getLocationOnScreen(location)
+        val anchorX = location[0]
+        val anchorY = location[1]
+        val offsetX = anchorX + view.width - popupWidth
+        val offsetY = anchorY - popupHeight
+
+        popupWindow.showAtLocation(view, Gravity.NO_GRAVITY, offsetX, offsetY)
+        popupView.findViewById<LinearLayout>(R.id.item_gallery).setOnClickListener {
+            popupWindow.dismiss()
+            checkAndRequestGalleryPermission()
         }
-        popupMenu.show()
+        popupView.findViewById<LinearLayout>(R.id.item_document).setOnClickListener {
+            popupWindow.dismiss()
+        }
+        popupView.findViewById<LinearLayout>(R.id.item_contact).setOnClickListener {
+            popupWindow.dismiss()
+        }
     }
 
     private fun showMessageOptionsMenu(message: GroupMessage, view: View) {
@@ -1276,33 +1245,7 @@ class GroupChatFragment : Fragment() {
         }
     }
 
-    private fun requestPermissionsIfNeeded() {
-        val permissions = mutableListOf<String>()
-        
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            permissions.add(Manifest.permission.RECORD_AUDIO)
-        }
-        
-        // 根据Android版本请求不同的存储权限
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            // Android 13+ 使用新的媒体权限
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
-            }
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
-                permissions.add(Manifest.permission.READ_MEDIA_VIDEO)
-            }
-        } else {
-            // Android 12 及以下只需要读取权限
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        }
-        
-        if (permissions.isNotEmpty()) {
-            requestPermissionsLauncher.launch(permissions.toTypedArray())
-        }
-    }
+
 
     private fun getFileName(uri: Uri): String {
         var result: String? = null
