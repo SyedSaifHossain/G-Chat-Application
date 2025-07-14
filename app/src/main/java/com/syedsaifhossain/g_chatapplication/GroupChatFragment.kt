@@ -1021,6 +1021,7 @@ class GroupChatFragment : Fragment() {
         chatRef.child(messageId).setValue(message)
     }
 
+
     private fun showAddOptionsMenu(view: View) {
         val popupMenu = PopupMenu(requireContext(), view, Gravity.NO_GRAVITY, 0, R.style.PopupMenuStyle)
         popupMenu.inflate(R.menu.add_options_menu)

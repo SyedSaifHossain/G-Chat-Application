@@ -78,7 +78,7 @@ class HomeFragment : Fragment() {
         val currentFragment = childFragmentManager.findFragmentById(R.id.nav_host_fragment)
         if (currentFragment is ChatFragment ||
             currentFragment is ContactFragment ||
-            currentFragment is DiscoverFragment ||
+            currentFragment is DiscoverPageFragment ||
             currentFragment is MePageFragment) {
             binding.bottomNavigation.visibility = View.VISIBLE
         }
