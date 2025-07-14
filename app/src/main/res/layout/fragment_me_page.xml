@@ -92,7 +92,7 @@
             android:id="@+id/payServiceImg"
             android:layout_width="30dp"
             android:layout_height="35dp"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="30dp"
             android:src="@drawable/payservice"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
@@ -116,7 +116,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="40dp"
+            android:layout_marginEnd="30dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
@@ -129,7 +129,7 @@
             android:layout_marginTop="20dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="40dp"
+            android:layout_marginHorizontal="30dp"
             android:alpha="0.5"/>
     </RelativeLayout>
 
@@ -147,7 +147,7 @@
             android:id="@+id/momentImg"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="30dp"
             android:src="@drawable/moment"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
@@ -172,7 +172,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="40dp"
+            android:layout_marginEnd="30dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
@@ -186,7 +186,7 @@
             android:alpha="0.5"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="40dp"/>
+            android:layout_marginHorizontal="30dp"/>
 
     </RelativeLayout>
 
@@ -202,7 +202,7 @@
             android:id="@+id/channelImg"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="30dp"
             android:src="@drawable/channel"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
@@ -227,7 +227,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="40dp"
+            android:layout_marginEnd="30dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
@@ -240,7 +240,7 @@
             android:layout_marginTop="20dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="40dp"
+            android:layout_marginHorizontal="30dp"
             android:alpha="0.5"/>
 
 
@@ -258,7 +258,7 @@
             android:id="@+id/cardOfferImg"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="30dp"
             android:src="@drawable/cardoffer"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
@@ -282,7 +282,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="40dp"
+            android:layout_marginEnd="30dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
@@ -296,7 +296,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:alpha="0.5"
-            android:layout_marginHorizontal="40dp"/>
+            android:layout_marginHorizontal="30dp"/>
 
 
     </RelativeLayout>
@@ -313,7 +313,7 @@
             android:id="@+id/favoriteImg"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="30dp"
             android:src="@drawable/favorite"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
@@ -337,7 +337,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="40dp"
+            android:layout_marginEnd="30dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
@@ -350,7 +350,7 @@
             android:layout_marginTop="20dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="40dp"
+            android:layout_marginHorizontal="30dp"
             android:alpha="0.5"/>
 
 
@@ -368,7 +368,7 @@
             android:id="@+id/stickerGalleryImg"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="30dp"
             android:src="@drawable/menewicon"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
@@ -393,7 +393,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="40dp"
+            android:layout_marginEnd="30dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
@@ -406,7 +406,7 @@
             android:layout_marginTop="20dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="40dp"
+            android:layout_marginHorizontal="30dp"
             android:alpha="0.5"/>
     </RelativeLayout>
 
@@ -422,7 +422,7 @@
             android:id="@+id/settingsImg"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="30dp"
             android:src="@drawable/settings"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
@@ -446,7 +446,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="40dp"
+            android:layout_marginEnd="30dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
@@ -460,7 +460,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:alpha="0.5"
-            android:layout_marginHorizontal="40dp"/>
+            android:layout_marginHorizontal="30dp"/>
     </RelativeLayout>
 
 </RelativeLayout>

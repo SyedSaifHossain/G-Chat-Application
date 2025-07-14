@@ -56,7 +56,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="-18dp"
                 android:layout_marginEnd="3dp"
-                android:src="@drawable/addbutton"
+                android:padding="8dp"
+                android:src="@drawable/helpaddicon"
                 app:tint="#81d8d0" />
 
             <View
@@ -66,7 +67,7 @@
                 android:layout_below="@+id/helpAddButton"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="5dp"
                 android:alpha="0.3"
                 android:background="#81d8d0" />
 
@@ -86,8 +87,9 @@
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_marginStart="15dp"
+                android:padding="8dp"
                 android:contentDescription="Key icon"
-                android:src="@drawable/help" />
+                android:src="@drawable/helpiconnew" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -131,7 +133,8 @@
                 android:layout_height="45dp"
                 android:layout_marginStart="15dp"
                 android:contentDescription="Key icon"
-                android:src="@drawable/notificationicon" />
+                android:padding="8dp"
+                android:src="@drawable/termsandconditionicon" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -165,7 +168,8 @@
                 android:layout_height="45dp"
                 android:layout_marginStart="15dp"
                 android:contentDescription="Key icon"
-                android:src="@drawable/languageicon" />
+                android:padding="8dp"
+                android:src="@drawable/reporticonnew" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -200,7 +204,8 @@
                 android:layout_height="45dp"
                 android:layout_marginStart="15dp"
                 android:contentDescription="Key icon"
-                android:src="@drawable/help" />
+                android:padding="8dp"
+                android:src="@drawable/infoicon" />
 
             <LinearLayout
                 android:layout_width="0dp"
