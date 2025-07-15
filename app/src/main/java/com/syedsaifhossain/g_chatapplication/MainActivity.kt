@@ -20,13 +20,13 @@ class MainActivity : BaseActivity() {
         // 1. 监听destination变化，控制底部导航栏显示/隐藏
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.chatFragment5, R.id.contactFragment3, R.id.discoverFragment3, R.id.mePageFragment -> {
+                R.id.chatFragment5, R.id.contactFragment3, R.id.discoverPageFragment, R.id.mePageFragment -> {
                     bottomNav.visibility = View.VISIBLE
                     // 高亮对应item（每次都强制设置）
                     val itemId = when(destination.id) {
                         R.id.chatFragment5 -> R.id.nav_chats
                         R.id.contactFragment3 -> R.id.nav_contacts
-                        R.id.discoverFragment3 -> R.id.nav_discover
+                        R.id.discoverPageFragment -> R.id.nav_discover
                         R.id.mePageFragment -> R.id.nav_me
                         else -> R.id.nav_chats
                     }
