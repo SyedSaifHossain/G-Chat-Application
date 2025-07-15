@@ -114,4 +114,5 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.github.yalantis:ucrop:2.2.6")
 
+    implementation("com.github.YarikSOffice:lingver:1.3.0")
 }
