@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="bottom_nav_color">#09A6A2</color>
+    <color name="checkedColor">#81d0d8</color>
+    <color name="uncheckedColor">#81d0d8</color>
 </resources>

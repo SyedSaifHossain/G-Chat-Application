@@ -25,6 +25,7 @@
     <string name="favorites_title">Favorites</string>
     <string name="group_name">Group Name</string>
     <string name="members_preview">Members preview</string>
+    <string name="app_language">App Language</string>
     <!-- === ADD THESE STRINGS ABOVE === -->
 
 </resources>

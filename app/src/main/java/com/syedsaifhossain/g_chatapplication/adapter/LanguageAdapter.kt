@@ -8,16 +8,22 @@ import com.syedsaifhossain.g_chatapplication.models.LanguageItem
 
 class LanguageAdapter(
     private val languages: List<LanguageItem>,
-    private val selectedCode: String,
+    private var selectedCode: String,
     private val onItemClick: (LanguageItem) -> Unit
 ) : RecyclerView.Adapter<LanguageAdapter.LanguageViewHolder>() {
-
 
     inner class LanguageViewHolder(val binding: ItemLanguageBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: LanguageItem) {
             binding.languageName.text = item.name
             binding.radioButton.isChecked = item.code == selectedCode
-            binding.root.setOnClickListener { onItemClick(item) }
+
+            binding.root.setOnClickListener {
+                if (selectedCode != item.code) {
+                    selectedCode = item.code
+                    notifyDataSetChanged()
+                    onItemClick(item)
+                }
+            }
         }
     }
 
