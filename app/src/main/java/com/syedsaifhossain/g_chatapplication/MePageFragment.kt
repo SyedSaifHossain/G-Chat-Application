@@ -36,7 +36,10 @@ class MePageFragment : Fragment() {
         }
 
         binding.settingsLayout.setOnClickListener {
-            findNavController().navigate(R.id.settingsPageFragment)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, SettingsPageFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
     }
