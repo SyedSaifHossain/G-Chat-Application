@@ -43,7 +43,7 @@ class MainActivity : BaseActivity() {
             val destId = when(item.itemId) {
                 R.id.nav_chats -> R.id.chatFragment5
                 R.id.nav_contacts -> R.id.contactFragment3
-                R.id.nav_discover -> R.id.discoverFragment3
+                R.id.nav_discover -> R.id.discoverPageFragment
                 R.id.nav_me -> R.id.mePageFragment
                 else -> null
             }
