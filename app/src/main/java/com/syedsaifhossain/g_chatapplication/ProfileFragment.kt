@@ -22,10 +22,11 @@ import java.io.File
 
 class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: throw IllegalStateException("Fragment binding is null")
     private val auth = FirebaseAuth.getInstance()
     private lateinit var database: DatabaseReference
     private val storage = FirebaseStorage.getInstance()
+    private var isFragmentDestroying = false
 
     private val IMAGE_PICK_CODE = 1001
 
@@ -69,7 +70,9 @@ class ProfileFragment : Fragment() {
             viewLifecycleOwner
         ) { _, bundle ->
             val selectedCountry = bundle.getString("selectedCountry", "")
-            binding.regionNameTxt.text = selectedCountry
+            _binding?.let { safeBinding ->
+                safeBinding.regionNameTxt.text = selectedCountry
+            }
             saveRegionToFirebase(selectedCountry)
         }
     }
@@ -80,6 +83,10 @@ class ProfileFragment : Fragment() {
         database.child("users").child(userId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    if (_binding == null || isFragmentDestroying || !isAdded || context == null) {
+                        return
+                    }
+                    
                     val name = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
                     val phone =
                         snapshot.child("phone").getValue(String::class.java) ?: "No phone number"
@@ -88,21 +95,27 @@ class ProfileFragment : Fragment() {
                     val imageUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
                         ?: snapshot.child("avatarUrl").getValue(String::class.java)
 
-                    binding.userNameTxt.text = name
-                    binding.phoneNameTxt.text = phone
-                    binding.genderNameTxt.text = gender
+                    try {
+                        _binding?.let { safeBinding ->
+                            safeBinding.userNameTxt.text = name
+                            safeBinding.phoneNameTxt.text = phone
+                            safeBinding.genderNameTxt.text = gender
 
-                    if (qrCodeUrl.isNotEmpty()) {
-                        Glide.with(requireContext())
-                            .load(qrCodeUrl)
-                            .into(binding.myqrCodeImg)
+                            if (qrCodeUrl.isNotEmpty()) {
+                                Glide.with(requireContext())
+                                    .load(qrCodeUrl)
+                                    .into(safeBinding.myqrCodeImg)
+                            }
+
+                            Glide.with(requireContext())
+                                .load(imageUrl)
+                                .placeholder(R.drawable.default_avatar)
+                                .override(70, 70)
+                                .into(safeBinding.profilePhotoImg)
+                        }
+                    } catch (e: Exception) {
+                        // 忽略UI更新错误
                     }
-
-                    Glide.with(requireContext())
-                        .load(imageUrl)
-                        .placeholder(R.drawable.default_avatar)
-                        .override(70, 70)
-                        .into(binding.profilePhotoImg)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -156,7 +169,9 @@ class ProfileFragment : Fragment() {
                     val resultUri = UCrop.getOutput(data!!)
                     resultUri?.let {
                         uploadProfileImage(it)
-                        binding.profilePhotoImg.setImageURI(it)
+                        _binding?.let { safeBinding ->
+                            safeBinding.profilePhotoImg.setImageURI(it)
+                        }
                     }
                 }
             }
@@ -177,12 +192,27 @@ class ProfileFragment : Fragment() {
         fileRef.putFile(imageUri).addOnSuccessListener {
             fileRef.downloadUrl.addOnSuccessListener { uri ->
                 updateProfileImageUrl(uri.toString())
-                Glide.with(requireContext())
-                    .load(uri)
-                    .into(binding.profilePhotoImg)
+                // 检查Fragment是否还存在
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        _binding?.let { safeBinding ->
+                            Glide.with(requireContext())
+                                .load(uri)
+                                .into(safeBinding.profilePhotoImg)
+                        }
+                    } catch (e: Exception) {
+                        // 忽略Glide错误
+                    }
+                }
             }
         }.addOnFailureListener {
-            Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+            if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                try {
+                    Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    // 忽略Toast错误
+                }
+            }
         }
     }
 
@@ -192,25 +222,39 @@ class ProfileFragment : Fragment() {
 
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Profile image updated successfully",
-                    Toast.LENGTH_SHORT
-                ).show()
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        Toast.makeText(
+                            requireContext(),
+                            "Profile image updated successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } catch (e: Exception) {
+                        // 忽略Toast错误
+                    }
+                }
             }
             .addOnFailureListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to update profile image",
-                    Toast.LENGTH_SHORT
-                ).show()
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        Toast.makeText(
+                            requireContext(),
+                            "Failed to update profile image",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } catch (e: Exception) {
+                        // 忽略Toast错误
+                    }
+                }
             }
     }
 
     private fun showNameEditDialog() {
         val builder = AlertDialog.Builder(requireContext())
         val input = EditText(requireContext())
-        input.setText(binding.userNameTxt.text.toString())
+        _binding?.let { safeBinding ->
+            input.setText(safeBinding.userNameTxt.text.toString())
+        }
 
         builder.setTitle("Edit Name")
             .setView(input)
@@ -234,19 +278,35 @@ class ProfileFragment : Fragment() {
         val updates = mapOf("name" to newName)
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
-                binding.userNameTxt.text = newName
-                Toast.makeText(requireContext(), "Name updated successfully", Toast.LENGTH_SHORT)
-                    .show()
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        _binding?.let { safeBinding ->
+                            safeBinding.userNameTxt.text = newName
+                            Toast.makeText(requireContext(), "Name updated successfully", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    } catch (e: Exception) {
+                        // 忽略UI更新错误
+                    }
+                }
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to update name", Toast.LENGTH_SHORT).show()
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        Toast.makeText(requireContext(), "Failed to update name", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        // 忽略Toast错误
+                    }
+                }
             }
     }
 
     private fun showPhoneEditDialog() {
         val builder = AlertDialog.Builder(requireContext())
         val input = EditText(requireContext())
-        input.setText(binding.phoneNameTxt.text.toString())
+        _binding?.let { safeBinding ->
+            input.setText(safeBinding.phoneNameTxt.text.toString())
+        }
 
         builder.setTitle("Edit Phone Number")
             .setView(input)
@@ -273,19 +333,33 @@ class ProfileFragment : Fragment() {
         val updates = mapOf("phone" to newPhone)
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
-                binding.phoneNameTxt.text = newPhone
-                Toast.makeText(
-                    requireContext(),
-                    "Phone number updated successfully",
-                    Toast.LENGTH_SHORT
-                ).show()
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        _binding?.let { safeBinding ->
+                            safeBinding.phoneNameTxt.text = newPhone
+                            Toast.makeText(
+                                requireContext(),
+                                "Phone number updated successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } catch (e: Exception) {
+                        // 忽略UI更新错误
+                    }
+                }
             }
             .addOnFailureListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to update phone number",
-                    Toast.LENGTH_SHORT
-                ).show()
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        Toast.makeText(
+                            requireContext(),
+                            "Failed to update phone number",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } catch (e: Exception) {
+                        // 忽略Toast错误
+                    }
+                }
             }
     }
 
@@ -309,20 +383,36 @@ class ProfileFragment : Fragment() {
         val updates = mapOf("gender" to newGender)
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
-                binding.genderNameTxt.text = newGender
-                Toast.makeText(requireContext(), "Gender updated successfully", Toast.LENGTH_SHORT)
-                    .show()
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        _binding?.let { safeBinding ->
+                            safeBinding.genderNameTxt.text = newGender
+                            Toast.makeText(requireContext(), "Gender updated successfully", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    } catch (e: Exception) {
+                        // 忽略UI更新错误
+                    }
+                }
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to update gender", Toast.LENGTH_SHORT)
-                    .show()
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        Toast.makeText(requireContext(), "Failed to update gender", Toast.LENGTH_SHORT)
+                            .show()
+                    } catch (e: Exception) {
+                        // 忽略Toast错误
+                    }
+                }
             }
     }
 
     private fun showQRCodeEditDialog() {
         val builder = AlertDialog.Builder(requireContext())
         val input = EditText(requireContext())
-        input.setText(binding.qrcodeTxt.text.toString())
+        _binding?.let { safeBinding ->
+            input.setText(safeBinding.qrcodeTxt.text.toString())
+        }
 
         builder.setTitle("Edit QR Code")
             .setView(input)
@@ -346,11 +436,19 @@ class ProfileFragment : Fragment() {
             val barcodeEncoder = BarcodeEncoder()
             val bitmap =
                 barcodeEncoder.encodeBitmap(data, com.google.zxing.BarcodeFormat.QR_CODE, 400, 400)
-            binding.myqrCodeImg.setImageBitmap(bitmap)
+            _binding?.let { safeBinding ->
+                safeBinding.myqrCodeImg.setImageBitmap(bitmap)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT)
-                .show()
+            if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                try {
+                    Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT)
+                        .show()
+                } catch (e2: Exception) {
+                    // 忽略Toast错误
+                }
+            }
         }
     }
 
@@ -359,17 +457,30 @@ class ProfileFragment : Fragment() {
         val updates = mapOf("region" to region)
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Region updated successfully", Toast.LENGTH_SHORT)
-                    .show()
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        Toast.makeText(requireContext(), "Region updated successfully", Toast.LENGTH_SHORT)
+                            .show()
+                    } catch (e: Exception) {
+                        // 忽略Toast错误
+                    }
+                }
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to update region", Toast.LENGTH_SHORT)
-                    .show()
+                if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
+                    try {
+                        Toast.makeText(requireContext(), "Failed to update region", Toast.LENGTH_SHORT)
+                            .show()
+                    } catch (e: Exception) {
+                        // 忽略Toast错误
+                    }
+                }
             }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        isFragmentDestroying = true
         (parentFragment as? HomeFragment)?.showBottomNav()
         _binding = null
     }
