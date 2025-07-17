@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.syedsaifhossain.g_chatapplication.adapter.ChatAdapter
-import com.syedsaifhossain.g_chatapplication.adapter.UserAdapter
 import com.syedsaifhossain.g_chatapplication.api.FirebaseManager
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatBinding
 import com.syedsaifhossain.g_chatapplication.models.Chats
@@ -32,9 +31,7 @@ class ChatFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var chatAdapter: ChatAdapter
-    private lateinit var userAdapter: UserAdapter
     private lateinit var messageList: ArrayList<Chats>
-    private lateinit var userList: ArrayList<User>
 
     private val database = FirebaseDatabase.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -148,43 +145,6 @@ class ChatFragment : Fragment() {
                 chatAdapter.notifyDataSetChanged()
             }
             override fun onCancelled(error: DatabaseError) {}
-        })
-    }
-
-    private fun setupUserList() {
-        userList = arrayListOf()
-
-        userAdapter = UserAdapter(userList) { clickedUser ->
-            navigateToChatScreenWithUser(clickedUser)
-        }
-
-        binding.userRecyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = userAdapter
-        }
-
-        loadUsers()
-    }
-
-    private fun loadUsers() {
-        val currentUserId = auth.currentUser?.uid ?: return
-
-        database.getReference("users").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                userList.clear()
-                for (userSnapshot in snapshot.children) {
-                    val user = userSnapshot.getValue(User::class.java)
-                    if (user != null && user.uid != currentUserId) {
-                        userList.add(user)
-                    }
-                }
-                userAdapter.notifyDataSetChanged()
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("ChatFragment", "Failed to load user list", error.toException())
-                Toast.makeText(requireContext(), "Failed to load user list", Toast.LENGTH_SHORT).show()
-            }
         })
     }
 

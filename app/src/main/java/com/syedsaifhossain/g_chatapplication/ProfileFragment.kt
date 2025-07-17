@@ -45,22 +45,22 @@ class ProfileFragment : Fragment() {
         fetchUserProfile()
 
         binding.profileBackImg.setOnClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_mePageFragment)
+            parentFragmentManager.popBackStack()
         }
 
         // Open gallery to pick and crop image
-        binding.profilePhotoArrow.setOnClickListener {
+        binding.profilePhotoLayout.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(intent, IMAGE_PICK_CODE)
         }
 
-        binding.nameArrow.setOnClickListener { showNameEditDialog() }
-        binding.phoneArrow.setOnClickListener { showPhoneEditDialog() }
-        binding.genderArrow.setOnClickListener { showGenderEditDialog() }
-        binding.qrcodeArrow.setOnClickListener { showQRCodeEditDialog() }
+        binding.nameLayout.setOnClickListener { showNameEditDialog() }
+        binding.phoneLayout.setOnClickListener { showPhoneEditDialog() }
+        binding.genderLayout.setOnClickListener { showGenderEditDialog() }
+        binding.qrcodeLayout.setOnClickListener { showQRCodeEditDialog() }
 
-        binding.regionArrow.setOnClickListener {
+        binding.regionLayout.setOnClickListener {
             findNavController().navigate(R.id.selectRegionFragment)
         }
 

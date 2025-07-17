@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -20,7 +21,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_gravity="center"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="15dp"
             android:layout_marginTop="15dp"
             android:src="@drawable/default_avatar"
             android:scaleType="centerCrop"
@@ -30,13 +31,12 @@
             android:id="@+id/nameId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
             android:layout_toEndOf="@+id/chatsImg"
             android:text="Aaron Loeb"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:textColor="#81d8d0"
+            android:layout_alignTop="@+id/chatsImg"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
@@ -45,11 +45,12 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/nameId"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:layout_toEndOf="@+id/chatsImg"
             android:text="Hi! How are you"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp"
+            android:textColor="#81d8d0"
+            android:textSize="12sp"
+            android:alpha="0.5"
             android:textStyle="bold" />
 
         <!-- Voice message bubble (WeChat style) -->
@@ -88,7 +89,8 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="15dp"
-            android:background="#636363" />
+            android:background="#81d8d0"
+            android:alpha="0.3"/>
     </RelativeLayout>
 
 </RelativeLayout>
