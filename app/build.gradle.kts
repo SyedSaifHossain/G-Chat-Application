@@ -60,6 +60,8 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     // Image Loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
     kapt("com.github.bumptech.glide:compiler:4.16.0")
     // ExoPlayer for video playback
     implementation("androidx.media3:media3-exoplayer:1.2.1")
