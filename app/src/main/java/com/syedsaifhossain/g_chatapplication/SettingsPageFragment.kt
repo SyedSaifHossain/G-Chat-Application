@@ -37,13 +37,18 @@ class SettingsPageFragment : Fragment() {
         }
 
         binding.settingsHelpLayout.setOnClickListener {
-            findNavController().navigate(R.id.action_settingsPageFragment_to_helpPageFragment)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, HelpPageFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         binding.settingsAppLanguageLayout.setOnClickListener {
-            findNavController().navigate(R.id.action_settingsPageFragment_to_languagePickerFragment)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, LanguagePickerFragment())
+                .addToBackStack(null)
+                .commit()
         }
-
     }
 
     override fun onResume() {

@@ -109,7 +109,7 @@ class LanguagePickerFragment : Fragment() {
         binding.languageRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         binding.appLanguageBackIcon.setOnClickListener {
-            findNavController().popBackStack()
+            parentFragmentManager.popBackStack()
         }
     }
 

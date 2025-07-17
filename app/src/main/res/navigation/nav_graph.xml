@@ -41,15 +41,6 @@
             app:destination="@id/friendRequestsFragment" />
     </fragment>
     <fragment
-        android:id="@+id/signInNextFragment"
-        android:name="com.syedsaifhossain.g_chatapplication.SignInNextFragment"
-        android:label="fragment_sign_in_next"
-        tools:layout="@layout/fragment_sign_in_next" >
-        <action
-            android:id="@+id/signInNextFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/selectRegionFragment"
         android:name="com.syedsaifhossain.g_chatapplication.SelectRegionFragment"
         android:label="fragment_select_region"
@@ -366,9 +357,6 @@
         android:name="com.syedsaifhossain.g_chatapplication.SettingsPageFragment"
         android:label="fragment_settings_page"
         tools:layout="@layout/fragment_settings_page" >
-        <action
-            android:id="@+id/action_settingsPageFragment_to_mePageFragment"
-            app:destination="@id/mePageFragment" />
         <action
             android:id="@+id/action_settingsPageFragment_to_helpPageFragment"
             app:destination="@id/helpPageFragment" />
