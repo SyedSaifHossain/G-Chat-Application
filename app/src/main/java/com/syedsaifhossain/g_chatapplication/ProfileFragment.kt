@@ -31,7 +31,7 @@ class ProfileFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
@@ -64,7 +64,10 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.selectRegionFragment)
         }
 
-        parentFragmentManager.setFragmentResultListener("regionSelection", viewLifecycleOwner) { _, bundle ->
+        parentFragmentManager.setFragmentResultListener(
+            "regionSelection",
+            viewLifecycleOwner
+        ) { _, bundle ->
             val selectedCountry = bundle.getString("selectedCountry", "")
             binding.regionNameTxt.text = selectedCountry
             saveRegionToFirebase(selectedCountry)
@@ -78,7 +81,8 @@ class ProfileFragment : Fragment() {
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val name = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
-                    val phone = snapshot.child("phone").getValue(String::class.java) ?: "No phone number"
+                    val phone =
+                        snapshot.child("phone").getValue(String::class.java) ?: "No phone number"
                     val gender = snapshot.child("gender").getValue(String::class.java) ?: "Not Set"
                     val qrCodeUrl = snapshot.child("qrCodeUrl").getValue(String::class.java) ?: ""
                     val imageUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
@@ -102,7 +106,11 @@ class ProfileFragment : Fragment() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(requireContext(), "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Error fetching data: ${error.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             })
     }
@@ -114,19 +122,31 @@ class ProfileFragment : Fragment() {
             when (requestCode) {
                 IMAGE_PICK_CODE -> {
                     val sourceUri = data?.data ?: return
-                    val destUri = Uri.fromFile(File(requireContext().cacheDir, "cropped_${System.currentTimeMillis()}.jpg"))
+                    val destUri = Uri.fromFile(
+                        File(
+                            requireContext().cacheDir,
+                            "cropped_${System.currentTimeMillis()}.jpg"
+                        )
+                    )
 
                     val options = UCrop.Options().apply {
                         setToolbarColor(resources.getColor(android.R.color.black, null))
                         setStatusBarColor(resources.getColor(android.R.color.black, null))
-                        setActiveControlsWidgetColor(resources.getColor(android.R.color.white, null))
+                        setActiveControlsWidgetColor(resources.getColor(
+                                android.R.color.white,
+                                null
+                            )
+                        )
                         setToolbarWidgetColor(resources.getColor(android.R.color.white, null))
                         setFreeStyleCropEnabled(true)
                         setHideBottomControls(true)
+                        setShowCropFrame(true)
+                        setShowCropGrid(false)
                         setCircleDimmedLayer(false)
                     }
 
                     UCrop.of(sourceUri, destUri)
+                        .withAspectRatio(1f, 1f)
                         .withMaxResultSize(1080, 1080)
                         .withOptions(options)
                         .start(requireContext(), this)
@@ -142,7 +162,11 @@ class ProfileFragment : Fragment() {
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
             val cropError = UCrop.getError(data!!)
-            Toast.makeText(requireContext(), "Crop error: ${cropError?.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Crop error: ${cropError?.message}",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -168,10 +192,18 @@ class ProfileFragment : Fragment() {
 
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Profile image updated successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Profile image updated successfully",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to update profile image", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to update profile image",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -188,7 +220,8 @@ class ProfileFragment : Fragment() {
                     updateNameInDatabase(newName)
                     dialog.dismiss()
                 } else {
-                    Toast.makeText(requireContext(), "Name cannot be empty", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Name cannot be empty", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
@@ -202,7 +235,8 @@ class ProfileFragment : Fragment() {
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
                 binding.userNameTxt.text = newName
-                Toast.makeText(requireContext(), "Name updated successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Name updated successfully", Toast.LENGTH_SHORT)
+                    .show()
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Failed to update name", Toast.LENGTH_SHORT).show()
@@ -222,7 +256,11 @@ class ProfileFragment : Fragment() {
                     updatePhoneInDatabase(newPhone)
                     dialog.dismiss()
                 } else {
-                    Toast.makeText(requireContext(), "Phone number cannot be empty", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Phone number cannot be empty",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
@@ -236,10 +274,18 @@ class ProfileFragment : Fragment() {
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
                 binding.phoneNameTxt.text = newPhone
-                Toast.makeText(requireContext(), "Phone number updated successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Phone number updated successfully",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to update phone number", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to update phone number",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -264,10 +310,12 @@ class ProfileFragment : Fragment() {
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
                 binding.genderNameTxt.text = newGender
-                Toast.makeText(requireContext(), "Gender updated successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Gender updated successfully", Toast.LENGTH_SHORT)
+                    .show()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to update gender", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Failed to update gender", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 
@@ -284,7 +332,8 @@ class ProfileFragment : Fragment() {
                     generateQRCode(newQRCodeData)
                     dialog.dismiss()
                 } else {
-                    Toast.makeText(requireContext(), "Input cannot be empty", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Input cannot be empty", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
@@ -295,11 +344,13 @@ class ProfileFragment : Fragment() {
     private fun generateQRCode(data: String) {
         try {
             val barcodeEncoder = BarcodeEncoder()
-            val bitmap = barcodeEncoder.encodeBitmap(data, com.google.zxing.BarcodeFormat.QR_CODE, 400, 400)
+            val bitmap =
+                barcodeEncoder.encodeBitmap(data, com.google.zxing.BarcodeFormat.QR_CODE, 400, 400)
             binding.myqrCodeImg.setImageBitmap(bitmap)
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Failed to generate QR code", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
@@ -308,10 +359,12 @@ class ProfileFragment : Fragment() {
         val updates = mapOf("region" to region)
         database.child("users").child(userId).updateChildren(updates)
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Region updated successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Region updated successfully", Toast.LENGTH_SHORT)
+                    .show()
             }
             .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to update region", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Failed to update region", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 

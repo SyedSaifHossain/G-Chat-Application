@@ -39,7 +39,7 @@ class ProfileSettingFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentProfileSettingBinding.inflate(inflater, container, false)
         return binding.root
@@ -70,7 +70,11 @@ class ProfileSettingFragment : Fragment() {
             Manifest.permission.READ_EXTERNAL_STORAGE
         }
 
-        if (ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                permission
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             openGallery()
         } else {
             requestPermissions(arrayOf(permission), 1234)
@@ -82,7 +86,11 @@ class ProfileSettingFragment : Fragment() {
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1234 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             openGallery()
@@ -97,21 +105,44 @@ class ProfileSettingFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == PICK_IMAGE_REQUEST && data?.data != null) {
                 val sourceUri = data.data!!
-                val destUri = Uri.fromFile(File(requireContext().cacheDir, "cropped_${System.currentTimeMillis()}.jpg"))
+                val destUri = Uri.fromFile(
+                    File(
+                        requireContext().cacheDir,
+                        "cropped_${System.currentTimeMillis()}.jpg"
+                    )
+                )
+
 
                 val options = UCrop.Options().apply {
                     setToolbarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
-                    setStatusBarColor(ContextCompat.getColor(requireContext(), android.R.color.black))
-                    setActiveControlsWidgetColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-                    setToolbarWidgetColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+                    setStatusBarColor(
+                        ContextCompat.getColor(
+                            requireContext(),
+                            android.R.color.black
+                        )
+                    )
+                    setActiveControlsWidgetColor(
+                        ContextCompat.getColor(
+                            requireContext(),
+                            android.R.color.white
+                        )
+                    )
+                    setToolbarWidgetColor(
+                        ContextCompat.getColor(
+                            requireContext(),
+                            android.R.color.white
+                        )
+                    )
                     setToolbarTitle("")
-                    setFreeStyleCropEnabled(true) // ✅ drag to crop
+                    setFreeStyleCropEnabled(true)
                     setHideBottomControls(true)
+                    setShowCropFrame(true)
+                    setShowCropGrid(false)
                     setCircleDimmedLayer(false)
                 }
 
                 UCrop.of(sourceUri, destUri)
-                    // no fixed aspect ratio = free crop
+                    .withAspectRatio(1f,1f)
                     .withMaxResultSize(1080, 1080)
                     .withOptions(options)
                     .start(requireContext(), this)
@@ -124,7 +155,11 @@ class ProfileSettingFragment : Fragment() {
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
             val cropError = UCrop.getError(data!!)
-            Toast.makeText(requireContext(), "Crop error: ${cropError?.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Crop error: ${cropError?.message}",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -178,11 +213,17 @@ class ProfileSettingFragment : Fragment() {
                 saveProfile(userId, firstName, lastName, url.toString())
             }
         }.addOnFailureListener {
-            Toast.makeText(requireContext(), "Upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Upload failed: ${it.message}", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
-    private fun saveProfile(userId: String, firstName: String, lastName: String, imageUrl: String?) {
+    private fun saveProfile(
+        userId: String,
+        firstName: String,
+        lastName: String,
+        imageUrl: String?,
+    ) {
         val userMap = mapOf(
             "uid" to userId,
             "firstName" to firstName,
