@@ -33,16 +33,11 @@ class SettingsPageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.settingsBackIcon.setOnClickListener {
-
-            parentFragmentManager.popBackStack()
+            findNavController().navigate(R.id.action_settingsPageFragment_to_mePageFragment)
         }
 
-
         binding.settingsHelpLayout.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment, HelpPageFragment())
-                .addToBackStack(null)
-                .commit()
+            findNavController().navigate(R.id.action_settingsPageFragment_to_helpPageFragment)
         }
 
         binding.settingsAppLanguageLayout.setOnClickListener {
