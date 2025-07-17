@@ -32,7 +32,10 @@ class MePageFragment : Fragment() {
         loadUserData()
 
         binding.meRightArrow.setOnClickListener {
-            findNavController().navigate(R.id.profileFragment)
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, ProfileFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         binding.settingsLayout.setOnClickListener {
