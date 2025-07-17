@@ -40,11 +40,11 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="2dp"
         android:background="#81d8d0"
         android:layout_below="@+id/messageTxt"
         android:layout_marginHorizontal="20dp"
-        android:alpha="0.3"/>
+        android:alpha="0.1"/>
 
 
 
