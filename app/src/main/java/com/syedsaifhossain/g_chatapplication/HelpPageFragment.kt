@@ -26,7 +26,7 @@ class HelpPageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.helpBackIcon.setOnClickListener {
-            parentFragmentManager.popBackStack()
+            findNavController().popBackStack()
         }
     }
 

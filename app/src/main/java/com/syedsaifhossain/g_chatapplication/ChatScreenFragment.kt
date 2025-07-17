@@ -758,7 +758,10 @@ class ChatScreenFragment : Fragment() {
         chatValueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 // --- 新增：防止 binding 为空崩溃 ---
-                if (_binding == null) return
+                if (_binding == null || isFragmentDestroying || !isAdded) {
+                    Log.d("ChatScreenFragment", "Fragment not ready, skipping data update")
+                    return
+                }
                 Log.d("ChatScreenFragment", "Received data snapshot: " + snapshot.exists())
                 chatList.clear()
                 for (child in snapshot.children) {
@@ -774,14 +777,22 @@ class ChatScreenFragment : Fragment() {
                 chatList.sortBy { it.timestamp }
                 chatMessageAdapter.notifyDataSetChanged()
                 if (chatList.isNotEmpty()) {
-                    binding.chatScreenRecyclerView.scrollToPosition(chatList.size - 1)
+                    try {
+                        binding.chatScreenRecyclerView.scrollToPosition(chatList.size - 1)
+                    } catch (e: Exception) {
+                        Log.e("ChatScreenFragment", "Error scrolling to position: ${e.message}")
+                    }
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                if (_binding == null) return
-                Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT)
-                    .show()
+                if (_binding == null || isFragmentDestroying || !isAdded) return
+                try {
+                    Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT)
+                        .show()
+                } catch (e: Exception) {
+                    Log.e("ChatScreenFragment", "Error showing toast: ${e.message}")
+                }
                 Log.e("ChatScreenFragment", "Failed to load messages", error.toException())
             }
         }
@@ -1807,25 +1818,82 @@ class ChatScreenFragment : Fragment() {
 
         // --- 正确移除监听器 ---
         incomingCallListener?.let { listener ->
-            incomingCallsRef?.removeEventListener(listener)
+            try {
+                incomingCallsRef?.removeEventListener(listener)
+            } catch (e: Exception) {
+                Log.e("ChatScreenFragment", "Error removing incoming call listener: ${e.message}")
+            }
             incomingCallListener = null
             incomingCallsRef = null
         }
 
         waitingCallListener?.let { listener ->
-            waitingCallRef?.removeEventListener(listener)
+            try {
+                waitingCallRef?.removeEventListener(listener)
+            } catch (e: Exception) {
+                Log.e("ChatScreenFragment", "Error removing waiting call listener: ${e.message}")
+            }
             waitingCallListener = null
             waitingCallRef = null
         }
 
+        // 移除聊天消息监听器
+        chatValueEventListener?.let { listener ->
+            try {
+                chatRef?.removeEventListener(listener)
+            } catch (e: Exception) {
+                Log.e("ChatScreenFragment", "Error removing chat listener: ${e.message}")
+            }
+            chatValueEventListener = null
+            chatRef = null
+        }
+
+        // 清理媒体资源
+        try {
+            mediaRecorder?.release()
+            mediaRecorder = null
+        } catch (e: Exception) {
+            Log.e("ChatScreenFragment", "Error releasing mediaRecorder: ${e.message}")
+        }
+
+        try {
+            audioFile?.delete()
+            audioFile = null
+        } catch (e: Exception) {
+            Log.e("ChatScreenFragment", "Error deleting audio file: ${e.message}")
+        }
+
+        // 清理定时器
+        try {
+            recordingTimer?.cancel()
+            recordingTimer = null
+        } catch (e: Exception) {
+            Log.e("ChatScreenFragment", "Error canceling recording timer: ${e.message}")
+        }
+
+        try {
+            recordTimer?.cancel()
+            recordTimer = null
+        } catch (e: Exception) {
+            Log.e("ChatScreenFragment", "Error canceling record timer: ${e.message}")
+        }
+
+        // 清理播放器
+        try {
+            previewPlayer?.release()
+            previewPlayer = null
+        } catch (e: Exception) {
+            Log.e("ChatScreenFragment", "Error releasing preview player: ${e.message}")
+        }
+
+        try {
+            voicePlayer?.release()
+            voicePlayer = null
+        } catch (e: Exception) {
+            Log.e("ChatScreenFragment", "Error releasing voice player: ${e.message}")
+        }
+
         super.onDestroyView()
-        chatValueEventListener?.let { chatRef?.removeEventListener(it) }
-        chatValueEventListener = null
-        chatRef = null
-        mediaRecorder?.release()
-        mediaRecorder = null
-        audioFile?.delete()
-        audioFile = null
         _binding = null
     }
 
