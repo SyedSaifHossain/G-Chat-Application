@@ -33,7 +33,7 @@ class SettingsPageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.settingsBackIcon.setOnClickListener {
-            findNavController().navigate(R.id.action_settingsPageFragment_to_mePageFragment)
+            parentFragmentManager.popBackStack()
         }
 
         binding.settingsHelpLayout.setOnClickListener {
