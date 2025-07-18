@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentEnd="true"
+    android:layout_marginStart="15dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginEnd="15dp">
+
+    <RelativeLayout
+        android:id="@+id/momentDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true">
+
+        <TextView
+            android:id="@+id/momentday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/roboto_regular"
+            android:text="08"
+            android:textColor="#81d8d0"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/momentMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/momentday"
+            android:layout_toEndOf="@+id/momentday"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Jul"
+            android:layout_marginTop="-20sp"
+            android:layout_marginStart="3sp"
+            android:textColor="#81d8d0"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/momentImg"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="15dp"
+        android:scaleType="centerCrop"
+        android:layout_toEndOf="@+id/momentDate"
+        android:src="@drawable/cityimg"/>
+
+    <TextView
+        android:id="@+id/momentTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/momentImg"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="5sp"
+        android:fontFamily="@font/roboto_regular"
+        android:text="Moment text"
+        android:textColor="#81d8d0"
+        android:textSize="16sp"
+        android:layout_marginStart="20dp"
+        android:textStyle="bold" />
+
+</RelativeLayout>

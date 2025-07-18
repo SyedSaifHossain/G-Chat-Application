@@ -45,6 +45,13 @@ class MePageFragment : Fragment() {
                 .commit()
         }
 
+        binding.momentLayout.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, MomentPageFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
     }
 
     private fun loadUserData() {

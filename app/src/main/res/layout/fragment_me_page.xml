@@ -17,7 +17,6 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true">
 
-
         <!-- Profile Image -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/meProfileImg"

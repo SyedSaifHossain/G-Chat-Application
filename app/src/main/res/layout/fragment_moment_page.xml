@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MomentPageFragment"
+    android:background="@drawable/bg_gradient">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Banner Section -->
+        <RelativeLayout
+            android:id="@+id/bannerImg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="25dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:scaleType="centerCrop"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/cityimg"/>
+
+            <ImageView
+                android:id="@+id/momentBackImg"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:src="@drawable/leftarrow"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true" />
+        </RelativeLayout>
+
+        <!-- User Info -->
+        <LinearLayout
+            android:id="@+id/userIdentity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/bannerImg"
+            android:orientation="horizontal"
+            android:layout_marginEnd="15dp"
+            android:layout_marginTop="-35dp">
+
+            <TextView
+                android:id="@+id/momentUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#81d8d0"
+                android:text="Person"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/roboto_regular"/>
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/momentProfileImg"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/profileimage"
+                app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
+        </LinearLayout>
+
+
+        <!-- Pin Section -->
+        <RelativeLayout
+            android:id="@+id/pinLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/bannerImg"
+            android:layout_marginTop="35dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true">
+
+            <TextView
+                android:id="@+id/pinTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#81d8d0"
+                android:text="Pin"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_centerVertical="true"
+                android:fontFamily="@font/roboto_regular" />
+
+            <ImageView
+                android:id="@+id/pinImg"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginStart="35dp"
+                android:src="@drawable/cityimg"
+                android:layout_toEndOf="@+id/pinTxt"
+                android:scaleType="centerCrop"
+                android:layout_centerVertical="true" />
+
+            <ImageView
+                android:id="@+id/pinaArrowImg"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/newarrowright"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true" />
+        </RelativeLayout>
+
+        <!-- Divider Line -->
+        <View
+            android:id="@+id/momentLine"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/pinLayout"
+            android:layout_marginTop="25dp"
+            android:background="#6b6b6b"
+            android:alpha="0.3" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/momentRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/momentLine"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            tools:listitem="@layout/moment_layout"/>
+    </RelativeLayout>
+
+</ScrollView>

@@ -374,4 +374,9 @@
         android:name="com.syedsaifhossain.g_chatapplication.LanguagePickerFragment"
         android:label="fragment_language_picker"
         tools:layout="@layout/fragment_language_picker" />
+    <fragment
+        android:id="@+id/momentPageFragment"
+        android:name="com.syedsaifhossain.g_chatapplication.MomentPageFragment"
+        android:label="fragment_moment_page"
+        tools:layout="@layout/fragment_moment_page" />
 </navigation>
