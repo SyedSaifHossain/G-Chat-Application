@@ -18,6 +18,27 @@ class MomentPageFragment : Fragment() {
     private val momentList = listOf(
         Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
         Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
+        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
+        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
+        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
+        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
+        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
+        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
+        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
+        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
+        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
+        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
+        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
+        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
+        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
+        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
+        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
+        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
+        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
+        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
+        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
+        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
+        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
         Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure")
     )
 
