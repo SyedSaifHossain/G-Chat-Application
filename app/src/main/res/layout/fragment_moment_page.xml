@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:tools="http://schemas.android.com/tools"
 xmlns:app="http://schemas.android.com/apk/res-auto"
 android:id="@+id/rootLayout"
@@ -14,7 +14,11 @@ tools:context=".MomentPageFragment">
     android:id="@+id/momentScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentEnd="true"
+    android:layout_alignParentBottom="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -27,8 +31,7 @@ tools:context=".MomentPageFragment">
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="25dp">
+            android:layout_alignParentEnd="true">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -146,11 +149,12 @@ tools:context=".MomentPageFragment">
         android:id="@+id/momentHeaderLayout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_gravity="top"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:background="@android:color/transparent"
         android:paddingHorizontal="10dp"
         android:paddingVertical="5dp"
-        android:layout_marginTop="25dp"
         android:elevation="8dp">
 
     <!-- Back Icon always visible -->
@@ -189,4 +193,4 @@ tools:context=".MomentPageFragment">
         app:tint="#81d8d0" />
 
 </RelativeLayout>
-</FrameLayout>
+</RelativeLayout>

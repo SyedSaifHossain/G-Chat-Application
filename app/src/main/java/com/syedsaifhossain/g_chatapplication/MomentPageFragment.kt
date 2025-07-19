@@ -66,6 +66,7 @@ class MomentPageFragment : Fragment() {
                 val scrollY = momentScrollView.scrollY
 
                 if (scrollY > 100 && momentTitle.visibility == View.GONE) {
+                    momentHeaderLayout.setBackgroundColor(android.graphics.Color.parseColor("#000000"))
                     momentTitle.visibility = View.VISIBLE
                     momentMoreBtn.visibility = View.VISIBLE
                     momentTitle.alpha = 0f
@@ -79,6 +80,9 @@ class MomentPageFragment : Fragment() {
                     momentMoreBtn.animate().alpha(0f).setDuration(200).withEndAction {
                         momentMoreBtn.visibility = View.GONE
                     }.start()
+
+                    // Reset background to transparent
+                    momentHeaderLayout.setBackgroundColor(android.graphics.Color.TRANSPARENT)
                 }
             }
 
