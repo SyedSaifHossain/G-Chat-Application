@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:id="@+id/rootLayout"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@drawable/bg_gradient"
+tools:context=".MomentPageFragment">
+
+<!-- Scrollable content -->
+<ScrollView
+    android:id="@+id/momentScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MomentPageFragment"
-    android:background="@drawable/bg_gradient">
+    android:fillViewport="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -31,15 +39,6 @@
                 android:layout_alignParentEnd="true"
                 android:src="@drawable/cityimg"/>
 
-            <ImageView
-                android:id="@+id/momentBackImg"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="20dp"
-                android:src="@drawable/leftarrow"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true" />
         </RelativeLayout>
 
         <!-- User Info -->
@@ -140,3 +139,54 @@
     </RelativeLayout>
 
 </ScrollView>
+
+
+<!-- Sticky Header that floats on top of city image -->
+    <RelativeLayout
+        android:id="@+id/momentHeaderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="top"
+        android:background="@android:color/transparent"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="5dp"
+        android:layout_marginTop="25dp"
+        android:elevation="8dp">
+
+    <!-- Back Icon always visible -->
+    <ImageView
+        android:id="@+id/momentBackImg"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/leftarrow"
+        android:background="?selectableItemBackgroundBorderless" />
+
+    <!-- Title initially hidden -->
+    <TextView
+        android:id="@+id/momentTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My posts"
+        android:textColor="#81d8d0"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/roboto_regular"
+        android:visibility="gone"
+        android:layout_centerInParent="true" />
+
+    <!-- More Icon initially hidden -->
+    <ImageView
+        android:id="@+id/momentMoreBtn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="5dp"
+        android:src="@drawable/moreicon"
+        android:visibility="gone"
+        app:tint="#81d8d0" />
+
+</RelativeLayout>
+</FrameLayout>
