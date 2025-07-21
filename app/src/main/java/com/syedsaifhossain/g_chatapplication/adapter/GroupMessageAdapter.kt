@@ -77,7 +77,7 @@ class GroupMessageAdapter(
 
                     Glide.with(binding.root.context)
                         .load(message.imageUrl)
-                        .placeholder(R.drawable.default_image)
+                        .placeholder(R.drawable.profilenew)
                         .into(binding.sentMessageImage)
 
                     binding.sentMessageImage.setOnClickListener {
@@ -96,7 +96,7 @@ class GroupMessageAdapter(
 
                     Glide.with(binding.root.context)
                         .load(message.videoUrl)
-                        .placeholder(R.drawable.default_image)
+                        .placeholder(R.drawable.profilenew)
                         .into(binding.sentMessageVideo)
 
                     binding.sentVideoContainer.setOnClickListener {
@@ -195,10 +195,10 @@ class GroupMessageAdapter(
             if (!message.senderAvatarUrl.isNullOrEmpty()) {
                 Glide.with(binding.root.context)
                     .load(message.senderAvatarUrl)
-                    .placeholder(R.drawable.default_avatar)
+                    .placeholder(R.drawable.profilenew)
                     .into(binding.receivedSenderAvatar)
             } else {
-                binding.receivedSenderAvatar.setImageResource(R.drawable.default_avatar)
+                binding.receivedSenderAvatar.setImageResource(R.drawable.profilenew)
             }
             
             when (message.type) {
@@ -221,7 +221,7 @@ class GroupMessageAdapter(
                     
                     Glide.with(binding.root.context)
                         .load(message.imageUrl)
-                        .placeholder(R.drawable.default_image)
+                        .placeholder(R.drawable.profilenew)
                         .into(binding.receivedMessageImage)
                     binding.receivedMessageImage.setOnClickListener {
                         message.imageUrl?.let { url -> onImageClick?.invoke(url) }
@@ -237,7 +237,7 @@ class GroupMessageAdapter(
 
                     Glide.with(binding.root.context)
                         .load(message.videoUrl)
-                        .placeholder(R.drawable.default_image)
+                        .placeholder(R.drawable.profilenew)
                         .into(binding.receivedMessageVideo)
 
                     binding.receivedVideoContainer.setOnClickListener {

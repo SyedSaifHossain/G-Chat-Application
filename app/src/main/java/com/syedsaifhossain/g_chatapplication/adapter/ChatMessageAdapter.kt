@@ -210,7 +210,7 @@ class ChatMessageAdapter(
                         messageText.visibility = View.GONE
                         imageView?.visibility = View.GONE
                         voiceLayout?.visibility = View.GONE
-                        bubbleLayout.setBackgroundResource(0)
+                        bubbleLayout.visibility = View.GONE
                         // 加载视频缩略图
                         Glide.with(itemView.context)
                             .load(message.imageUrl)
@@ -237,11 +237,12 @@ class ChatMessageAdapter(
             if (avatarUrl != null) {
                 Glide.with(itemView.context)
                     .load(avatarUrl)
-                    .placeholder(R.drawable.profile)
-                    .error(R.drawable.profile)
+                    .placeholder(R.drawable.profilenew)
+                    .error(R.drawable.profilenew)
                     .into(avatarImage)
             } else {
-                avatarImage.setImageResource(R.drawable.profile)
+
+                avatarImage.setImageResource(R.drawable.profilenew)
             }
         }
     }
@@ -398,11 +399,11 @@ class ChatMessageAdapter(
             if (avatarUrl != null) {
                 Glide.with(itemView.context)
                     .load(avatarUrl)
-                    .placeholder(R.drawable.profile)
-                    .error(R.drawable.profile)
+                    .placeholder(R.drawable.profilenew)
+                    .error(R.drawable.profilenew)
                     .into(avatarImage)
             } else {
-                avatarImage.setImageResource(R.drawable.profile)
+                avatarImage.setImageResource(R.drawable.profilenew)
             }
         }
     }

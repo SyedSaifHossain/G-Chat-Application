@@ -48,12 +48,12 @@ class ChatAdapter(
                         if (avatarUrl.isNotEmpty()) {
                             Glide.with(binding.chatsImg.context)
                                 .load(avatarUrl)
-                                .placeholder(R.drawable.default_avatar)
-                                .error(R.drawable.default_avatar)
+                                .placeholder(R.drawable.profilenew)
+                                .error(R.drawable.profilenew)
                                 .centerCrop()
                                 .into(binding.chatsImg)
                         } else {
-                            binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                            binding.chatsImg.setImageResource(R.drawable.profilenew)
                         }
                     }
                     override fun onCancelled(error: DatabaseError) {}

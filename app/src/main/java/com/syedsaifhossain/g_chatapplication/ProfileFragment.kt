@@ -109,7 +109,7 @@ class ProfileFragment : Fragment() {
 
                             Glide.with(requireContext())
                                 .load(imageUrl)
-                                .placeholder(R.drawable.default_avatar)
+                                .placeholder(R.drawable.profilenew)
                                 .override(70, 70)
                                 .into(safeBinding.profilePhotoImg)
                         }

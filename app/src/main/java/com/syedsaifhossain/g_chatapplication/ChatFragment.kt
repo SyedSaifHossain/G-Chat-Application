@@ -99,7 +99,7 @@ class ChatFragment : Fragment() {
                                 if (user != null && friendUidSet.contains(user.uid)) {
                                     // 构造 Chats 对象，显示好友昵称和头像
                                     val chat = Chats(
-                                        imageRes = if (user.avatarUrl.isNullOrBlank()) R.drawable.default_avatar else 0,
+                                        imageRes = if (user.avatarUrl.isNullOrBlank()) R.drawable.profilenew else 0,
                                         name = user.name,
                                         message = user.status,
                                         otherUserId = user.uid,

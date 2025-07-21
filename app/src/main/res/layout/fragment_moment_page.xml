@@ -71,7 +71,7 @@ tools:context=".MomentPageFragment">
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="8dp"
-                android:src="@drawable/profileimage"
+                android:src="@drawable/profilenew"
                 app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
         </LinearLayout>
 
