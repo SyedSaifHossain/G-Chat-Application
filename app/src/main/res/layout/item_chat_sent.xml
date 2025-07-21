@@ -149,7 +149,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="15dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/profileimage" />
+            android:src="@drawable/profilenew" />
     </LinearLayout>
 
 </RelativeLayout>

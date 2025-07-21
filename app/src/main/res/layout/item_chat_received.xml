@@ -35,7 +35,7 @@
             android:layout_height="40dp"
             android:layout_marginHorizontal="8dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/profileimage"
+            android:src="@drawable/profilenew"
             android:layout_gravity="bottom|left"/>
 
         <ImageView

@@ -165,7 +165,7 @@
             android:id="@+id/profileSend"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/profileimage"
+            android:src="@drawable/profilenew"
             android:layout_gravity="end|bottom"
             android:scaleType="centerCrop"
             android:layout_marginStart="3dp"
