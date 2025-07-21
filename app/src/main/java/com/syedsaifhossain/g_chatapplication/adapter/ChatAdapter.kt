@@ -11,12 +11,13 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import android.util.TypedValue
+import android.view.View
 
 class ChatAdapter(
     private val messageList: ArrayList<Chats>,
-    private val onItemClick: (Chats) -> Unit // Now passes chat info if needed
+    private val onItemClick: (Chats) -> Unit, // Now passes chat info if needed
+    private val onItemLongClick: (Chats, View) -> Unit
 ) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
     private fun dpToPx(dp: Int, context: android.content.Context): Int {
@@ -83,6 +84,11 @@ class ChatAdapter(
 
             binding.root.setOnClickListener {
                 onItemClick(chat)
+            }
+
+            binding.root.setOnLongClickListener {
+                onItemLongClick(chat, it)
+                true
             }
         }
     }

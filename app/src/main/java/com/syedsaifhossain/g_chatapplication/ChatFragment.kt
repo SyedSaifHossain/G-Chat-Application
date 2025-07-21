@@ -7,7 +7,6 @@ import android.view.*
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.PopupWindow
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -60,15 +59,22 @@ class ChatFragment : Fragment() {
         recyclerView = binding.chatRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
         messageList = arrayListOf()
-
-        chatAdapter = ChatAdapter(messageList) { clickedChatItem ->
-            if (clickedChatItem.isGroup) {
-                val bundle = Bundle().apply { putString("groupId", clickedChatItem.otherUserId) }
-                findNavController().navigate(R.id.groupChatFragment, bundle)
-            } else {
-                navigateToChatScreen(clickedChatItem)
+        chatAdapter = ChatAdapter(
+            messageList,
+            onItemClick = { clickedChatItem ->
+                if (clickedChatItem.isGroup) {
+                    val bundle = Bundle().apply { putString("groupId", clickedChatItem.otherUserId) }
+                    findNavController().navigate(R.id.groupChatFragment, bundle)
+                } else {
+                    navigateToChatScreen(clickedChatItem)
+                }
+            },
+            onItemLongClick = { chatItem, view ->
+                showChatDeletePopup(chatItem, view)
             }
-        }
+        )
+
+
         recyclerView.adapter = chatAdapter
 
         val currentUserId = auth.currentUser?.uid ?: return
@@ -228,6 +234,36 @@ class ChatFragment : Fragment() {
         }
         // 显示在按钮下方
         popupWindow.showAsDropDown(view, 0, 0)
+    }
+
+    private fun showChatDeletePopup(chatItem: Chats, view: View) {
+        val popup = PopupMenu(requireContext(), view)
+        popup.menu.add("Delete").setOnMenuItemClickListener {
+            val currentUserId = auth.currentUser?.uid ?: return@setOnMenuItemClickListener true
+            val otherUserId = chatItem.otherUserId
+
+            val chatId1 = "${currentUserId}_$otherUserId"
+            val chatId2 = "${otherUserId}_$currentUserId"
+
+            val chatRef1 = database.getReference("chats").child(chatId1)
+            val chatRef2 = database.getReference("chats").child(chatId2)
+
+            // Try to delete both possible chat IDs (safe way)
+            chatRef1.removeValue()
+            chatRef2.removeValue()
+
+            // ✅ Remove from UI
+            val index = messageList.indexOf(chatItem)
+            if (index != -1) {
+                messageList.removeAt(index)
+                chatAdapter.notifyItemRemoved(index)
+            }
+
+            Toast.makeText(requireContext(), "Chat deleted", Toast.LENGTH_SHORT).show()
+            true
+        }
+        popup.show()
+
     }
 
 
