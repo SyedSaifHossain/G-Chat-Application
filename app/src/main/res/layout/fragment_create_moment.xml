@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient">
+
+    <!-- 顶部工具栏 -->
+    <RelativeLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/transparent"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
+
+        <!-- 返回按钮 -->
+        <ImageView
+            android:id="@+id/backButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/leftarrow"
+            android:background="?selectableItemBackgroundBorderless" />
+
+        <!-- 标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Create Moment"
+            android:textColor="#81d8d0"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/roboto_regular" />
+
+        <!-- 发布按钮 -->
+        <Button
+            android:id="@+id/publishButton"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="Publish"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:background="@drawable/bg_send_btn"
+            android:paddingHorizontal="15dp" />
+
+    </RelativeLayout>
+
+    <!-- 分割线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/toolbar"
+        android:background="#81d8d0"
+        android:alpha="0.3" />
+
+    <!-- 主要内容区域 -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:layout_marginTop="10dp"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 用户信息 -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/userAvatar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentStart="true"
+                    android:src="@drawable/default_avatar"
+                    app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
+
+                <TextView
+                    android:id="@+id/userName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/userAvatar"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:text="Username"
+                    android:textColor="#81d8d0"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/roboto_regular" />
+
+            </RelativeLayout>
+
+            <!-- 文字输入区域 -->
+            <EditText
+                android:id="@+id/momentTextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="120dp"
+                android:background="@android:color/transparent"
+                android:hint="Share your thoughts..."
+                android:textColorHint="#81d8d0"
+                android:alpha="0.7"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="top"
+                android:padding="10dp"
+                android:scrollbars="vertical" />
+
+            <!-- 图片预览区域 -->
+            <RelativeLayout
+                android:id="@+id/imagePreviewContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/momentImagePreview"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/bg_input_bubble" />
+
+                <ImageView
+                    android:id="@+id/removeImageButton"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_alignTop="@id/momentImagePreview"
+                    android:layout_alignEnd="@id/momentImagePreview"
+                    android:layout_marginTop="-10dp"
+                    android:layout_marginEnd="-10dp"
+                    android:src="@drawable/deleteicon"
+                    android:background="@drawable/circle_shape"
+                    android:padding="5dp" />
+
+            </RelativeLayout>
+
+            <!-- 添加图片按钮 -->
+            <RelativeLayout
+                android:id="@+id/addImageButton"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_input_bubble"
+                android:padding="20dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:backgroundTint="#81d8d0"
+                android:alpha="0.3">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/camera"
+                    android:scaleType="fitCenter"
+                    app:tint="#FFFFFF" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Click to add image"
+                android:textColor="#81d8d0"
+                android:textSize="12sp"
+                android:alpha="0.7"
+                android:fontFamily="@font/roboto_regular" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout> 

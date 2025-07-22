@@ -19,32 +19,8 @@ class MomentPageFragment : Fragment() {
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
-    private val momentList = listOf(
-        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
-        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
-        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
-        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
-        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
-        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
-        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
-        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
-        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
-        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
-        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
-        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
-        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
-        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
-        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
-        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
-        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
-        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
-        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
-        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
-        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure"),
-        Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
-        Moment("17", "Jul", R.drawable.cityimg, "Sunset view"),
-        Moment("16", "Jul", R.drawable.cityimg, "Hiking adventure")
-    )
+    private val momentList = mutableListOf<Moment>()
+    private lateinit var momentAdapter: MomentAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,14 +33,26 @@ class MomentPageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding?.apply {
             momentRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-            momentRecyclerView.adapter = MomentAdapter(momentList)
+            momentAdapter = MomentAdapter(momentList)
+            momentRecyclerView.adapter = momentAdapter
 
             momentBackImg.setOnClickListener {
                 parentFragmentManager.popBackStack()
             }
             
+            // 添加相机按钮点击事件
+            addMomentButton.setOnClickListener {
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.nav_host_fragment, CreateMomentFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
+            
             // 加载用户信息
             loadUserData()
+            
+            // 加载动态数据
+            loadMoments()
 
             // Hide initially
             momentTitle.visibility = View.GONE
@@ -98,6 +86,12 @@ class MomentPageFragment : Fragment() {
         }
     }
     
+    override fun onResume() {
+        super.onResume()
+        // 每次页面恢复时重新加载数据
+        loadMoments()
+    }
+    
     private fun loadUserData() {
         val userId = auth.currentUser?.uid ?: return
         
@@ -118,6 +112,29 @@ class MomentPageFragment : Fragment() {
                     .placeholder(R.drawable.default_avatar)
                     .override(50, 50)
                     .into(_binding?.momentProfileImg ?: return@addOnSuccessListener)
+            }
+            .addOnFailureListener { e ->
+                // 处理错误
+            }
+    }
+    
+        private fun loadMoments() {
+        val currentUserId = auth.currentUser?.uid ?: return
+        
+        firestore.collection("moments")
+            .whereEqualTo("userId", currentUserId)
+            // 暂时注释掉排序，避免索引问题
+            // .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { documents ->
+                momentList.clear()
+                for (document in documents) {
+                    val moment = document.toObject(Moment::class.java)
+                    moment?.let {
+                        momentList.add(it.copy(id = document.id))
+                    }
+                }
+                momentAdapter.notifyDataSetChanged()
             }
             .addOnFailureListener { e ->
                 // 处理错误

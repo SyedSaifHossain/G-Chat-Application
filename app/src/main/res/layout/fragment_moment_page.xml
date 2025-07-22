@@ -75,6 +75,31 @@ tools:context=".MomentPageFragment">
                 app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
         </LinearLayout>
 
+        <!-- 添加动态按钮 -->
+        <RelativeLayout
+            android:id="@+id/addMomentButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/circle_shape"
+            android:backgroundTint="#81d8d0"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="8dp"
+            android:padding="15dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/camera"
+                android:scaleType="fitCenter"
+                app:tint="#FFFFFF" />
+
+        </RelativeLayout>
+
 
         <!-- Pin Section -->
         <RelativeLayout
@@ -172,7 +197,7 @@ tools:context=".MomentPageFragment">
         android:id="@+id/momentTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="My posts"
+        android:text="My Moments"
         android:textColor="#81d8d0"
         android:textSize="22sp"
         android:textStyle="bold"
