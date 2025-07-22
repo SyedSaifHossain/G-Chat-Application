@@ -65,8 +65,8 @@
 
         <ImageView
             android:id="@+id/momentsImg"
-            android:layout_width="30dp"
-            android:layout_height="35dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_centerVertical="true"
@@ -84,7 +84,7 @@
             android:fontFamily="@font/roboto_regular"
             android:text="Moments"
             android:textColor="#81d8d0"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <ImageView
@@ -121,8 +121,8 @@
 
         <ImageView
             android:id="@+id/channelsImg"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_centerVertical="true"
@@ -141,7 +141,7 @@
             android:fontFamily="@font/roboto_regular"
             android:text="Channels"
             android:textColor="#81d8d0"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <ImageView
@@ -177,13 +177,12 @@
 
         <ImageView
             android:id="@+id/scanImg"
-
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="18dp"
             android:src="@drawable/scanicon" />
 
         <TextView
@@ -196,7 +195,7 @@
             android:fontFamily="@font/roboto_regular"
             android:text="Scan"
             android:textColor="#81d8d0"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
 
@@ -233,12 +232,12 @@
 
         <ImageView
             android:id="@+id/searchImg"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="18dp"
             android:src="@drawable/searchimg" />
 
         <TextView
@@ -251,7 +250,7 @@
             android:fontFamily="@font/roboto_regular"
             android:text="Search"
             android:textColor="#81d8d0"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <ImageView
@@ -287,12 +286,13 @@
 
         <ImageView
             android:id="@+id/discoverNearbyImg"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="15dp"
+
+            android:layout_marginStart="18dp"
             android:src="@drawable/discoverlocation" />
 
         <TextView
@@ -305,7 +305,7 @@
             android:fontFamily="@font/roboto_regular"
             android:text="Discover Nearby"
             android:textColor="#81d8d0"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <ImageView

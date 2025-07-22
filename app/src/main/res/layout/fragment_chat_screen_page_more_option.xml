@@ -31,7 +31,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="70dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/profileimage" />
+                android:src="@drawable/profilenew" />
 
             <TextView
                 android:id="@+id/userNameProfile"
