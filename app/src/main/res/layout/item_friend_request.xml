@@ -19,7 +19,7 @@
             android:layout_height="50dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/profile" />
+            android:src="@drawable/profilenew" />
 
         <TextView
             android:id="@+id/nameTextView"

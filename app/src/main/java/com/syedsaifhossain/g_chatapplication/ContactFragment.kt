@@ -101,5 +101,3 @@ class ContactFragment : Fragment() {
         }
     }
 }
-
-

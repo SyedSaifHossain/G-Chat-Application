@@ -97,7 +97,7 @@ class ContactAdapter(
                         holder.contactName.text = name
                         Glide.with(holder.itemView.context)
                             .load(avatarUrl)
-                            .placeholder(R.drawable.default_avatar)
+                            .placeholder(R.drawable.profilenew)
                             .transform(RoundedCorners(dpToPx(16, holder.itemView)))
                             .into(holder.contactImg)
                     }
