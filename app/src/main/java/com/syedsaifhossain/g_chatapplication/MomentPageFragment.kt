@@ -5,6 +5,9 @@ import android.view.*
 import android.view.ViewTreeObserver.OnScrollChangedListener
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.syedsaifhossain.g_chatapplication.adapter.MomentAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentMomentPageBinding
 import com.syedsaifhossain.g_chatapplication.models.Moment
@@ -13,6 +16,8 @@ class MomentPageFragment : Fragment() {
 
     private var _binding: FragmentMomentPageBinding? = null
     private var scrollListener: OnScrollChangedListener? = null
+    private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     private val momentList = listOf(
         Moment("18", "Jul", R.drawable.cityimg, "Visited the city today!"),
@@ -57,6 +62,9 @@ class MomentPageFragment : Fragment() {
             momentBackImg.setOnClickListener {
                 parentFragmentManager.popBackStack()
             }
+            
+            // 加载用户信息
+            loadUserData()
 
             // Hide initially
             momentTitle.visibility = View.GONE
@@ -88,6 +96,32 @@ class MomentPageFragment : Fragment() {
 
             momentScrollView.viewTreeObserver.addOnScrollChangedListener(scrollListener)
         }
+    }
+    
+    private fun loadUserData() {
+        val userId = auth.currentUser?.uid ?: return
+        
+        firestore.collection("users").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (_binding == null) return@addOnSuccessListener
+                
+                val name = document.getString("name") ?: "Unknown"
+                val imageUrl = document.getString("profileImageUrl") 
+                    ?: document.getString("avatarUrl")
+                
+                _binding?.momentUserName?.text = name
+                
+                // 加载用户头像
+                Glide.with(requireContext())
+                    .load(imageUrl)
+                    .placeholder(R.drawable.default_avatar)
+                    .override(50, 50)
+                    .into(_binding?.momentProfileImg ?: return@addOnSuccessListener)
+            }
+            .addOnFailureListener { e ->
+                // 处理错误
+            }
     }
 
     override fun onDestroyView() {
