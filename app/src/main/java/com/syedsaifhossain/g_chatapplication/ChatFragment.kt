@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
-import android.widget.PopupMenu
 import android.widget.PopupWindow
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -22,7 +20,6 @@ import com.syedsaifhossain.g_chatapplication.api.FirestoreManager
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentChatBinding
 import com.syedsaifhossain.g_chatapplication.models.Chats
 import com.syedsaifhossain.g_chatapplication.models.User
-import com.syedsaifhossain.g_chatapplication.utils.GroupDataChecker
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -107,11 +104,7 @@ class ChatFragment : Fragment() {
                     )
                     messageList.add(chat)
                 }
-                
-                // 检查群组数据
-                GroupDataChecker.checkGroupData()
-                
-                // 加载群聊
+
                 loadGroupChats(currentUserId)
                 
             } catch (e: Exception) {

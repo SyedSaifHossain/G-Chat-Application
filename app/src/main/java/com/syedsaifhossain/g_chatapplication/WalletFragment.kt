@@ -12,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import com.stripe.android.Stripe
 import com.stripe.android.model.ConfirmPaymentIntentParams
 import com.stripe.android.model.PaymentMethod
-import com.syedsaifhossain.g_chatapplication.api.RetrofitClient
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentWalletBinding
 import com.syedsaifhossain.g_chatapplication.models.AddMoneyRequest
 import com.syedsaifhossain.g_chatapplication.models.WithdrawRequest

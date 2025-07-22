@@ -16,7 +16,6 @@ import com.syedsaifhossain.g_chatapplication.models.GroupChat
 import com.google.firebase.database.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.auth.FirebaseAuth
-import com.syedsaifhossain.g_chatapplication.utils.GroupDataChecker
 
 class GroupChatsFragment : Fragment() {
 
@@ -48,8 +47,6 @@ class GroupChatsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
-        // 检查群组数据
-        GroupDataChecker.checkGroupData()
         
         // Load all groups from Firebase or local
         loadGroups { groups ->
