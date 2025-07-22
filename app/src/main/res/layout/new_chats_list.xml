@@ -20,7 +20,7 @@
             android:layout_height="40dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:src="@drawable/profileimage"
+            android:src="@drawable/profilenew"
             app:shapeAppearanceOverlay="@style/RoundedImageViewStyle"/>
 
         <TextView
