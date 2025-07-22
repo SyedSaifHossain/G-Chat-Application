@@ -10,10 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.syedsaifhossain.g_chatapplication.R
 import com.syedsaifhossain.g_chatapplication.models.Contact
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ContactAdapter(
     private val context: Context,
@@ -87,22 +84,31 @@ class ContactAdapter(
             }
             is ContactViewHolder -> {
                 // 实时从users节点获取头像和名字
-                val usersRef = FirebaseDatabase.getInstance().getReference("users")
-                usersRef.child(contact.id).addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        val name = snapshot.child("name").getValue(String::class.java) ?: contact.name
-                        val avatarUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
-                            ?: snapshot.child("avatarUrl").getValue(String::class.java)
-                            ?: ""
-                        holder.contactName.text = name
-                        Glide.with(holder.itemView.context)
-                            .load(avatarUrl)
-                            .placeholder(R.drawable.profilenew)
-                            .transform(RoundedCorners(dpToPx(16, holder.itemView)))
-                            .into(holder.contactImg)
+                val firestore = FirebaseFirestore.getInstance()
+                firestore.collection("users").document(contact.id).get()
+                    .addOnSuccessListener { document ->
+                        if (document != null && document.exists()) {
+                            val name = document.getString("name") ?: contact.name
+                            val avatarUrl = document.getString("profileImageUrl")
+                                ?: document.getString("avatarUrl")
+                                ?: ""
+                            holder.contactName.text = name
+                            Glide.with(holder.itemView.context)
+                                .load(avatarUrl)
+                                .placeholder(R.drawable.default_avatar)
+                                .transform(RoundedCorners(dpToPx(16, holder.itemView)))
+                                .into(holder.contactImg)
+                        } else {
+                            // 如果用户不存在，使用默认数据
+                            holder.contactName.text = contact.name
+                            holder.contactImg.setImageResource(R.drawable.default_avatar)
+                        }
                     }
-                    override fun onCancelled(error: DatabaseError) {}
-                })
+                    .addOnFailureListener { e ->
+                        // 如果查询失败，使用默认数据
+                        holder.contactName.text = contact.name
+                        holder.contactImg.setImageResource(R.drawable.default_avatar)
+                    }
                 holder.itemView.setOnClickListener { onItemClick(contact) }
             }
         }

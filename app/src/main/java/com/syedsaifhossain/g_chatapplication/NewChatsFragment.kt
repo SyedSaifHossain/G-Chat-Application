@@ -11,7 +11,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.syedsaifhossain.g_chatapplication.adapter.NewChatAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentNewChatsBinding
 import com.syedsaifhossain.g_chatapplication.models.NewChatItem
@@ -84,10 +84,11 @@ class NewChatsFragment : Fragment() {
 
     private fun loadFriends() {
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val usersRef = FirebaseDatabase.getInstance().getReference("users")
+        val firestore = FirebaseFirestore.getInstance()
 
-        usersRef.child(currentUserUid).child("friends").get().addOnSuccessListener { snapshot ->
-            val friendUids = snapshot.children.mapNotNull { it.key }
+        firestore.collection("users").document(currentUserUid).get().addOnSuccessListener { userDoc ->
+            val friendsData = userDoc.get("friends") as? Map<String, Boolean> ?: emptyMap()
+            val friendUids = friendsData.keys.toList()
 
             if (friendUids.isEmpty()) {
                 chatList.clear()
@@ -95,34 +96,75 @@ class NewChatsFragment : Fragment() {
                 return@addOnSuccessListener
             }
 
-            usersRef.get().addOnSuccessListener { usersSnap ->
-                val friendList = mutableListOf<NewChatItem>()
-                for (uid in friendUids) {
-                    val userSnap = usersSnap.child(uid)
-                    val name = userSnap.child("name").getValue(String::class.java) ?: "Unknown"
-                    val avatarUrl = userSnap.child("profileImageUrl").getValue(String::class.java)
-                        ?: userSnap.child("avatarUrl").getValue(String::class.java)
-                        ?: ""
-                    friendList.add(NewChatItem(uid, name, R.drawable.profileimage, avatarUrl))
+            // Get all friends' data
+            firestore.collection("users")
+                .whereIn("uid", friendUids)
+                .get()
+                .addOnSuccessListener { usersSnap ->
+                    val friendList = mutableListOf<NewChatItem>()
+                    for (doc in usersSnap.documents) {
+                        val name = doc.getString("name") ?: "Unknown"
+                        val avatarUrl = doc.getString("profileImageUrl")
+                            ?: doc.getString("avatarUrl")
+                            ?: ""
+                        val uid = doc.getString("uid") ?: ""
+                        friendList.add(NewChatItem(uid, name, R.drawable.profileimage, avatarUrl))
+                    }
+
+                    // Sort and group
+                    val grouped = friendList.sortedBy { it.name.lowercase() }
+                        .groupBy { it.name.first().uppercaseChar() }
+
+                    val newList = ArrayList<NewChatItem>()
+                    for ((letter, items) in grouped) {
+                        // Add header with special uid
+                        newList.add(NewChatItem("header_$letter", letter.toString(), 0))
+                        newList.addAll(items)
+                    }
+
+                    chatList.clear()
+                    chatList.addAll(newList)
+                    filteredList.clear()
+                    filteredList.addAll(newList) // Update filtered list as well
+                    adapter.notifyDataSetChanged()
                 }
+                .addOnFailureListener { e ->
+                    // If whereIn query fails (more than 10 items), batch the requests
+                    val friendList = mutableListOf<NewChatItem>()
+                    friendUids.chunked(10).forEach { chunk ->
+                        firestore.collection("users")
+                            .whereIn("uid", chunk)
+                            .get()
+                            .addOnSuccessListener { chunkSnap ->
+                                chunkSnap.documents.forEach { doc ->
+                                    val name = doc.getString("name") ?: "Unknown"
+                                    val avatarUrl = doc.getString("profileImageUrl")
+                                        ?: doc.getString("avatarUrl")
+                                        ?: ""
+                                    val uid = doc.getString("uid") ?: ""
+                                    friendList.add(NewChatItem(uid, name, R.drawable.profileimage, avatarUrl))
+                                }
+                                
+                                if (friendList.size >= friendUids.size) {
+                                    // All friends loaded, sort and group
+                                    val grouped = friendList.sortedBy { it.name.lowercase() }
+                                        .groupBy { it.name.first().uppercaseChar() }
 
-                // Sort and group
-                val grouped = friendList.sortedBy { it.name.lowercase() }
-                    .groupBy { it.name.first().uppercaseChar() }
+                                    val newList = ArrayList<NewChatItem>()
+                                    for ((letter, items) in grouped) {
+                                        newList.add(NewChatItem("header_$letter", letter.toString(), 0))
+                                        newList.addAll(items)
+                                    }
 
-                val newList = ArrayList<NewChatItem>()
-                for ((letter, items) in grouped) {
-                    // Add header with special uid
-                    newList.add(NewChatItem("header_$letter", letter.toString(), 0))
-                    newList.addAll(items)
+                                    chatList.clear()
+                                    chatList.addAll(newList)
+                                    filteredList.clear()
+                                    filteredList.addAll(newList)
+                                    adapter.notifyDataSetChanged()
+                                }
+                            }
+                    }
                 }
-
-                chatList.clear()
-                chatList.addAll(newList)
-                filteredList.clear()
-                filteredList.addAll(newList) // Update filtered list as well
-                adapter.notifyDataSetChanged()
-            }
         }
     }
 
@@ -157,22 +199,30 @@ class NewChatsFragment : Fragment() {
 
     private fun createGroupInFirebase(groupName: String, memberUids: List<String>) {
         val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val groupRef = FirebaseDatabase.getInstance().getReference("groups").push()
-        val groupId = groupRef.key ?: return
-        val members = memberUids.associateWith { true }.toMutableMap()
-        members[currentUserUid] = true // Add the current user to the group as well
+        val firestore = FirebaseFirestore.getInstance()
+        val groupRef = firestore.collection("groups").document()
+        val groupId = groupRef.id
+        
+        // 创建成员数组，包含所有选中的用户和当前用户
+        val allMembers = memberUids.toMutableList()
+        allMembers.add(currentUserUid)
+        
         val groupData = mapOf(
+            "groupId" to groupId,
             "name" to groupName,
             "owner" to currentUserUid,
-            "members" to members,
+            "members" to allMembers, // 使用数组而不是对象
             "createdAt" to System.currentTimeMillis()
         )
-        groupRef.setValue(groupData)
+        
+        groupRef.set(groupData)
             .addOnSuccessListener {
+                android.util.Log.d("NewChatsFragment", "群组创建成功: $groupId, 成员: $allMembers")
                 val bundle = Bundle().apply { putString("groupId", groupId) }
                 findNavController().navigate(R.id.groupChatFragment, bundle)
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
+                android.util.Log.e("NewChatsFragment", "群组创建失败", e)
                 android.widget.Toast.makeText(requireContext(), "Failed to create group", android.widget.Toast.LENGTH_SHORT).show()
             }
     }

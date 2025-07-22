@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentProfileSettingBinding
 import com.yalantis.ucrop.UCrop
@@ -30,7 +30,7 @@ class ProfileSettingFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var auth: FirebaseAuth
-    private val database = FirebaseDatabase.getInstance().reference
+    private val firestore = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
 
     private var selectedImageUri: Uri? = null
@@ -233,7 +233,7 @@ class ProfileSettingFragment : Fragment() {
             "timestamp" to System.currentTimeMillis()
         )
 
-        database.child("users").child(userId).updateChildren(userMap)
+        firestore.collection("users").document(userId).update(userMap)
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Profile saved!", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(R.id.homeFragment)

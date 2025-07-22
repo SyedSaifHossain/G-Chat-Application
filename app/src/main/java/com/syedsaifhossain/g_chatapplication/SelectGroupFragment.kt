@@ -12,10 +12,13 @@ import com.syedsaifhossain.g_chatapplication.databinding.FragmentSelectGroupBind
 import com.syedsaifhossain.g_chatapplication.models.GroupItem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 
 class SelectGroupFragment : Fragment(), GroupAdapter.OnItemClickListener {
     private lateinit var binding: FragmentSelectGroupBinding
     private lateinit var groupAdapter: GroupAdapter
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
     private val groupList = arrayListOf<GroupItem>()
     private val allGroupList = arrayListOf<GroupItem>() // 全量数据用于搜索
 
@@ -23,6 +26,10 @@ class SelectGroupFragment : Fragment(), GroupAdapter.OnItemClickListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // 初始化Firebase
+        firestore = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
+        
         binding = FragmentSelectGroupBinding.inflate(inflater, container, false)
 
         groupAdapter = GroupAdapter(groupList, this)
@@ -49,25 +56,48 @@ class SelectGroupFragment : Fragment(), GroupAdapter.OnItemClickListener {
     }
 
     private fun loadGroupsFromFirebase() {
-        val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val groupsRef = FirebaseDatabase.getInstance().getReference("groups")
-        groupsRef.get().addOnSuccessListener { snapshot ->
-            val newList = arrayListOf<GroupItem>()
-            for (groupSnap in snapshot.children) {
-                val groupId = groupSnap.key ?: continue
-                val members = groupSnap.child("members").children.mapNotNull { it.key }
-                if (members.contains(currentUserUid)) {
-                    val name = groupSnap.child("name").getValue(String::class.java) ?: "Unnamed Group"
-                    val desc = groupSnap.child("description").getValue(String::class.java) ?: ""
+        val currentUserUid = auth.currentUser?.uid ?: return
+        
+        // 从Firestore加载用户所在的群组
+        firestore.collection("groups")
+            .whereArrayContains("members", currentUserUid)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val newList = arrayListOf<GroupItem>()
+                for (document in snapshot.documents) {
+                    val groupId = document.id
+                    val data = document.data
+                    val name = data?.get("name") as? String ?: "Unnamed Group"
+                    val desc = data?.get("description") as? String ?: ""
                     newList.add(GroupItem(groupId, R.drawable.cityimg, name, desc))
                 }
+                allGroupList.clear()
+                allGroupList.addAll(newList)
+                groupList.clear()
+                groupList.addAll(newList)
+                groupAdapter.notifyDataSetChanged()
             }
-            allGroupList.clear()
-            allGroupList.addAll(newList)
-            groupList.clear()
-            groupList.addAll(newList)
-            groupAdapter.notifyDataSetChanged()
-        }
+            .addOnFailureListener { e ->
+                // 如果Firestore查询失败，尝试从Realtime Database加载
+                val groupsRef = FirebaseDatabase.getInstance().getReference("groups")
+                groupsRef.get().addOnSuccessListener { snapshot ->
+                    val newList = arrayListOf<GroupItem>()
+                    for (groupSnap in snapshot.children) {
+                        val groupId = groupSnap.key ?: continue
+                        val members = groupSnap.child("members").children.mapNotNull { it.key }
+                        if (members.contains(currentUserUid)) {
+                            val name = groupSnap.child("name").getValue(String::class.java) ?: "Unnamed Group"
+                            val desc = groupSnap.child("description").getValue(String::class.java) ?: ""
+                            newList.add(GroupItem(groupId, R.drawable.cityimg, name, desc))
+                        }
+                    }
+                    allGroupList.clear()
+                    allGroupList.addAll(newList)
+                    groupList.clear()
+                    groupList.addAll(newList)
+                    groupAdapter.notifyDataSetChanged()
+                }
+            }
     }
 
     private fun filterGroups(query: String) {

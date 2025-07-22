@@ -12,7 +12,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.*
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentSignupPageVerificationBinding
 import com.syedsaifhossain.g_chatapplication.models.User
 import java.util.concurrent.TimeUnit
@@ -181,12 +181,16 @@ class SignupPageVerificationFragment : Fragment() {
             .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
                     val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
-                    val dbRef = FirebaseDatabase.getInstance().getReference("users").child(uid)
-                    dbRef.get().addOnSuccessListener { snapshot ->
-                        if (snapshot.exists()) {
+                    val firestore = FirebaseFirestore.getInstance()
+                    firestore.collection("users").document(uid).get().addOnSuccessListener { document ->
+                        if (document.exists()) {
                             // Existing user, update online status
-                            dbRef.child("isOnline").setValue(true)
-                            dbRef.child("lastSeen").setValue(System.currentTimeMillis())
+                            firestore.collection("users").document(uid).update(
+                                mapOf(
+                                    "isOnline" to true,
+                                    "lastSeen" to System.currentTimeMillis()
+                                )
+                            )
                             findNavController().navigate(R.id.action_signupPageVerificationFragment_to_homeFragment)
                         } else {
                             // New user registration, write full info
@@ -207,8 +211,13 @@ class SignupPageVerificationFragment : Fragment() {
                                 region = region,
                             )
 
-                            dbRef.updateChildren(user.toMap())
-                            findNavController().navigate(R.id.action_signupPageVerificationFragment_to_profileSettingFragment)
+                            firestore.collection("users").document(uid).set(user)
+                                .addOnSuccessListener {
+                                    findNavController().navigate(R.id.action_signupPageVerificationFragment_to_profileSettingFragment)
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(requireContext(), "Failed to save user data: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
                         }
                     }
                 } else {

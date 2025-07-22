@@ -8,40 +8,46 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 
 object CallManager {
     fun initiateVoiceCall(fragment: Fragment, otherUserId: String) {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val callId = FirebaseDatabase.getInstance().getReference("calls").push().key ?: return
+        val firestore = FirebaseFirestore.getInstance()
+        val callRef = firestore.collection("calls").document()
+        val callId = callRef.id
         
         Log.d("CallManager", "Initiating voice call: callId=$callId, from=$currentUserId, to=$otherUserId")
         
         val callRequest = mapOf(
+            "callId" to callId,
             "from" to currentUserId,
             "to" to otherUserId,
             "callType" to "voice",
             "status" to "pending",
             "timestamp" to System.currentTimeMillis()
         )
-        FirebaseDatabase.getInstance().getReference("calls").child(callId).setValue(callRequest)
+        callRef.set(callRequest)
         showWaitingDialog(fragment, callId)
     }
 
     fun initiateVideoCall(fragment: Fragment, otherUserId: String) {
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val callId = FirebaseDatabase.getInstance().getReference("calls").push().key ?: return
+        val firestore = FirebaseFirestore.getInstance()
+        val callRef = firestore.collection("calls").document()
+        val callId = callRef.id
         
         Log.d("CallManager", "Initiating video call: callId=$callId, from=$currentUserId, to=$otherUserId")
         
         val callRequest = mapOf(
+            "callId" to callId,
             "from" to currentUserId,
             "to" to otherUserId,
             "callType" to "video",
             "status" to "pending",
             "timestamp" to System.currentTimeMillis()
         )
-        FirebaseDatabase.getInstance().getReference("calls").child(callId).setValue(callRequest)
+        callRef.set(callRequest)
         showWaitingDialog(fragment, callId)
     }
 
@@ -54,19 +60,25 @@ object CallManager {
             .setMessage("Waiting for the other user to accept")
             .setNegativeButton("Cancel") { d, _ ->
                 Log.d("CallManager", "User cancelled call: callId=$callId")
-                FirebaseDatabase.getInstance().getReference("calls").child(callId).child("status")
-                    .setValue("ended")
+                FirebaseFirestore.getInstance().collection("calls").document(callId)
+                    .update("status", "ended")
                 d.dismiss()
             }
             .setCancelable(false)
             .create()
         dialog.show()
 
-        val callRef = FirebaseDatabase.getInstance().getReference("calls").child(callId)
-        callRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
-            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-                val status = snapshot.child("status").getValue(String::class.java)
-                val callType = snapshot.child("callType").getValue(String::class.java)
+        val callRef = FirebaseFirestore.getInstance().collection("calls").document(callId)
+        callRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                Log.e("CallManager", "Call listener error: ${error.message}")
+                Toast.makeText(context, "Call error: ${error.message}", Toast.LENGTH_SHORT).show()
+                return@addSnapshotListener
+            }
+            
+            if (snapshot != null && snapshot.exists()) {
+                val status = snapshot.getString("status")
+                val callType = snapshot.getString("callType")
                 
                 Log.d("CallManager", "Call status updated: callId=$callId, status=$status, callType=$callType")
                 
@@ -103,11 +115,6 @@ object CallManager {
                     Log.d("CallManager", "Call status: $status")
                 }
             }
-            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
-                Log.e("CallManager", "Call listener cancelled: ${error.message}")
-                Log.e("CallManager", "Error code: ${error.code}, details: ${error.details}")
-                Toast.makeText(context, "Call cancelled: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+        }
     }
 } 

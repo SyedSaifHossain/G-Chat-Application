@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.journeyapps.barcodescanner.BarcodeEncoder
@@ -24,7 +24,7 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding ?: throw IllegalStateException("Fragment binding is null")
     private val auth = FirebaseAuth.getInstance()
-    private lateinit var database: DatabaseReference
+    private lateinit var firestore: FirebaseFirestore
     private val storage = FirebaseStorage.getInstance()
     private var isFragmentDestroying = false
 
@@ -41,7 +41,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        database = FirebaseDatabase.getInstance().reference
+        firestore = FirebaseFirestore.getInstance()
 
         fetchUserProfile()
 
@@ -80,52 +80,49 @@ class ProfileFragment : Fragment() {
     private fun fetchUserProfile() {
         val userId = auth.currentUser?.uid ?: return
 
-        database.child("users").child(userId)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (_binding == null || isFragmentDestroying || !isAdded || context == null) {
-                        return
-                    }
-                    
-                    val name = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
-                    val phone =
-                        snapshot.child("phone").getValue(String::class.java) ?: "No phone number"
-                    val gender = snapshot.child("gender").getValue(String::class.java) ?: "Not Set"
-                    val qrCodeUrl = snapshot.child("qrCodeUrl").getValue(String::class.java) ?: ""
-                    val imageUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
-                        ?: snapshot.child("avatarUrl").getValue(String::class.java)
+        firestore.collection("users").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (_binding == null || isFragmentDestroying || !isAdded || context == null) {
+                    return@addOnSuccessListener
+                }
+                
+                val name = document.getString("name") ?: "Unknown"
+                val phone = document.getString("phone") ?: "No phone number"
+                val gender = document.getString("gender") ?: "Not Set"
+                val qrCodeUrl = document.getString("qrCodeUrl") ?: ""
+                val imageUrl = document.getString("profileImageUrl")
+                    ?: document.getString("avatarUrl")
 
-                    try {
-                        _binding?.let { safeBinding ->
-                            safeBinding.userNameTxt.text = name
-                            safeBinding.phoneNameTxt.text = phone
-                            safeBinding.genderNameTxt.text = gender
+                try {
+                    _binding?.let { safeBinding ->
+                        safeBinding.userNameTxt.text = name
+                        safeBinding.phoneNameTxt.text = phone
+                        safeBinding.genderNameTxt.text = gender
 
-                            if (qrCodeUrl.isNotEmpty()) {
-                                Glide.with(requireContext())
-                                    .load(qrCodeUrl)
-                                    .into(safeBinding.myqrCodeImg)
-                            }
-
+                        if (qrCodeUrl.isNotEmpty()) {
                             Glide.with(requireContext())
-                                .load(imageUrl)
-                                .placeholder(R.drawable.profilenew)
-                                .override(70, 70)
-                                .into(safeBinding.profilePhotoImg)
+                                .load(qrCodeUrl)
+                                .into(safeBinding.myqrCodeImg)
                         }
-                    } catch (e: Exception) {
-                        // 忽略UI更新错误
-                    }
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error fetching data: ${error.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        Glide.with(requireContext())
+                            .load(imageUrl)
+                            .placeholder(R.drawable.default_avatar)
+                            .override(70, 70)
+                            .into(safeBinding.profilePhotoImg)
+                    }
+                } catch (e: Exception) {
+                    // 忽略UI更新错误
                 }
-            })
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    requireContext(),
+                    "Error fetching data: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -220,7 +217,7 @@ class ProfileFragment : Fragment() {
         val userId = auth.currentUser?.uid ?: return
         val updates = mapOf("profileImageUrl" to imageUrl)
 
-        database.child("users").child(userId).updateChildren(updates)
+        firestore.collection("users").document(userId).update(updates)
             .addOnSuccessListener {
                 if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
                     try {
@@ -276,7 +273,7 @@ class ProfileFragment : Fragment() {
     private fun updateNameInDatabase(newName: String) {
         val userId = auth.currentUser?.uid ?: return
         val updates = mapOf("name" to newName)
-        database.child("users").child(userId).updateChildren(updates)
+        firestore.collection("users").document(userId).update(updates)
             .addOnSuccessListener {
                 if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
                     try {
@@ -331,7 +328,7 @@ class ProfileFragment : Fragment() {
     private fun updatePhoneInDatabase(newPhone: String) {
         val userId = auth.currentUser?.uid ?: return
         val updates = mapOf("phone" to newPhone)
-        database.child("users").child(userId).updateChildren(updates)
+        firestore.collection("users").document(userId).update(updates)
             .addOnSuccessListener {
                 if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
                     try {
@@ -381,7 +378,7 @@ class ProfileFragment : Fragment() {
     private fun updateGenderInDatabase(newGender: String) {
         val userId = auth.currentUser?.uid ?: return
         val updates = mapOf("gender" to newGender)
-        database.child("users").child(userId).updateChildren(updates)
+        firestore.collection("users").document(userId).update(updates)
             .addOnSuccessListener {
                 if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
                     try {
@@ -455,7 +452,7 @@ class ProfileFragment : Fragment() {
     private fun saveRegionToFirebase(region: String) {
         val userId = auth.currentUser?.uid ?: return
         val updates = mapOf("region" to region)
-        database.child("users").child(userId).updateChildren(updates)
+        firestore.collection("users").document(userId).update(updates)
             .addOnSuccessListener {
                 if (_binding != null && !isFragmentDestroying && isAdded && context != null) {
                     try {

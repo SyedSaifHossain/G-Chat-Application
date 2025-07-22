@@ -8,13 +8,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentAddContactsBinding
 
 class AddContactsFragment : Fragment() {
     private var _binding: FragmentAddContactsBinding? = null
     private val binding get() = _binding!!
-    private val database = FirebaseDatabase.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
     override fun onCreateView(
@@ -67,21 +67,21 @@ class AddContactsFragment : Fragment() {
     }
 
     private fun findUserByPhone(phoneNumber: String) {
-        val usersRef = database.getReference("users")
         val currentUser = auth.currentUser ?: return
 
         Log.d("AddContacts", "Start querying user, phone: $phoneNumber")
 
-        // Query user
-        usersRef.orderByChild("phone").equalTo(phoneNumber)
+        // Query user by phone number
+        firestore.collection("users")
+            .whereEqualTo("phone", phoneNumber)
             .get()
             .addOnSuccessListener { snapshot ->
-                Log.d("AddContacts", "Query result: ${snapshot.exists()}")
-                Log.d("AddContacts", "Data retrieved: ${snapshot.value}")
+                Log.d("AddContacts", "Query result: ${!snapshot.isEmpty}")
+                Log.d("AddContacts", "Data retrieved: ${snapshot.documents}")
                 
-                if (snapshot.exists()) {
+                if (!snapshot.isEmpty) {
                     // User found, get the first matching user ID
-                    val userId = snapshot.children.firstOrNull()?.key
+                    val userId = snapshot.documents.firstOrNull()?.getString("uid")
                     if (userId != null) {
                         Log.d("AddContacts", "Found user ID: $userId")
                         // Add as friend directly
@@ -102,18 +102,18 @@ class AddContactsFragment : Fragment() {
     }
 
     private fun findUserByEmail(email: String) {
-        val usersRef = database.getReference("users")
         val currentUser = auth.currentUser ?: return
 
         Log.d("AddContacts", "Start querying user, email: $email")
 
-        usersRef.orderByChild("email").equalTo(email)
+        firestore.collection("users")
+            .whereEqualTo("email", email)
             .get()
             .addOnSuccessListener { snapshot ->
-                Log.d("AddContacts", "Query result: "+snapshot.exists())
-                Log.d("AddContacts", "Data retrieved: "+snapshot.value)
-                if (snapshot.exists()) {
-                    val userId = snapshot.children.firstOrNull()?.key
+                Log.d("AddContacts", "Query result: ${!snapshot.isEmpty}")
+                Log.d("AddContacts", "Data retrieved: ${snapshot.documents}")
+                if (!snapshot.isEmpty) {
+                    val userId = snapshot.documents.firstOrNull()?.getString("uid")
                     if (userId != null) {
                         Log.d("AddContacts", "Found user ID: $userId")
                         addFriend(userId)
@@ -134,14 +134,13 @@ class AddContactsFragment : Fragment() {
 
     private fun addFriend(userId: String) {
         val currentUser = auth.currentUser ?: return
-        val usersRef = database.getReference("users")
 
         Log.d("AddContacts", "Start adding friend, target user ID: $userId")
 
         // Add each other to each other's friend list
-        usersRef.child(currentUser.uid).child("friends").child(userId).setValue(true)
+        firestore.collection("users").document(currentUser.uid).update("friends.$userId", true)
             .addOnSuccessListener {
-                usersRef.child(userId).child("friends").child(currentUser.uid).setValue(true)
+                firestore.collection("users").document(userId).update("friends.${currentUser.uid}", true)
                     .addOnSuccessListener {
                         Log.d("AddContacts", "Friend added successfully")
                         Toast.makeText(requireContext(), "Friend added successfully", Toast.LENGTH_SHORT).show()

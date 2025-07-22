@@ -67,7 +67,7 @@ class SignupViaEmailFragment : Fragment() {
     fun writeUserToDatabase(password: String) {
         val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
         if (user != null) {
-            val dbRef = com.google.firebase.database.FirebaseDatabase.getInstance().getReference("users")
+            val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
             val nickname = "G-Chat User"
             val userInfo = com.syedsaifhossain.g_chatapplication.models.User(
                 uid = user.uid,
@@ -80,7 +80,7 @@ class SignupViaEmailFragment : Fragment() {
                 isOnline = true,
                 lastSeen = System.currentTimeMillis()
             )
-            dbRef.child(user.uid).setValue(userInfo)
+            firestore.collection("users").document(user.uid).set(userInfo)
                 .addOnSuccessListener {
                     android.widget.Toast.makeText(requireContext(), "User info saved successfully", android.widget.Toast.LENGTH_SHORT).show()
                 }
