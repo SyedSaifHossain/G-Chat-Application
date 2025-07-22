@@ -14,16 +14,25 @@ import androidx.recyclerview.widget.RecyclerView
 import com.syedsaifhossain.g_chatapplication.adapter.GroupChatAdapter
 import com.syedsaifhossain.g_chatapplication.models.GroupChat
 import com.google.firebase.database.*
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
+import com.syedsaifhossain.g_chatapplication.utils.GroupDataChecker
 
 class GroupChatsFragment : Fragment() {
 
     private lateinit var adapter: GroupChatAdapter
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
     private var allGroups: List<GroupChat> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // 初始化Firebase
+        firestore = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
+        
         val view = inflater.inflate(R.layout.fragment_group_chats, container, false)
         val recyclerView = view.findViewById<RecyclerView>(R.id.groupChatsRecyclerView)
         val searchEditText = view.findViewById<EditText>(R.id.searchGroupEditText)
@@ -39,6 +48,9 @@ class GroupChatsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
+        // 检查群组数据
+        GroupDataChecker.checkGroupData()
+        
         // Load all groups from Firebase or local
         loadGroups { groups ->
             allGroups = groups
@@ -60,17 +72,42 @@ class GroupChatsFragment : Fragment() {
     }
 
     private fun loadGroups(callback: (List<GroupChat>) -> Unit) {
-        val groupsRef = FirebaseDatabase.getInstance().getReference("groups")
-        groupsRef.get().addOnSuccessListener { snapshot ->
-            val groupList = mutableListOf<GroupChat>()
-            for (groupSnap in snapshot.children) {
-                val id = groupSnap.key ?: continue
-                val name = groupSnap.child("name").getValue(String::class.java) ?: "Unnamed"
-                val avatarUrl = groupSnap.child("avatarUrl").getValue(String::class.java)
-                val members = groupSnap.child("members").children.mapNotNull { it.key }
-                groupList.add(GroupChat(id, name, avatarUrl, members))
-            }
-            callback(groupList)
+        val currentUserId = auth.currentUser?.uid
+        if (currentUserId == null) {
+            callback(emptyList())
+            return
         }
+        
+        // 从Firestore加载用户所在的群组
+        firestore.collection("groups")
+            .whereArrayContains("members", currentUserId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val groupList = mutableListOf<GroupChat>()
+                for (document in snapshot.documents) {
+                    val id = document.id
+                    val data = document.data
+                    val name = data?.get("name") as? String ?: "Unnamed"
+                    val avatarUrl = data?.get("avatarUrl") as? String
+                    val members = (data?.get("members") as? Map<String, Any>)?.keys?.toList() ?: emptyList()
+                    groupList.add(GroupChat(id, name, avatarUrl, members))
+                }
+                callback(groupList)
+            }
+            .addOnFailureListener { e ->
+                // 如果Firestore查询失败，尝试从Realtime Database加载
+                val groupsRef = FirebaseDatabase.getInstance().getReference("groups")
+                groupsRef.get().addOnSuccessListener { snapshot ->
+                    val groupList = mutableListOf<GroupChat>()
+                    for (groupSnap in snapshot.children) {
+                        val id = groupSnap.key ?: continue
+                        val name = groupSnap.child("name").getValue(String::class.java) ?: "Unnamed"
+                        val avatarUrl = groupSnap.child("avatarUrl").getValue(String::class.java)
+                        val members = groupSnap.child("members").children.mapNotNull { it.key }
+                        groupList.add(GroupChat(id, name, avatarUrl, members))
+                    }
+                    callback(groupList)
+                }
+            }
     }
 } 

@@ -59,6 +59,8 @@ class SettingsActivity : BaseActivity() {
                 Toast.makeText(this@SettingsActivity, R.string.privacy_clicked, Toast.LENGTH_SHORT).show() // Make sure R.string.privacy_clicked exists!
             }
 
+
+
             layoutAbout.setOnClickListener {
                 // TODO: Implement actual about screen display
                 // Use string resource for Toast message

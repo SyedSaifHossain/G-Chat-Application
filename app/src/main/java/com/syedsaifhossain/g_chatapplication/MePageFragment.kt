@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
+import com.google.firebase.firestore.FirebaseFirestore
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentMePageBinding
 
 class MePageFragment : Fragment() {
@@ -17,7 +17,7 @@ class MePageFragment : Fragment() {
     private var _binding: FragmentMePageBinding? = null
     private val binding get() = _binding!!
     private val auth = FirebaseAuth.getInstance()
-    private val database = FirebaseDatabase.getInstance().reference
+    private val firestore = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,27 +57,25 @@ class MePageFragment : Fragment() {
     private fun loadUserData() {
         val userId = auth.currentUser?.uid ?: return
 
-        database.child("users").child(userId)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (_binding == null) return
-                    val name = snapshot.child("name").getValue(String::class.java) ?: "Unknown"
-                    val imageUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
-                        ?: snapshot.child("avatarUrl").getValue(String::class.java)
+        firestore.collection("users").document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (_binding == null) return@addOnSuccessListener
+                val name = document.getString("name") ?: "Unknown"
+                val imageUrl = document.getString("profileImageUrl")
+                    ?: document.getString("avatarUrl")
 
-                    binding.meUserName.text = name
+                binding.meUserName.text = name
 
-                    Glide.with(requireContext())
-                        .load(imageUrl)
-                        .placeholder(R.drawable.default_avatar)
-                        .override(70,70)
-                        .into(binding.meProfileImg)
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    // Handle error if needed
-                }
-            })
+                Glide.with(requireContext())
+                    .load(imageUrl)
+                    .placeholder(R.drawable.default_avatar)
+                    .override(70,70)
+                    .into(binding.meProfileImg)
+            }
+            .addOnFailureListener { e ->
+                // Handle error if needed
+            }
     }
 
     override fun onResume() {

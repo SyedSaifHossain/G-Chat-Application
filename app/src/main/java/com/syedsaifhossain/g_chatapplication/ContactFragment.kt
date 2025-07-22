@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.syedsaifhossain.g_chatapplication.adapter.ContactAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentContactBinding
 import com.syedsaifhossain.g_chatapplication.models.Contact
@@ -74,31 +74,61 @@ class ContactFragment : Fragment() {
 
     private fun loadContactsFromFirebase() {
         val currentUser = FirebaseAuth.getInstance().currentUser ?: return
-        val usersRef = FirebaseDatabase.getInstance().getReference("users")
-        val friendsRef = usersRef.child(currentUser.uid).child("friends")
+        val firestore = FirebaseFirestore.getInstance()
 
-        friendsRef.get().addOnSuccessListener { snapshot ->
-            val friendIds = snapshot.children.mapNotNull { it.key }
-            val displayList = mutableListOf<Contact>()
-            // 插入分组入口
-            displayList.add(Contact(id = "new_friends", name = "New Friends", type = Contact.TYPE_NEW_FRIENDS))
-            displayList.add(Contact(id = "group_chats", name = "Group Chats", type = Contact.TYPE_GROUP_CHATS))
-            if (friendIds.isEmpty()) {
-                contactAdapter.updateData(displayList)
-                return@addOnSuccessListener
-            }
-
-            usersRef.get().addOnSuccessListener { usersSnapshot ->
-                val contacts = friendIds.mapNotNull { fid ->
-                    val userSnap = usersSnapshot.child(fid)
-                    val name = userSnap.child("name").getValue(String::class.java) ?: ""
-                    val phone = userSnap.child("phone").getValue(String::class.java) ?: ""
-                    Contact(id = fid, name = name, phone = phone)
+        // 获取好友列表
+        firestore.collection("users").document(currentUser.uid)
+            .get()
+            .addOnSuccessListener { userDoc ->
+                val friendsData = userDoc.get("friends") as? Map<String, Boolean> ?: emptyMap()
+                val friendIds = friendsData.keys.toList()
+                
+                val displayList = mutableListOf<Contact>()
+                // 插入分组入口
+                displayList.add(Contact(id = "new_friends", name = "New Friends", type = Contact.TYPE_NEW_FRIENDS))
+                displayList.add(Contact(id = "group_chats", name = "Group Chats", type = Contact.TYPE_GROUP_CHATS))
+                
+                if (friendIds.isEmpty()) {
+                    contactAdapter.updateData(displayList)
+                    return@addOnSuccessListener
                 }
-                displayList.addAll(contacts)
-                contactAdapter.updateData(displayList)
+
+                // 获取好友详细信息
+                firestore.collection("users")
+                    .whereIn("uid", friendIds)
+                    .get()
+                    .addOnSuccessListener { usersSnapshot ->
+                        val contacts = usersSnapshot.documents.mapNotNull { doc ->
+                            val name = doc.getString("name") ?: ""
+                            val phone = doc.getString("phone") ?: ""
+                            val uid = doc.getString("uid") ?: ""
+                            Contact(id = uid, name = name, phone = phone)
+                        }
+                        displayList.addAll(contacts)
+                        contactAdapter.updateData(displayList)
+                    }
+                    .addOnFailureListener { e ->
+                        // 如果whereIn查询失败（超过10个），分批查询
+                        val contacts = mutableListOf<Contact>()
+                        friendIds.chunked(10).forEach { chunk ->
+                            firestore.collection("users")
+                                .whereIn("uid", chunk)
+                                .get()
+                                .addOnSuccessListener { chunkSnapshot ->
+                                    chunkSnapshot.documents.forEach { doc ->
+                                        val name = doc.getString("name") ?: ""
+                                        val phone = doc.getString("phone") ?: ""
+                                        val uid = doc.getString("uid") ?: ""
+                                        contacts.add(Contact(id = uid, name = name, phone = phone))
+                                    }
+                                    if (contacts.size >= friendIds.size) {
+                                        displayList.addAll(contacts)
+                                        contactAdapter.updateData(displayList)
+                                    }
+                                }
+                        }
+                    }
             }
-        }
     }
 }
 

@@ -24,6 +24,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.syedsaifhossain.g_chatapplication.adapter.GroupMessageAdapter
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentGroupChatBinding
@@ -72,6 +74,7 @@ class GroupChatFragment : Fragment() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var chatRef: DatabaseReference
+    private lateinit var firestore: FirebaseFirestore
     private lateinit var adapter: GroupMessageAdapter
     private val groupMessages = mutableListOf<GroupMessage>()
 
@@ -188,6 +191,7 @@ class GroupChatFragment : Fragment() {
         initializePermissionLaunchers()
 
         auth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
         groupId = arguments?.getString("groupId")
         Log.d(TAG, "onViewCreated: Group ID is $groupId")
 
@@ -438,7 +442,7 @@ class GroupChatFragment : Fragment() {
     private fun sendTextMessage() {
         val text = binding.messageInput.text.toString().trim()
         if (text.isNotEmpty()) {
-            val messageId = chatRef.push().key!!
+            val messageId = UUID.randomUUID().toString()
             val message = GroupMessage(
                 id = messageId,
                 senderId = auth.uid,
@@ -447,15 +451,27 @@ class GroupChatFragment : Fragment() {
                 type = "text",
                 messageId = messageId,
                 senderName = myName,
-                senderAvatarUrl = myAvatarUrl
+                senderAvatarUrl = myAvatarUrl,
+                groupId = groupId
             )
-            chatRef.child(messageId).setValue(message)  // Send message to Firebase
-            binding.messageInput.text?.clear()  // Clear the input field after sending
+            
+            // 发送消息到Firestore
+            firestore.collection("messages")
+                .document(messageId)
+                .set(message)
+                .addOnSuccessListener {
+                    Log.d(TAG, "Message sent successfully to Firestore")
+                    binding.messageInput.text?.clear()  // Clear the input field after sending
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Failed to send message to Firestore", e)
+                    Toast.makeText(requireContext(), "Failed to send message", Toast.LENGTH_SHORT).show()
+                }
         }
     }
 
     private fun sendVoiceMessage(audioUrl: String, duration: Int) {
-        val messageId = chatRef.push().key!!
+        val messageId = UUID.randomUUID().toString()
         val message = GroupMessage(
             id = messageId,
             senderId = auth.uid,
@@ -465,28 +481,48 @@ class GroupChatFragment : Fragment() {
             duration = duration,
             messageId = messageId,
             senderName = myName,
-            senderAvatarUrl = myAvatarUrl
+            senderAvatarUrl = myAvatarUrl,
+            groupId = groupId
         )
-        chatRef.child(messageId).setValue(message)
+        
+        // 发送语音消息到Firestore
+        firestore.collection("messages")
+            .document(messageId)
+            .set(message)
+            .addOnSuccessListener {
+                Log.d(TAG, "Voice message sent successfully to Firestore")
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Failed to send voice message to Firestore", e)
+                Toast.makeText(requireContext(), "Failed to send voice message", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun listenForMessages() {
-        chatRef = FirebaseDatabase.getInstance().getReference("groups").child(groupId!!).child("messages")
-        // Log.d(TAG, "RECEIVE: Setting up listener on: ${chatRef.path}")
+        // 使用Firestore监听群组消息
+        Log.d(TAG, "RECEIVE: Setting up Firestore listener for group: $groupId")
 
-        chatRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                Log.d(TAG, "RECEIVE: onDataChange triggered. Snapshot has ${snapshot.childrenCount} children.")
-                if (!snapshot.exists()) return
-                if (_binding == null) return  // 判空保护，防止 binding 为空崩溃
+        firestore.collection("messages")
+            .whereEqualTo("groupId", groupId)
+            .orderBy("timestamp", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e(TAG, "RECEIVE: Firestore listener error", error)
+                    Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                if (_binding == null) return@addSnapshotListener  // 判空保护
+
+                Log.d(TAG, "RECEIVE: onDataChange triggered. Snapshot has ${snapshot?.size() ?: 0} documents.")
 
                 groupMessages.clear()
-                for (snap in snapshot.children) {
-                    Log.d(TAG, "RECEIVE: Raw message snapshot: ${snap.value}")
-                    val msg = snap.getValue(GroupMessage::class.java)
+                snapshot?.documents?.forEach { document ->
+                    Log.d(TAG, "RECEIVE: Raw message document: ${document.data}")
+                    val msg = document.toObject(GroupMessage::class.java)
                     Log.d(TAG, "RECEIVE: Parsed message object: $msg")
                     if (msg != null) {
-                        val messageWithId = msg.copy(messageId = snap.key ?: "")
+                        val messageWithId = msg.copy(messageId = document.id)
                         groupMessages.add(messageWithId)
                     }
                 }
@@ -497,12 +533,6 @@ class GroupChatFragment : Fragment() {
                     _binding?.groupChatRecyclerView?.scrollToPosition(groupMessages.size - 1)
                 }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e(TAG, "RECEIVE: Firebase listener cancelled", error.toException())
-                Toast.makeText(requireContext(), "Failed to load messages", Toast.LENGTH_SHORT).show()
-            }
-        })
     }
 
     private fun startRecordingWithBubble() {

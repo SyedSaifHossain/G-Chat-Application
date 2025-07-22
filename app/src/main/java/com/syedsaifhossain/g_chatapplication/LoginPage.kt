@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentLoginPageBinding
 import com.syedsaifhossain.g_chatapplication.models.User
 
@@ -18,7 +18,7 @@ class LoginPage : Fragment() {
     private var _binding: FragmentLoginPageBinding? = null
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
-    private val database = FirebaseDatabase.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -136,12 +136,11 @@ class LoginPage : Fragment() {
     }
 
     private fun updateUserStatus(userId: String, isOnline: Boolean) {
-        val userStatusRef = database.getReference("users").child(userId)
         val updates = mapOf(
             "isOnline" to isOnline,
             "lastSeen" to System.currentTimeMillis()
         )
-        userStatusRef.updateChildren(updates)
+        firestore.collection("users").document(userId).update(updates)
             .addOnSuccessListener {
                 if (_binding == null) return@addOnSuccessListener
                 Log.d("LoginPage", "User status updated successfully")
@@ -153,11 +152,11 @@ class LoginPage : Fragment() {
     }
 
     private fun getUserInfo(userId: String, callback: (User?) -> Unit) {
-        database.getReference("users").child(userId)
+        firestore.collection("users").document(userId)
             .get()
-            .addOnSuccessListener { snapshot ->
+            .addOnSuccessListener { document ->
                 if (_binding == null) return@addOnSuccessListener
-                val user = snapshot.getValue(User::class.java)
+                val user = document.toObject(User::class.java)
                 callback(user)
             }
             .addOnFailureListener { e ->

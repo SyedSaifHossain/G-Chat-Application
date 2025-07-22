@@ -83,7 +83,7 @@ dependencies {
     implementation("com.google.firebase:firebase-functions-ktx")
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
-    implementation("com.google.firebase:firebase-firestore:24.9.0")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
     // Firebase Cloud Messaging
     implementation("com.google.firebase:firebase-messaging-ktx")

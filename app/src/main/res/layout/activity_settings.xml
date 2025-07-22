@@ -98,6 +98,8 @@
             android:src="@drawable/ic_arrow_right"/>
     </LinearLayout>
 
+
+
     <!-- About -->
     <LinearLayout
         android:id="@+id/layout_about"

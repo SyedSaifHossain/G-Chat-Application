@@ -7,17 +7,13 @@ import com.syedsaifhossain.g_chatapplication.databinding.ChatItemListBinding // 
 import com.syedsaifhossain.g_chatapplication.models.Chats
 import com.bumptech.glide.Glide
 import com.syedsaifhossain.g_chatapplication.R
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import android.util.TypedValue
-import android.view.View
 
 class ChatAdapter(
     private val messageList: ArrayList<Chats>,
-    private val onItemClick: (Chats) -> Unit, // Now passes chat info if needed
-    private val onItemLongClick: (Chats, View) -> Unit
+    private val onItemClick: (Chats) -> Unit // Now passes chat info if needed
 ) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
     private fun dpToPx(dp: Int, context: android.content.Context): Int {
@@ -37,27 +33,36 @@ class ChatAdapter(
                 binding.nameId.text = chat.name
             } else {
                 // 实时从users节点获取头像和名字
-                val usersRef = FirebaseDatabase.getInstance().getReference("users")
-                usersRef.child(chat.otherUserId).addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        val name = snapshot.child("name").getValue(String::class.java) ?: ""
-                        val avatarUrl = snapshot.child("profileImageUrl").getValue(String::class.java)
-                            ?: snapshot.child("avatarUrl").getValue(String::class.java)
-                            ?: ""
-                        binding.nameId.text = name
-                        if (avatarUrl.isNotEmpty()) {
-                            Glide.with(binding.chatsImg.context)
-                                .load(avatarUrl)
-                                .placeholder(R.drawable.profilenew)
-                                .error(R.drawable.profilenew)
-                                .centerCrop()
-                                .into(binding.chatsImg)
+                val firestore = FirebaseFirestore.getInstance()
+                firestore.collection("users").document(chat.otherUserId).get()
+                    .addOnSuccessListener { document ->
+                        if (document != null && document.exists()) {
+                            val name = document.getString("name") ?: ""
+                            val avatarUrl = document.getString("profileImageUrl")
+                                ?: document.getString("avatarUrl")
+                                ?: ""
+                            binding.nameId.text = name
+                            if (avatarUrl.isNotEmpty()) {
+                                Glide.with(binding.chatsImg.context)
+                                    .load(avatarUrl)
+                                    .placeholder(R.drawable.default_avatar)
+                                    .error(R.drawable.default_avatar)
+                                    .centerCrop()
+                                    .into(binding.chatsImg)
+                            } else {
+                                binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                            }
                         } else {
-                            binding.chatsImg.setImageResource(R.drawable.profilenew)
+                            // 如果用户不存在，使用默认数据
+                            binding.nameId.text = chat.name
+                            binding.chatsImg.setImageResource(R.drawable.default_avatar)
                         }
                     }
-                    override fun onCancelled(error: DatabaseError) {}
-                })
+                    .addOnFailureListener { e ->
+                        // 如果查询失败，使用默认数据
+                        binding.nameId.text = chat.name
+                        binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                    }
             }
 
             // 语音消息显示逻辑
@@ -84,11 +89,6 @@ class ChatAdapter(
 
             binding.root.setOnClickListener {
                 onItemClick(chat)
-            }
-
-            binding.root.setOnLongClickListener {
-                onItemLongClick(chat, it)
-                true
             }
         }
     }

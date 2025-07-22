@@ -17,5 +17,6 @@ data class GroupMessage(
     val isEdited: Boolean = false,
     val editTimestamp: Long? = null,
     val senderName: String? = null,
-    val senderAvatarUrl: String? = null
+    val senderAvatarUrl: String? = null,
+    val groupId: String? = null
 )
