@@ -3,8 +3,8 @@ package com.syedsaifhossain.g_chatapplication
 import android.content.Context
 import android.content.SharedPreferences
 
-object FavoriteManager {
 
+object FavoriteManager {
     private const val PREFS_NAME = "FavoritePrefs" // SharedPreferences 文件名
     private const val FAVORITE_PREFIX = "favorite_" // Key 的前缀，用于区分
 
@@ -13,12 +13,14 @@ object FavoriteManager {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
+
     /**
      * 检查指定的 Deal 是否已收藏
      * @param context Context
      * @param dealId Deal 的唯一 ID
      * @return true 如果已收藏，否则 false
      */
+
     fun isFavorite(context: Context, dealId: String): Boolean {
         // 确保 context 不为空
         val safeContext = context ?: return false // 如果 context 为空，直接返回 false
@@ -26,12 +28,14 @@ object FavoriteManager {
         return prefs.getBoolean(FAVORITE_PREFIX + dealId, false) // 默认返回 false (未收藏)
     }
 
+
     /**
      * 设置 Deal 的收藏状态
      * @param context Context
      * @param dealId Deal 的唯一 ID
      * @param isFavorite 新的收藏状态 (true 或 false)
      */
+
     fun setFavorite(context: Context, dealId: String, isFavorite: Boolean) {
         // 确保 context 不为空
         val safeContext = context ?: return // 如果 context 为空，直接返回
@@ -44,6 +48,7 @@ object FavoriteManager {
      * @param context Context
      * @return 包含所有已收藏 Deal ID 的 Set
      */
+
     fun getAllFavoriteIds(context: Context): Set<String> {
         // 确保 context 不为空
         val safeContext = context ?: return emptySet() // 如果 context 为空，返回空 Set
@@ -54,4 +59,5 @@ object FavoriteManager {
             .map { it.key.removePrefix(FAVORITE_PREFIX) } // 移除前缀，得到 Deal ID
             .toSet()
     }
+
 }
