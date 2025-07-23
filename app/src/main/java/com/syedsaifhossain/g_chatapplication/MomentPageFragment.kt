@@ -130,13 +130,17 @@ class MomentPageFragment : Fragment() {
                 for (document in documents) {
                     val moment = document.toObject(Moment::class.java)
                     moment?.let {
-                        momentList.add(it.copy(id = document.id))
+                        val momentWithId = it.copy(id = document.id)
+                        momentList.add(momentWithId)
+                        // 添加调试日志
+                        android.util.Log.d("MomentPageFragment", "Loaded moment: id=${momentWithId.id}, text='${momentWithId.momentText}', imageUrl='${momentWithId.imageUrl}'")
                     }
                 }
+                android.util.Log.d("MomentPageFragment", "Total moments loaded: ${momentList.size}")
                 momentAdapter.notifyDataSetChanged()
             }
             .addOnFailureListener { e ->
-                // 处理错误
+                android.util.Log.e("MomentPageFragment", "Failed to load moments", e)
             }
     }
 
