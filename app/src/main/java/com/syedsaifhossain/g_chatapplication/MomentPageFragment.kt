@@ -123,8 +123,7 @@ class MomentPageFragment : Fragment() {
         
         firestore.collection("moments")
             .whereEqualTo("userId", currentUserId)
-            // 暂时注释掉排序，避免索引问题
-            // .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { documents ->
                 momentList.clear()
