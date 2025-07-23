@@ -75,32 +75,6 @@ tools:context=".MomentPageFragment">
                 app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
         </LinearLayout>
 
-        <!-- 添加动态按钮 -->
-        <RelativeLayout
-            android:id="@+id/addMomentButton"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/circle_shape"
-            android:backgroundTint="#81d8d0"
-            android:clickable="true"
-            android:focusable="true"
-            android:elevation="8dp"
-            android:padding="15dp">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/camera"
-                android:scaleType="fitCenter"
-                app:tint="#FFFFFF" />
-
-        </RelativeLayout>
-
-
         <!-- Pin Section -->
         <RelativeLayout
             android:id="@+id/pinLayout"
@@ -168,6 +142,30 @@ tools:context=".MomentPageFragment">
 
 </ScrollView>
 
+<!-- 固定相机按钮 - 移到ScrollView外面 -->
+<RelativeLayout
+    android:id="@+id/addMomentButton"
+    android:layout_width="60dp"
+    android:layout_height="60dp"
+    android:layout_alignParentEnd="true"
+    android:layout_alignParentBottom="true"
+    android:layout_marginEnd="20dp"
+    android:layout_marginBottom="20dp"
+    android:background="@drawable/circle_shape"
+    android:backgroundTint="#81d8d0"
+    android:clickable="true"
+    android:focusable="true"
+    android:elevation="12dp"
+    android:padding="15dp">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/camera"
+        android:scaleType="fitCenter"
+        app:tint="#FFFFFF" />
+
+</RelativeLayout>
 
 <!-- Sticky Header that floats on top of city image -->
     <RelativeLayout
