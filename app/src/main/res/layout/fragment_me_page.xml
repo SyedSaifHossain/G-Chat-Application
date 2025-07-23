@@ -12,21 +12,24 @@
         android:id="@+id/mePageHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true">
+        android:layout_alignParentEnd="true"
+        android:background="#181818"
+        android:paddingTop="60dp"
+        android:paddingBottom="10dp"
+        android:layout_marginBottom="15dp">
 
         <!-- Profile Image -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/meProfileImg"
             android:layout_width="45dp"
             android:layout_height="45dp"
-            android:layout_marginStart="40dp"
-            android:src="@drawable/profilenew"
-            android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
+            android:layout_marginStart="30dp"
+            android:src="@drawable/profilenew"
+            android:layout_alignTop="@+id/rightLayout"
+            android:layout_alignBottom="@+id/rightLayout"
             app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
         <!-- Username -->
@@ -34,103 +37,48 @@
             android:id="@+id/meUserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
-            android:layout_toEndOf="@id/meProfileImg"
             android:fontFamily="@font/poppins_regular"
-            android:text="Aaron Loeb"
+            android:text="User Name"
             android:textColor="#81d8d0"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_centerVertical="true"/>
-
-        <!-- QR Code Image -->
-        <ImageView
-            android:id="@+id/qcodeImg"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_marginStart="15sp"
+            android:gravity="center"
+            android:layout_toEndOf="@+id/meProfileImg"
             android:layout_alignTop="@id/meProfileImg"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="40dp"
-            android:layout_marginTop="5dp"
-            android:src="@drawable/qcode" />
+            android:layout_alignBottom="@+id/meProfileImg"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-        <!-- Right Arrow Image -->
-        <ImageView
-            android:id="@+id/meRightArrow"
-            android:layout_width="18dp"
-            android:layout_height="30dp"
-            android:layout_below="@id/qcodeImg"
-            android:layout_alignEnd="@id/qcodeImg"
-            android:layout_marginTop="5dp"
-            android:src="@drawable/newarrowright"
-            app:tint="#81d8d0" />
-
-    </RelativeLayout>
-
-    <View
-        android:id="@+id/mePageLine"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#81d8d0"
-        android:layout_below="@+id/mePageHeader"
-        android:layout_marginTop="15dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true" />
-
-    <RelativeLayout
-        android:id="@+id/payServiceLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_below="@+id/mePageLine"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true">
-
-        <ImageView
-            android:id="@+id/payServiceImg"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginStart="30dp"
-            android:src="@drawable/payservice"
-            android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true" />
-
-        <TextView
-            android:id="@+id/payServiceTxt"
+        <LinearLayout
+            android:id="@+id/rightLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
-            android:layout_toEndOf="@id/payServiceImg"
-            android:fontFamily="@font/roboto_regular"
-            android:text="Pay and Services"
-            android:textColor="#81d8d0"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_centerVertical="true"/>
-
-        <ImageView
-            android:id="@+id/payServiceArrow"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="30dp"
-            android:layout_centerVertical="true"
-            android:src="@drawable/newarrowright"
-            app:tint="#81d8d0" />
+            android:orientation="vertical"
+            android:padding="10dp">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#81d8d0"
-            android:layout_below="@+id/payServiceImg"
-            android:layout_marginTop="20dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="30dp"
-            android:alpha="0.5"/>
+            <ImageView
+                android:id="@+id/qcodeImg"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="5sp"
+
+                android:src="@drawable/qcode" />
+
+            <!-- Right Arrow Image -->
+            <ImageView
+                android:id="@+id/meRightArrow"
+                android:layout_width="20dp"
+                android:layout_height="30dp"
+                android:layout_alignEnd="@id/qcodeImg"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/newarrowright"
+                app:tint="#81d8d0" />
+
+        </LinearLayout>
+
     </RelativeLayout>
-
 
     <RelativeLayout
         android:id="@+id/momentLayout"
@@ -138,14 +86,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/payServiceLayout">
+        android:layout_below="@+id/mePageHeader"
+        android:background="#181818"
+        android:padding="20dp">
 
 
         <ImageView
             android:id="@+id/momentImg"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_marginStart="30dp"
+            android:layout_marginStart="10dp"
             android:src="@drawable/moment"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
@@ -170,22 +120,56 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="30dp"
+            android:layout_marginEnd="10dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#81d8d0"
-            android:layout_below="@+id/momentImg"
-            android:layout_marginTop="20dp"
-            android:alpha="0.5"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="30dp"/>
+    </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/payServiceLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/momentLayout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:padding="20dp"
+        android:background="#181818">
+
+        <ImageView
+            android:id="@+id/payServiceImg"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/payservice"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true" />
+
+        <TextView
+            android:id="@+id/payServiceTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@id/payServiceImg"
+            android:fontFamily="@font/roboto_regular"
+            android:text="Pay and Services"
+            android:textColor="#81d8d0"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_centerVertical="true"/>
+
+        <ImageView
+            android:id="@+id/payServiceArrow"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/newarrowright"
+            app:tint="#81d8d0" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -194,14 +178,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/momentLayout">
+        android:layout_below="@+id/payServiceLayout"
+        android:padding="20dp"
+        android:background="#181818"
+        android:layout_marginTop="10dp">
 
         <ImageView
             android:id="@+id/channelImg"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_marginStart="30dp"
-            android:src="@drawable/channel"
+            android:layout_marginStart="10dp"            android:src="@drawable/channel"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true" />
@@ -225,23 +211,10 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="30dp"
+            android:layout_marginEnd="10dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#81d8d0"
-            android:layout_below="@+id/channelImg"
-            android:layout_marginTop="20dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="30dp"
-            android:alpha="0.5"/>
-
-
     </RelativeLayout>
 
     <RelativeLayout
@@ -250,14 +223,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/channelLayout">
+        android:layout_below="@+id/channelLayout"
+        android:padding="20dp"
+        android:background="#181818"
+        android:layout_marginTop="10dp">
 
         <ImageView
             android:id="@+id/cardOfferImg"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_marginStart="30dp"
-            android:src="@drawable/cardoffer"
+            android:layout_marginStart="10dp"            android:src="@drawable/cardoffer"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true" />
@@ -280,7 +255,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="30dp"
+            android:layout_marginEnd="10dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
@@ -305,14 +280,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/cardOfferLayout">
+        android:layout_below="@+id/cardOfferLayout"
+        android:padding="20dp"
+        android:background="#181818"
+        android:layout_marginTop="10dp">
 
         <ImageView
             android:id="@+id/favoriteImg"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_marginStart="30dp"
-            android:src="@drawable/favorite"
+            android:layout_marginStart="10dp"            android:src="@drawable/favorite"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true" />
@@ -335,22 +312,10 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="30dp"
+            android:layout_marginEnd="10dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#81d8d0"
-            android:layout_below="@+id/favoriteImg"
-            android:layout_marginTop="20dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="30dp"
-            android:alpha="0.5"/>
-
 
     </RelativeLayout>
 
@@ -360,14 +325,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/favoriteLayout">
+        android:layout_below="@+id/favoriteLayout"
+        android:padding="20dp"
+        android:background="#181818"
+        android:layout_marginTop="10dp">
 
         <ImageView
             android:id="@+id/stickerGalleryImg"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_marginStart="30dp"
-            android:src="@drawable/menewicon"
+            android:layout_marginStart="10dp"            android:src="@drawable/menewicon"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true" />
@@ -391,21 +358,10 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="30dp"
+            android:layout_marginEnd="10dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#81d8d0"
-            android:layout_below="@+id/stickerGalleryImg"
-            android:layout_marginTop="20dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginHorizontal="30dp"
-            android:alpha="0.5"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -414,14 +370,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/stickerGalleryLayout">
+        android:layout_below="@+id/stickerGalleryLayout"
+        android:padding="20dp"
+        android:background="#181818"
+        android:layout_marginTop="10dp">
 
         <ImageView
             android:id="@+id/settingsImg"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_marginStart="30dp"
-            android:src="@drawable/settings"
+            android:layout_marginStart="10dp"            android:src="@drawable/settings"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true" />
@@ -444,21 +402,10 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="30dp"
+            android:layout_marginEnd="10dp"
             android:layout_centerVertical="true"
             android:src="@drawable/newarrowright"
             app:tint="#81d8d0" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#81d8d0"
-            android:layout_below="@+id/settingsImg"
-            android:layout_marginTop="20dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:alpha="0.5"
-            android:layout_marginHorizontal="30dp"/>
     </RelativeLayout>
 
 </RelativeLayout>
