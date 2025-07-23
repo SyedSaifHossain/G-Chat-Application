@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
@@ -70,26 +71,38 @@ class ChatFragment : Fragment() {
         }
         recyclerView.adapter = chatAdapter
 
+        // 🔁 Attach swipe-to-delete
+        val swipeToDeleteCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ) = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val chat = messageList[position]
+
+                // 🧹 Remove from Firestore & adapter
+                deleteChat(chat)
+                messageList.removeAt(position)
+                chatAdapter.notifyItemRemoved(position)
+            }
+        }
+
+        ItemTouchHelper(swipeToDeleteCallback).attachToRecyclerView(recyclerView)
+
         val currentUserId = auth.currentUser?.uid ?: return
 
-        // 使用Firestore获取好友列表和用户信息
         lifecycleScope.launch {
             try {
-                // 1. 获取当前用户的好友UID列表
                 val userDoc = firestore.collection("users").document(currentUserId).get().await()
                 val friendsData = userDoc.get("friends") as? Map<String, Boolean> ?: emptyMap()
                 val friendUidSet = friendsData.keys.toSet()
 
-                Log.d("ChatFragment", "找到 ${friendUidSet.size} 个好友")
-
-                // 2. 获取所有好友的详细信息
                 val users = FirestoreManager.UserManager.getUsersByFriendIds(friendUidSet.toList())
-                
-                Log.d("ChatFragment", "成功获取 ${users.size} 个好友信息")
-                
                 messageList.clear()
                 for (user in users) {
-                    // 构造 Chats 对象，显示好友昵称和头像
                     val chat = Chats(
                         imageRes = if (user.avatarUrl.isNullOrBlank()) R.drawable.default_avatar else 0,
                         name = user.name,
@@ -106,17 +119,32 @@ class ChatFragment : Fragment() {
                 }
 
                 loadGroupChats(currentUserId)
-                
+
             } catch (e: Exception) {
-                if (e.message?.contains("Job was cancelled") == true || e is kotlinx.coroutines.CancellationException) {
-                    Log.d("ChatFragment", "好友加载被取消，这是正常的")
-                } else {
-                    Log.e("ChatFragment", "Failed to load friends", e)
-                    // 即使好友加载失败，也要加载群聊
-                    loadGroupChats(currentUserId)
-                }
+                Log.e("ChatFragment", "Failed to load friends", e)
+                loadGroupChats(currentUserId)
             }
         }
+    }
+
+    private fun deleteChat(chat: Chats) {
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        // Skip group chats for now
+        if (chat.isGroup) {
+            Toast.makeText(requireContext(), "Group delete coming soon", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        firestore.collection("users")
+            .document(currentUserId)
+            .update("friends.${chat.otherUserId}", null)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Chat deleted", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to delete chat", Toast.LENGTH_SHORT).show()
+            }
     }
 
     // 新增：加载群聊

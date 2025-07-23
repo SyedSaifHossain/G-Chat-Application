@@ -1,17 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipeRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
+
+    <!-- Background: Delete Button -->
+    <RelativeLayout
+        android:id="@+id/deleteLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/deleteButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="80dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:backgroundTint="#F00A0A"
+            android:padding="10dp"
+            android:text="delete"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            android:fontFamily="@font/roboto_bold"/>
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/chatItemLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
+        android:layout_gravity="center_vertical"
         android:padding="10dp">
 
         <com.google.android.material.imageview.ShapeableImageView
@@ -23,19 +47,19 @@
             android:layout_gravity="center"
             android:layout_marginStart="15dp"
             android:layout_marginTop="15dp"
-            android:src="@drawable/profilenew"
             android:scaleType="centerCrop"
-            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle"/>
+            android:src="@drawable/profilenew"
+            app:shapeAppearanceOverlay="@style/RoundedImageViewStyle" />
 
         <TextView
             android:id="@+id/nameId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/chatsImg"
             android:layout_marginStart="10dp"
             android:layout_toEndOf="@+id/chatsImg"
             android:text="Aaron Loeb"
             android:textColor="#81d8d0"
-            android:layout_alignTop="@+id/chatsImg"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -47,10 +71,10 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:layout_toEndOf="@+id/chatsImg"
+            android:alpha="0.5"
             android:text="Hi! How are you"
             android:textColor="#81d8d0"
             android:textSize="12sp"
-            android:alpha="0.5"
             android:textStyle="bold" />
 
         <!-- Voice message bubble (WeChat style) -->
@@ -62,23 +86,25 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:layout_toEndOf="@+id/chatsImg"
-            android:orientation="horizontal"
             android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:visibility="gone">
+
             <ImageView
                 android:id="@+id/voice_icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/speakeron"
-                android:contentDescription="voice icon" />
+                android:contentDescription="voice icon"
+                android:src="@drawable/speakeron" />
+
             <TextView
                 android:id="@+id/voice_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:text="User Name"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:layout_marginStart="8dp" />
+                android:textSize="18sp" />
         </LinearLayout>
 
         <View
@@ -89,8 +115,7 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="15dp"
-            android:background="#6b6b6b"
-            android:alpha="0.1"/>
+            android:alpha="0.1"
+            android:background="#6b6b6b" />
     </RelativeLayout>
-
-</RelativeLayout>
+</FrameLayout>
