@@ -50,7 +50,7 @@ class ChatScreenMoreOptionFragment : Fragment() {
         otherUserAvatarUrl?.let {
             Glide.with(requireContext())
                 .load(it)
-                .placeholder(R.drawable.default_avatar) // Placeholder if no image URL
+                .placeholder(R.drawable.profilenew) // Placeholder if no image URL
 
                 .into(binding.moreOptionProfileImg) // ImageView to display profile picture
         }

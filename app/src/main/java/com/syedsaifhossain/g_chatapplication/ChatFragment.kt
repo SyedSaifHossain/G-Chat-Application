@@ -104,7 +104,7 @@ class ChatFragment : Fragment() {
                 messageList.clear()
                 for (user in users) {
                     val chat = Chats(
-                        imageRes = if (user.avatarUrl.isNullOrBlank()) R.drawable.default_avatar else 0,
+                        imageRes = if (user.avatarUrl.isNullOrBlank()) R.drawable.profilenew else 0,
                         name = user.name,
                         message = user.status,
                         otherUserId = user.uid,
@@ -162,7 +162,7 @@ class ChatFragment : Fragment() {
                     
                     // 用 Chats 数据类展示群聊，otherUserId 用 groupId 并加前缀区分
                     val chat = Chats(
-                        imageRes = R.drawable.addcontacticon,
+                        imageRes = R.drawable.groupiconnew,
                         name = groupName,
                         message = "Group Chat",
                         otherUserId = groupId,

@@ -31,8 +31,8 @@ class DealsAdapter(
 
                 Glide.with(itemView.context)
                     .load(deal.imageUrl)
-                    .placeholder(R.drawable.default_avatar)
-                    .error(R.drawable.default_avatar)
+                    .placeholder(R.drawable.profilenew)
+                    .error(R.drawable.profilenew)
                     .into(ivDealImage)
 
                 updateFavoriteIcon(deal.isFavorite)

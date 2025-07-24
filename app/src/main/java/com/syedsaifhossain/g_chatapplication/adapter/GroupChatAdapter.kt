@@ -40,7 +40,7 @@ class GroupChatAdapter(
             avatar.layoutParams = LinearLayout.LayoutParams(32, 32).apply {
                 rightMargin = 8
             }
-            avatar.setImageResource(R.drawable.default_avatar)
+            avatar.setImageResource(R.drawable.groupiconnew)
             holder.membersLayout.addView(avatar)
         }
         holder.itemView.setOnClickListener { onItemClick(group) }

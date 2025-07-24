@@ -30,7 +30,7 @@ class ChatAdapter(
 
         fun bind(chat: Chats) {
             if (chat.isGroup) {
-                binding.chatsImg.setImageResource(R.drawable.addcontacticon)
+                binding.chatsImg.setImageResource(R.drawable.groupiconnew)
                 binding.nameId.text = chat.name
             } else {
                 // 实时从users节点获取头像和名字
@@ -46,23 +46,23 @@ class ChatAdapter(
                             if (avatarUrl.isNotEmpty()) {
                                 Glide.with(binding.chatsImg.context)
                                     .load(avatarUrl)
-                                    .placeholder(R.drawable.default_avatar)
-                                    .error(R.drawable.default_avatar)
+                                    .placeholder(R.drawable.profilenew)
+                                    .error(R.drawable.profilenew)
                                     .centerCrop()
                                     .into(binding.chatsImg)
                             } else {
-                                binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                                binding.chatsImg.setImageResource(R.drawable.profilenew)
                             }
                         } else {
                             // 如果用户不存在，使用默认数据
                             binding.nameId.text = chat.name
-                            binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                            binding.chatsImg.setImageResource(R.drawable.profilenew)
                         }
                     }
                     .addOnFailureListener { e ->
                         // 如果查询失败，使用默认数据
                         binding.nameId.text = chat.name
-                        binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                        binding.chatsImg.setImageResource(R.drawable.profilenew)
                     }
             }
 

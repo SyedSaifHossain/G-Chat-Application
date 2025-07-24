@@ -17,7 +17,7 @@ class GroupAdapter(private val groupList: ArrayList<GroupItem>, private val item
         // Bind the data to the views
         fun bind(groupItem: GroupItem) {
             // Set image resource for ImageView
-            binding.selectgroupChatsImg.setImageResource(com.syedsaifhossain.g_chatapplication.R.drawable.addcontacticon)
+            binding.selectgroupChatsImg.setImageResource(com.syedsaifhossain.g_chatapplication.R.drawable.groupiconnew)
 
             // Set title text for TextView
             binding.selectgroupTitle.text = groupItem.title
