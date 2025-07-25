@@ -34,6 +34,7 @@ tools:context=".MomentPageFragment">
             android:layout_alignParentEnd="true">
 
             <ImageView
+                android:id="@+id/bannerImageView"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:scaleType="centerCrop"

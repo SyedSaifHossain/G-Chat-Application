@@ -163,7 +163,7 @@ class CreateMomentFragment : Fragment() {
         val momentData = hashMapOf(
             "id" to momentId,
             "userId" to userId,
-            "text" to momentText,
+            "momentText" to momentText,
             "imageUrl" to imageUrl,
             "timestamp" to Date(),
             "day" to SimpleDateFormat("dd", Locale.getDefault()).format(Date()),

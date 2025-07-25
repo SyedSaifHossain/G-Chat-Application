@@ -54,11 +54,13 @@ class VoiceCallFragment : Fragment() {
     private val REQUIRED_PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         arrayOf(
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.BLUETOOTH_CONNECT
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.MODIFY_AUDIO_SETTINGS
         )
     } else {
         arrayOf(
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.MODIFY_AUDIO_SETTINGS
         )
     }
 
@@ -81,9 +83,12 @@ class VoiceCallFragment : Fragment() {
             if (isAdded && activity != null) {
                 activity?.runOnUiThread {
                     if (isAdded && context != null) {
+                        Log.d("AgoraVoice", "Remote user joined: $uid - Audio should now be active")
                         context?.let { ctx ->
                             Toast.makeText(ctx, "Remote user joined: $uid", Toast.LENGTH_SHORT).show()
                         }
+                        // 再次检查音频状态
+                        checkAudioStatus()
                     }
                 }
             }
@@ -109,18 +114,30 @@ class VoiceCallFragment : Fragment() {
                 activity?.runOnUiThread {
                     if (isAdded && context != null) {
                         Log.d("AgoraVoice", "Joined channel successfully: $channel, uid: $uid")
-                        // 强制初始化音频状态
+                        // 强制初始化音频状态 (simplified like video call)
                         try {
+                            // 确保麦克风未静音
                             agoraEngine?.muteLocalAudioStream(false)
                             Log.d("AgoraVoice", "Called muteLocalAudioStream(false)")
-                            agoraEngine?.setEnableSpeakerphone(true)
-                            Log.d("AgoraVoice", "Called setEnableSpeakerphone(true)")
+                            
+                            // 添加更多音频调试信息
+                            Log.d("AgoraVoice", "Audio initialization completed")
+                            Log.d("AgoraVoice", "Current speaker state: $isSpeakerOn")
+                            Log.d("AgoraVoice", "Current mic state: ${!isMicMuted}")
+                            
                         } catch (e: Exception) {
                             Log.e("AgoraVoice", "Error initializing audio state: ${e.message}")
                         }
                         context?.let { ctx ->
                             Toast.makeText(ctx, "Joined channel: $channel", Toast.LENGTH_SHORT).show()
                         }
+                        
+                        // 检查音频状态
+                        checkAudioStatus()
+                        
+                        // 测试音频输出
+                        testAudioOutput()
+                        
                         startCallTimer()
                     }
                 }
@@ -171,8 +188,29 @@ class VoiceCallFragment : Fragment() {
             }
         }
         override fun onConnectionStateChanged(state: Int, reason: Int) {
-            Log.d("AgoraVoice", "onConnectionStateChanged: state=$state, reason=$reason, callId=$callId")
+            val stateText = when(state) {
+                0 -> "DISCONNECTED"
+                1 -> "CONNECTING"
+                2 -> "CONNECTED"
+                3 -> "RECONNECTING"
+                4 -> "ABORTED"
+                else -> "UNKNOWN"
+            }
+            val reasonText = when(reason) {
+                0 -> "LOGIN"
+                1 -> "LOGIN_SUCCESS"
+                2 -> "LOGIN_FAILURE"
+                3 -> "LOGIN_TIMEOUT"
+                4 -> "INTERRUPTED"
+                5 -> "LOGOUT"
+                6 -> "BANNED_BY_SERVER"
+                7 -> "REMOTE_LOGIN"
+                else -> "UNKNOWN"
+            }
+            Log.d("AgoraVoice", "Connection state changed: $stateText ($state), reason: $reasonText ($reason), callId=$callId")
         }
+        
+
     }
 
     private var waitingDialog: AlertDialog? = null
@@ -423,14 +461,18 @@ class VoiceCallFragment : Fragment() {
                                     config.mAppId = APP_ID
                                     config.mContext = context?.applicationContext
                                     config.mEventHandler = mRtcEventHandler
+                                    config.mChannelProfile = Constants.CHANNEL_PROFILE_COMMUNICATION
                                     
                                     try {
                                         agoraEngine = RtcEngine.create(config)
                                         Log.d("VoiceCallDebug", "Agora engine created successfully")
                                         
-                                        // Enable audio
+                                        // Enable audio with enhanced settings (same as video call)
                                         agoraEngine?.enableAudio()
-                                        Log.d("VoiceCallDebug", "Audio enabled")
+                                        agoraEngine?.setEnableSpeakerphone(isSpeakerOn)
+                                        Log.d("VoiceCallDebug", "Audio enabled and speakerphone set to: $isSpeakerOn")
+                                        
+
                                         
                                         // Join channel
                                         Log.d("VoiceCallDebug", "Joining channel: $channelName, uid: $agoraUid, token: ${token.take(20)}...")
@@ -493,6 +535,43 @@ class VoiceCallFragment : Fragment() {
             } else {
                 it.setImageResource(R.drawable.speakeron)
             }
+        }
+    }
+    
+    // 添加音频状态检查方法
+    private fun checkAudioStatus() {
+        try {
+            // 简化音频状态检查，只检查基本状态
+            Log.d("AudioDebug", "Audio Status - Engine: ${agoraEngine != null}, Speaker: $isSpeakerOn, Mic: ${!isMicMuted}")
+            
+            context?.let { ctx ->
+                Toast.makeText(ctx, "Audio Engine: ${if (agoraEngine != null) "ON" else "OFF"}, Speaker: ${if (isSpeakerOn) "ON" else "OFF"}, Mic: ${if (!isMicMuted) "ON" else "MUTED"}", Toast.LENGTH_LONG).show()
+            }
+        } catch (e: Exception) {
+            Log.e("AudioDebug", "Error checking audio status: ${e.message}")
+        }
+    }
+    
+    // 添加音频输出测试方法
+    private fun testAudioOutput() {
+        try {
+            // 使用系统音频管理器播放一个简短的提示音
+            val audioManager = context?.getSystemService(android.content.Context.AUDIO_SERVICE) as? android.media.AudioManager
+            audioManager?.let { am ->
+                val volume = am.getStreamVolume(android.media.AudioManager.STREAM_VOICE_CALL)
+                Log.d("AudioDebug", "Voice call stream volume: $volume")
+                
+                // 播放一个简短的提示音来测试音频输出
+                val toneGenerator = android.media.ToneGenerator(android.media.AudioManager.STREAM_VOICE_CALL, 100)
+                toneGenerator.startTone(android.media.ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200)
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    toneGenerator.release()
+                }, 300)
+                
+                Log.d("AudioDebug", "Audio test tone played")
+            }
+        } catch (e: Exception) {
+            Log.e("AudioDebug", "Error testing audio output: ${e.message}")
         }
     }
 

@@ -17,7 +17,17 @@ class MomentAdapter(private val momentList: List<Moment>) :
         fun bind(moment: Moment) {
             binding.momentday.text = moment.day
             binding.momentMonth.text = moment.month
-            binding.momentTxt.text = moment.momentText
+            
+            // 显示文字内容
+            android.util.Log.d("MomentAdapter", "Binding moment: text='${moment.momentText}', isEmpty=${moment.momentText.isEmpty()}")
+            if (moment.momentText.isNotEmpty()) {
+                binding.momentTxt.text = moment.momentText
+                binding.momentTxt.visibility = android.view.View.VISIBLE
+                android.util.Log.d("MomentAdapter", "Text set to: '${moment.momentText}', visibility: VISIBLE")
+            } else {
+                binding.momentTxt.visibility = android.view.View.GONE
+                android.util.Log.d("MomentAdapter", "Text is empty, visibility: GONE")
+            }
             
             // 加载图片
             if (moment.imageUrl != null && moment.imageUrl.isNotEmpty()) {
@@ -26,10 +36,12 @@ class MomentAdapter(private val momentList: List<Moment>) :
 
                     .placeholder(R.drawable.profilenew)
                     .into(binding.momentImg)
+                binding.momentImg.visibility = android.view.View.VISIBLE
             } else if (moment.imageResId != 0) {
                 binding.momentImg.setImageResource(moment.imageResId)
+                binding.momentImg.visibility = android.view.View.VISIBLE
             } else {
-                binding.momentImg.setImageResource(R.drawable.profilenew)
+                binding.momentImg.visibility = android.view.View.GONE
             }
         }
     }
