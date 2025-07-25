@@ -6,68 +6,73 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
-import androidx.navigation.fragment.findNavController
 import com.syedsaifhossain.g_chatapplication.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!! // Use non-null assertion
+    private val binding get() = _binding!!
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("SuspiciousIndentation")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View { // Return non-nullable View
-        // Inflate the layout using ViewBinding
+    ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+
+        // 🔧 Disable ripple & active indicator (if your material version supports it)
+        binding.bottomNavigation.apply {
+            // removes ripple entirely
+            itemRippleColor = null
+
+            // Material 1.8.0+ only
+            try {
+                // removes the rounded “pill” selection indicator
+                isItemActiveIndicatorEnabled = false
+            } catch (_: Throwable) {
+                // you're probably on an older material version – use the styles solution below
+            }
+        }
 
         // Initial fragment
         replaceFragment(ChatFragment())
 
-        // Set up BottomNavigationView to handle fragment replacement
-        binding.bottomNavigation.setOnItemSelectedListener { item -> // Use setOnItemSelectedListener
+        // Bottom nav listener
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                // Use the correct IDs from bottom_navigation.xml
                 R.id.nav_chats -> {
-                    replaceFragment(ChatFragment()) // Replace with ChatFragment
+                    replaceFragment(ChatFragment())
                     true
                 }
                 R.id.nav_contacts -> {
-                    replaceFragment(ContactFragment()) // Replace with ContactFragment
+                    replaceFragment(ContactFragment())
                     true
                 }
                 R.id.nav_discover -> {
-                    replaceFragment(DiscoverPageFragment()) // Replace with DiscoverFragment
+                    replaceFragment(DiscoverPageFragment())
                     true
                 }
                 R.id.nav_me -> {
-                    replaceFragment(MePageFragment()) // Replace with MeFragment
+                    replaceFragment(MePageFragment())
                     true
                 }
                 else -> false
             }
         }
 
-        // Return the root view for the Fragment
         return binding.root
     }
 
-    // Method to replace the fragment inside the FrameLayout container
     private fun replaceFragment(fragment: Fragment) {
-        // Use childFragmentManager if FrameLayout is inside HomeFragment's layout
-        // Use parentFragmentManager if FrameLayout is in the Activity's layout
-        val transaction: FragmentTransaction = childFragmentManager.beginTransaction() // Check if this is correct
-        transaction.replace(R.id.nav_host_fragment, fragment) // Ensure frame_layout is the correct ID
+        val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
+        transaction.replace(R.id.nav_host_fragment, fragment)
         transaction.commit()
     }
 
-    // Add onDestroyView to clean up binding
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -79,7 +84,8 @@ class HomeFragment : Fragment() {
         if (currentFragment is ChatFragment ||
             currentFragment is ContactFragment ||
             currentFragment is DiscoverPageFragment ||
-            currentFragment is MePageFragment) {
+            currentFragment is MePageFragment
+        ) {
             binding.bottomNavigation.visibility = View.VISIBLE
         }
     }
