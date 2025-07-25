@@ -33,7 +33,8 @@ class MomentAdapter(private val momentList: List<Moment>) :
             if (moment.imageUrl != null && moment.imageUrl.isNotEmpty()) {
                 Glide.with(binding.root.context)
                     .load(moment.imageUrl)
-                    .placeholder(R.drawable.default_image)
+
+                    .placeholder(R.drawable.profilenew)
                     .into(binding.momentImg)
                 binding.momentImg.visibility = android.view.View.VISIBLE
             } else if (moment.imageResId != 0) {

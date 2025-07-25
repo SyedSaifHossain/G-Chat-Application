@@ -75,7 +75,7 @@ class ContactAdapter(
                 holder.groupName.text = contact.name
                 when (contact.type) {
                     Contact.TYPE_NEW_FRIENDS -> holder.groupIcon.setImageResource(R.drawable.addcontact)
-                    Contact.TYPE_GROUP_CHATS -> holder.groupIcon.setImageResource(R.drawable.addcontacticon)
+                    Contact.TYPE_GROUP_CHATS -> holder.groupIcon.setImageResource(R.drawable.groupiconnew)
                 }
                 holder.itemView.setOnClickListener { onItemClick(contact) }
             }
@@ -95,19 +95,19 @@ class ContactAdapter(
                             holder.contactName.text = name
                             Glide.with(holder.itemView.context)
                                 .load(avatarUrl)
-                                .placeholder(R.drawable.default_avatar)
+                                .placeholder(R.drawable.profilenew)
                                 .transform(RoundedCorners(dpToPx(16, holder.itemView)))
                                 .into(holder.contactImg)
                         } else {
                             // 如果用户不存在，使用默认数据
                             holder.contactName.text = contact.name
-                            holder.contactImg.setImageResource(R.drawable.default_avatar)
+                            holder.contactImg.setImageResource(R.drawable.profilenew)
                         }
                     }
                     .addOnFailureListener { e ->
                         // 如果查询失败，使用默认数据
                         holder.contactName.text = contact.name
-                        holder.contactImg.setImageResource(R.drawable.default_avatar)
+                        holder.contactImg.setImageResource(R.drawable.profilenew)
                     }
                 holder.itemView.setOnClickListener { onItemClick(contact) }
             }

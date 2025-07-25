@@ -8,8 +8,9 @@ import com.syedsaifhossain.g_chatapplication.models.Chats
 import com.bumptech.glide.Glide
 import com.syedsaifhossain.g_chatapplication.R
 import com.google.firebase.firestore.FirebaseFirestore
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import android.util.TypedValue
+import android.view.MotionEvent
+import android.view.View
 
 class ChatAdapter(
     private val messageList: ArrayList<Chats>,
@@ -24,12 +25,12 @@ class ChatAdapter(
         ).toInt()
     }
 
-    inner class ChatViewHolder(private val binding: ChatItemListBinding) :
+    inner class ChatViewHolder(val binding: ChatItemListBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(chat: Chats) {
             if (chat.isGroup) {
-                binding.chatsImg.setImageResource(R.drawable.addcontacticon)
+                binding.chatsImg.setImageResource(R.drawable.groupiconnew)
                 binding.nameId.text = chat.name
             } else {
                 // 实时从users节点获取头像和名字
@@ -45,23 +46,23 @@ class ChatAdapter(
                             if (avatarUrl.isNotEmpty()) {
                                 Glide.with(binding.chatsImg.context)
                                     .load(avatarUrl)
-                                    .placeholder(R.drawable.default_avatar)
-                                    .error(R.drawable.default_avatar)
+                                    .placeholder(R.drawable.profilenew)
+                                    .error(R.drawable.profilenew)
                                     .centerCrop()
                                     .into(binding.chatsImg)
                             } else {
-                                binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                                binding.chatsImg.setImageResource(R.drawable.profilenew)
                             }
                         } else {
                             // 如果用户不存在，使用默认数据
                             binding.nameId.text = chat.name
-                            binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                            binding.chatsImg.setImageResource(R.drawable.profilenew)
                         }
                     }
                     .addOnFailureListener { e ->
                         // 如果查询失败，使用默认数据
                         binding.nameId.text = chat.name
-                        binding.chatsImg.setImageResource(R.drawable.default_avatar)
+                        binding.chatsImg.setImageResource(R.drawable.profilenew)
                     }
             }
 
@@ -99,8 +100,64 @@ class ChatAdapter(
     }
 
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-        holder.bind(messageList[position])
+        val chat = messageList[position]
+        holder.bind(chat)
+
+        val chatItem = holder.binding.chatItemLayout
+        val deleteBtn = holder.binding.deleteButton
+
+        // Reset swipe state
+        chatItem.translationX = 0f
+
+        var downX = 0f
+        var isSwiped = false
+
+        holder.itemView.setOnTouchListener(object : View.OnTouchListener {
+            var startX = 0f
+            var startY = 0f
+
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.actionMasked) {
+                    MotionEvent.ACTION_DOWN -> {
+                        startX = event.x
+                        startY = event.y
+                        return false // Let other events process
+                    }
+
+                    MotionEvent.ACTION_MOVE -> {
+                        val diffX = event.x - startX
+                        val diffY = event.y - startY
+
+                        if (Math.abs(diffX) > Math.abs(diffY)) {
+                            if (diffX < -100 && !isSwiped) {
+                                chatItem.animate().translationX(-200f).setDuration(200).start()
+                                isSwiped = true
+                                return true
+                            } else if (diffX > 100 && isSwiped) {
+                                chatItem.animate().translationX(0f).setDuration(200).start()
+                                isSwiped = false
+                                return true
+                            }
+                        }
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+                        // Optional: add snap logic
+                    }
+                }
+                return false
+            }
+        })
+
+        deleteBtn.setOnClickListener {
+            onItemClick(chat)
+            chatItem.animate().translationX(0f).setDuration(200).start()
+            isSwiped = false
+        }
+
     }
+
+
 
     override fun getItemCount(): Int = messageList.size
 }

@@ -11,8 +11,7 @@
         android:id="@+id/groupIcon"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:src="@drawable/friendsicon"
-        app:tint="#81d8d0" />
+        android:src="@drawable/groupiconnew" />
 
     <TextView
         android:id="@+id/groupName"

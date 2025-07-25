@@ -99,7 +99,7 @@ class CreateMomentFragment : Fragment() {
                 
                 Glide.with(requireContext())
                     .load(imageUrl)
-                    .placeholder(R.drawable.default_avatar)
+                    .placeholder(R.drawable.profilenew)
                     .override(40, 40)
                     .into(binding.userAvatar)
             }
